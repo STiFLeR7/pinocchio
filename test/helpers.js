@@ -4,7 +4,8 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 
 let n = 0;
-const T0 = Date.parse('2026-10-19T10:00:00Z');
+// Transcript time starts an hour in the future so files the tests write are never 'changed this session' unless a test sets their mtime.
+const T0 = Date.now() + 3_600_000;
 const stamp = (ts) => new Date(ts ?? T0 + (++n) * 1000).toISOString();
 
 export function tmpdir() {
@@ -29,22 +30,22 @@ export function assistantText(text, ts) {
   return { type: 'assistant', timestamp: stamp(ts), message: { role: 'assistant', content: [{ type: 'text', text }] } };
 }
 
-function toolUse(name, input, ts) {
+export function toolUse(name, input, ts) {
   const id = `toolu_${++n}`;
   return [id, { type: 'assistant', timestamp: stamp(ts), message: { role: 'assistant', content: [{ type: 'tool_use', id, name, input }] } }];
 }
 
-function toolResult(id, { isError = false, text = '', stdout = null, stderr = '' } = {}) {
-  const o = { type: 'user', timestamp: stamp(), message: { role: 'user', content: [{ type: 'tool_result', tool_use_id: id, is_error: isError, content: text }] } };
+export function toolResult(id, { isError = false, text = '', stdout = null, stderr = '', ts } = {}) {
+  const o = { type: 'user', timestamp: stamp(ts), message: { role: 'user', content: [{ type: 'tool_result', tool_use_id: id, is_error: isError, content: text }] } };
   if (stdout !== null) o.toolUseResult = { stdout, stderr, interrupted: false };
   return o;
 }
 
-export function bash(cmd, { exit = 0, stdout = '', ts } = {}) {
+export function bash(cmd, { exit = 0, stdout = '', ts, resultTs } = {}) {
   const [id, use] = toolUse('Bash', { command: cmd }, ts);
   const res = exit === 0
-    ? toolResult(id, { stdout })
-    : toolResult(id, { isError: true, text: `Exit code ${exit}\n${stdout}` });
+    ? toolResult(id, { stdout, ts: resultTs })
+    : toolResult(id, { isError: true, text: `Exit code ${exit}\n${stdout}`, ts: resultTs });
   return [use, res];
 }
 

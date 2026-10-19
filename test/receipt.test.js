@@ -40,3 +40,39 @@ test('reason quotes the failed evidence', () => {
   assert.match(r, /stale-tests: "tests pass": no test run after last edit/);
   assert.doesNotMatch(r, /phantom-edit/);
 });
+
+const base = { claims, sessionLies: 0, blocked: false, blocksInSession: 0, maxBlocks: 2, limitReached: false, ledgerHash: HASH, notes: [] };
+
+test('receipt orders results itself: a fail passed last still shows, within 6 lines', () => {
+  const p = (i) => ({ ...pass, id: `p${i}` });
+  const r = formatReceipt({ ...base, verdict: 'fail', results: [p(1), p(2), p(3), p(4), p(5), fail] });
+  assert.match(r, /✗ stale-tests/);
+  assert.ok(r.split('\n').length <= 6);
+});
+
+test('receipt collapses newlines and truncates long summaries and notes', () => {
+  const nl = { ...fail, summary: 'line one\nline two\n\nline three' };
+  const long = { ...pass, summary: 'y'.repeat(300) };
+  const r = formatReceipt({ ...base, verdict: 'fail', results: [nl, long, nl, nl], notes: ['n\no' + 'z'.repeat(300)] });
+  const lines = r.split('\n');
+  assert.ok(lines.length <= 6);
+  assert.match(r, /line one line two line three/);
+  assert.ok(lines.every((l) => l.length <= 160 + 4), lines.map((l) => l.length).join());
+  assert.match(r, /y…/);
+});
+
+test("cant_tell head and blocked tail", () => {
+  const r = formatReceipt({ ...base, verdict: 'cant_tell', results: [unk], blocked: true, blocksInSession: 1 });
+  assert.equal(r.split('\n')[0], "🤥 Pinocchio · CAN'T TELL");
+  assert.match(r, /blocked 1\/2/);
+});
+
+test('reason lists unknown checks when nothing failed, with a check-specific hint', () => {
+  const r = formatReason([unk, pass]);
+  assert.match(r, /could not verify: stale-tests: no recognized test command/);
+  assert.match(r, /run the tests/);
+  assert.doesNotMatch(r, /\. \./);
+  const ph = formatReason([{ id: 'phantom-edit', status: 'fail', blocking: true, summary: 'claimed changes to a.js but git shows no change', evidence: {} }]);
+  assert.match(ph, /make the change or correct the claim/);
+  assert.doesNotMatch(ph, /run the tests/);
+});

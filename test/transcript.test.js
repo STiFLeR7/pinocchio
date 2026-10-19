@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { parseTranscript } from '../src/transcript.js';
-import { jsonl, bash, edit, denied, assistantText } from './helpers.js';
+import { jsonl, bash, edit, denied, assistantText, toolUse, toolResult } from './helpers.js';
 
 test('parses edits and bash results in order', () => {
   const t = jsonl(edit('/repo/src/a.js'), bash('npm test', { stdout: '5 passing' }), assistantText('All tests pass.'));
@@ -50,4 +50,19 @@ test('tool_result content as array of text blocks', () => {
 test('startTs is the first timestamp', () => {
   const { startTs } = parseTranscript(jsonl(assistantText('hi', Date.parse('2026-10-19T09:00:00Z'))));
   assert.equal(startTs, Date.parse('2026-10-19T09:00:00Z'));
+});
+
+test('bash events carry the tool_result timestamp as resultTs', () => {
+  const { events } = parseTranscript(jsonl(bash('npm test', { ts: 1_000_000, resultTs: 1_005_000 })));
+  assert.equal(events[0].ts, 1_000_000);
+  assert.equal(events[0].resultTs, 1_005_000);
+});
+
+test('Task and Agent tool uses become subagent events, with or without a result', () => {
+  const [id, use] = toolUse('Task', { prompt: 'run tests' }, 2_000_000);
+  const res = toolResult(id, { text: 'done', ts: 2_009_000 });
+  const [, open] = toolUse('Agent', { prompt: 'x' }, 2_010_000);
+  const { events } = parseTranscript(jsonl(use, res, open));
+  assert.deepEqual(events.map((e) => [e.kind, e.ts]), [['subagent', 2_009_000], ['subagent', 2_010_000]]);
+  assert.equal(events[0].line, 1);
 });

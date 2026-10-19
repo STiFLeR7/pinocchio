@@ -1,5 +1,7 @@
 const EDIT_TOOLS = { Edit: 'file_path', Write: 'file_path', MultiEdit: 'file_path', NotebookEdit: 'notebook_path' };
 
+const SUBAGENT_TOOLS = new Set(['Task', 'Agent']);
+
 function textOf(content) {
   if (typeof content === 'string') return content;
   if (Array.isArray(content)) return content.filter((b) => b && b.type === 'text' && typeof b.text === 'string').map((b) => b.text).join('\n');
@@ -44,12 +46,14 @@ export function parseTranscript(text) {
           if (b.is_error) {
             const m = /^Exit code (\d+)/.exec(body);
             if (!m) continue; // denied / rejected: the command never ran
-            events.push({ kind: 'bash', cmd, failed: true, exitCode: Number(m[1]), output: body, line: use.line, ts: use.ts });
+            events.push({ kind: 'bash', cmd, failed: true, exitCode: Number(m[1]), output: body, line: use.line, ts: use.ts, resultTs: ts });
           } else {
             const r = o.toolUseResult;
             const output = r && typeof r === 'object' ? `${r.stdout ?? ''}\n${r.stderr ?? ''}` : body;
-            events.push({ kind: 'bash', cmd, failed: false, exitCode: 0, output, line: use.line, ts: use.ts });
+            events.push({ kind: 'bash', cmd, failed: false, exitCode: 0, output, line: use.line, ts: use.ts, resultTs: ts });
           }
+        } else if (SUBAGENT_TOOLS.has(use.name)) {
+          events.push({ kind: 'subagent', line: use.line, ts: Number.isFinite(ts) ? ts : use.ts });
         } else if (EDIT_TOOLS[use.name] && !b.is_error) {
           const file = use.input[EDIT_TOOLS[use.name]];
           if (typeof file === 'string') events.push({ kind: 'edit', file, line: use.line, ts: use.ts });
@@ -57,6 +61,8 @@ export function parseTranscript(text) {
       }
     }
   }
+  // A subagent still running (no result yet) may already have run tests.
+  for (const use of pending.values()) if (SUBAGENT_TOOLS.has(use.name)) events.push({ kind: 'subagent', line: use.line, ts: use.ts });
   events.sort((a, b) => a.line - b.line);
   return { events, lastAssistantText, startTs };
 }

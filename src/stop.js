@@ -12,11 +12,29 @@ import { staleTests } from './checks/stale-tests.js';
 import { redTests } from './checks/red-tests.js';
 import { phantomEdit } from './checks/phantom-edit.js';
 import { tampering } from './checks/tampering.js';
+import { isDoc } from './checks/util.js';
 import { decide, orderResults } from './verdict.js';
 import { formatReceipt, formatReason } from './receipt.js';
 import { appendEntry, sessionStats } from './ledger.js';
 
 const CHECKS = [staleTests, redTests, phantomEdit, tampering];
+const HASH_CAP = 5 * 1024 * 1024;
+const STAT_CAP = 1000; // ponytail: stat at most 1000 changed paths; a huge dirty tree may hide a Bash edit past the cap
+
+// Regular files among git's changed paths, with their stats (dirs, symlinks and deleted paths are skipped).
+function statChanged(root, changed) {
+  const out = {};
+  for (const p of Object.keys(changed).slice(0, STAT_CAP)) {
+    const abs = confine(root, p);
+    try {
+      const st = abs && fs.lstatSync(abs);
+      if (st && st.isFile()) out[p] = st;
+    } catch {
+      /* deleted */
+    }
+  }
+  return out;
+}
 
 function skipped(cwd, session, reason) {
   appendEntry(cwd, { ts: new Date().toISOString(), session, verdict: 'error', mode: 'default', blocked: false, blocks_in_session: 0, claims: [], checks: [], git: { head: null, changed: {} }, error: reason });
@@ -28,25 +46,34 @@ export function run(input, { env = process.env, findJUnit = findFreshJUnit, git 
   const cwd = typeof input?.cwd === 'string' ? input.cwd : process.cwd();
   const session = String(input?.session_id ?? 'unknown');
   if (env.PINOCCHIO === 'off') return null;
-  const config = loadConfig(cwd);
+  const gs = git.readGitState(cwd);
+  const root = gs.isRepo ? gs.root : cwd;
+  // Config and ledger belong to the project, not to whatever subfolder the session is in.
+  const base = env.CLAUDE_PROJECT_DIR || root;
+  const config = loadConfig(base);
   if (config.mode === 'off') return null;
 
   let text;
   try {
     text = fs.readFileSync(input.transcript_path, 'utf8');
   } catch {
-    return skipped(cwd, session, 'transcript unreadable');
+    return skipped(base, session, 'transcript unreadable');
   }
   const { events, lastAssistantText, startTs } = parseTranscript(text);
   const message = typeof input.last_assistant_message === 'string' ? input.last_assistant_message : (lastAssistantText ?? '');
   const claims = matchClaims(message, config);
-  if (!events.some((e) => e.kind === 'edit') && !claims.length) return null;
+  const files = statChanged(root, gs.changed);
+  // Files git reports changed and written since the session began: edits made through Bash (spec §4).
+  const gitEdits = Object.entries(files)
+    .filter(([p, st]) => st.mtimeMs >= startTs && !isDoc(p))
+    .map(([file, st]) => ({ file, mtimeMs: st.mtimeMs }))
+    .sort((a, b) => a.mtimeMs - b.mtimeMs);
+  if (!events.some((e) => e.kind === 'edit') && !claims.length && !gitEdits.length) return null;
 
-  const gs = git.readGitState(cwd);
-  const root = gs.isRepo ? gs.root : cwd;
   const committed = gs.isRepo && Number.isFinite(startTs) ? git.committedSince(cwd, startTs) : [];
   const ctx = {
-    events, claims, config, cwd, root,
+    events, claims, config, cwd, root, message, gitEdits,
+    gitEditMs: gitEdits.length ? gitEdits[gitEdits.length - 1].mtimeMs : -Infinity,
     git: { ...gs, committed },
     hasTestSetup: repoHasTestSetup(root, config),
     findJUnit: (since) => findJUnit(root, since),
@@ -55,15 +82,14 @@ export function run(input, { env = process.env, findJUnit = findFreshJUnit, git 
   const results = orderResults(CHECKS.map((check) => check(ctx)));
   const verdict = decide(results, claims);
 
-  const stats = sessionStats(cwd, session);
+  const stats = sessionStats(base, session);
   const wantBlock = (verdict === 'fail' && config.mode !== 'report') || (verdict === 'cant_tell' && config.mode === 'strict');
   const limitReached = wantBlock && stats.blocks >= config.maxBlocksPerSession;
   let blocked = wantBlock && !limitReached;
 
   const changed = {};
-  for (const p of Object.keys(gs.changed).slice(0, 50)) {
-    const abs = confine(root, p);
-    const h = abs && git.hashFile(abs);
+  for (const [p, st] of Object.entries(files).slice(0, 50)) {
+    const h = st.size > HASH_CAP ? 'size>cap' : git.hashFile(confine(root, p));
     if (h) changed[p] = h;
   }
   // The ledger is the only block counter: if it cannot be written, blocking could loop forever.
@@ -78,7 +104,7 @@ export function run(input, { env = process.env, findJUnit = findFreshJUnit, git 
     }),
     git: { head: gs.head, changed },
   });
-  const ledger = appendEntry(cwd, entry(blocked), { commitLedger: config.commitLedger });
+  const ledger = appendEntry(base, entry(blocked), { commitLedger: config.commitLedger });
   const notes = [...(config.notes ?? [])];
   if (blocked && !ledger) {
     blocked = false;

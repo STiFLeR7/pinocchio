@@ -111,8 +111,8 @@ test('phantom-edit: pass via a commit made during the session', () => {
   const r = phantomEdit(ctx({ claims: [{ type: 'file', text: 'x', file: 'c.js' }], git: { isRepo: true, root, head: 'a', changed: {}, committed: ['c.js'] } }));
   assert.equal(r.status, 'pass');
 });
-test('phantom-edit: fixed claim with zero changes fails', () => {
-  assert.equal(phantomEdit(ctx({ claims: FIXED })).status, 'fail');
+test('phantom-edit: fixed claim with zero changes is unknown (likely a read-only answer)', () => {
+  assert.equal(phantomEdit(ctx({ claims: FIXED })).status, 'unknown');
 });
 test('phantom-edit: path outside the project is unknown, never read', () => {
   assert.equal(phantomEdit(ctx({ claims: [{ type: 'file', text: 'x', file: '../../etc/passwd' }] })).status, 'unknown');
@@ -134,4 +134,13 @@ test('tampering: warns on deleted test file', () => {
 });
 test('tampering: silent when no test files changed', () => {
   assert.equal(tampering(ctx({ git: { isRepo: true, root, head: 'a', changed: { 'src/a.js': 'M' }, committed: [] } })), null);
+});
+test('stale-tests: unknown, not fail, when the session had no edits', () => {
+  assert.equal(staleTests(ctx({ claims: TESTS, events: [] })).status, 'unknown');
+});
+test('stale-tests: a git edit newer than the run result makes the run stale', () => {
+  const run = { ...sh('npm test', { ts: 2000 }), resultTs: 3000 };
+  const gitEdits = (ms) => ({ gitEdits: [{ file: 'b.js', mtimeMs: ms }], gitEditMs: ms });
+  assert.equal(staleTests(ctx({ claims: TESTS, events: [run], ...gitEdits(4000) })).status, 'fail');
+  assert.equal(staleTests(ctx({ claims: TESTS, events: [run], ...gitEdits(2500) })).status, 'pass');
 });

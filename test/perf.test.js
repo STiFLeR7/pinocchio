@@ -3,6 +3,9 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { run } from '../src/stop.js';
+
+// run() reads CLAUDE_PROJECT_DIR; a value inherited from the shell would redirect ledgers out of the temp repos.
+delete process.env.CLAUDE_PROJECT_DIR;
 import { tmpdir, initRepo, jsonl, bash, edit } from './helpers.js';
 
 test('5 MB transcript stays well under the 2 s budget', () => {

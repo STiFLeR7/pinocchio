@@ -38,7 +38,8 @@ export function phantomEdit(ctx) {
   }
   if (missing.length) return { id, status: 'fail', blocking: true, summary: `claimed changes to ${missing.join(', ')} but git shows no change`, evidence: { missing } };
   if (fixed && !fileClaims.length && edited.size === 0 && changed.size === 0) {
-    return { id, status: 'fail', blocking: true, summary: `"${fixed.text}" but no file changed this session`, evidence: { edits: 0, git_changed: 0 } };
+    // No edits and no git changes: likely a read-only answer, so CAN'T TELL rather than FAIL.
+    return { id, status: 'unknown', blocking: true, summary: `"${fixed.text}" but no file changed this session`, evidence: { edits: 0, git_changed: 0 } };
   }
   if (ambiguous.length) return { id, status: 'unknown', blocking: true, summary: `ambiguous claimed file: ${ambiguous.join(', ')}`, evidence: { ambiguous } };
   if (unlocated.length) return { id, status: 'unknown', blocking: true, summary: `cannot locate claimed file ${unlocated.join(', ')}`, evidence: { unlocated } };

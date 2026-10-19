@@ -5,6 +5,7 @@ export function norm(p) {
   return process.platform === 'win32' ? r.toLowerCase() : r;
 }
 
+// lexical only; does not resolve symlinks
 export function confine(root, p) {
   const abs = path.resolve(root, p);
   const r = path.relative(root, abs);

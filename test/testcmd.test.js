@@ -14,6 +14,12 @@ test('recognizes common runners, chains and env prefixes', () => {
   }
 });
 
+test('recognizes additional test runners and wrappers', () => {
+  for (const c of ['tox', 'nox -s tests', 'python -m unittest discover', 'python3 -m unittest', 'npm t', 'ctest', 'node --test', 'deno test', 'pnpm vitest', 'poetry run pytest', 'mvn verify', 'env CI=1 npm test', 'time npm test', 'FOO="a b" npm test', 'cd web && (npm test)']) {
+    assert.ok(isTestCommand(c, cfg), c);
+  }
+});
+
 test('does not treat unrelated commands as tests', () => {
   for (const c of ['npm install', 'git status', 'ls test/', 'cat tests.md']) assert.equal(isTestCommand(c, cfg), false, c);
 });
@@ -42,4 +48,10 @@ test('repoHasTestSetup detects ecosystems', () => {
   const py = tmpdir();
   fs.writeFileSync(path.join(py, 'pyproject.toml'), '[tool.pytest.ini_options]\n');
   assert.ok(repoHasTestSetup(py, cfg));
+  const tox = tmpdir();
+  fs.writeFileSync(path.join(tox, 'tox.ini'), '[tox]\n');
+  assert.ok(repoHasTestSetup(tox, cfg));
+  const setupcfg = tmpdir();
+  fs.writeFileSync(path.join(setupcfg, 'setup.cfg'), '[tool:pytest]\n');
+  assert.ok(repoHasTestSetup(setupcfg, cfg));
 });

@@ -35,3 +35,33 @@ test('empty or non-string input', () => {
   assert.deepEqual(matchClaims('', cfg), []);
   assert.deepEqual(matchClaims(undefined, cfg), []);
 });
+
+test('fixed-width is not a claim', () => {
+  assert.deepEqual(types('The fixed-width header looks right.'), []);
+});
+
+test('hedged claims are ignored', () => {
+  assert.deepEqual(types('This should be fixed by updating the config.'), []);
+});
+
+test('done is not in BUILTIN.fixed', () => {
+  assert.deepEqual(types("I'm done reading the code."), []);
+});
+
+test('negation in one clause does not affect other clauses', () => {
+  assert.deepEqual(types('All tests pass, nothing failed.'), ['tests']);
+});
+
+test('tests passing is detected', () => {
+  assert.deepEqual(types('42 tests passing.'), ['tests']);
+});
+
+test('file claims with multiple paths joined by and', () => {
+  const c = matchClaims('Updated `parseConfig()` and `src/a.js`.', cfg);
+  assert.deepEqual(c.filter((x) => x.type === 'file').map((x) => x.file), ['src/a.js']);
+});
+
+test('file claims both path-like files', () => {
+  const c = matchClaims('I updated `a.js` and `b.js`.', cfg);
+  assert.deepEqual(c.filter((x) => x.type === 'file').map((x) => x.file), ['a.js', 'b.js']);
+});

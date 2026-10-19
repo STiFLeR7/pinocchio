@@ -80,3 +80,22 @@ test('file claims stops at unchained backticks', () => {
   const c = matchClaims('I updated `a.js` and then ran `npm test`.', cfg);
   assert.deepEqual(c.filter((x) => x.type === 'file').map((x) => x.file), ['a.js']);
 });
+
+test('"nothing" negates and past/report references are not claims', () => {
+  assert.deepEqual(types('Nothing was fixed.'), []);
+  assert.deepEqual(types('Yes, it was fixed in PR #34 last week.'), []);
+  assert.deepEqual(types('That bug is already resolved upstream.'), []);
+  assert.deepEqual(types('It got fixed in #12.'), []);
+});
+
+test('code spans and quoted strings are not claim phrases', () => {
+  assert.deepEqual(types('Set `position: fixed` on the navbar.'), []);
+  assert.deepEqual(types('The log line says "all tests pass" on success.'), []);
+  assert.deepEqual(matchClaims('I fixed `src/a.js`.', cfg).map((c) => c.file ?? c.type), ['src/a.js', 'fixed']);
+});
+
+test('a tests claim followed by "except" is flagged', () => {
+  assert.equal(matchClaims('All tests pass except the flaky auth one.', cfg)[0].except, true);
+  assert.equal(matchClaims('All tests pass, except one.', cfg)[0].except, true);
+  assert.ok(!matchClaims('All tests pass.', cfg)[0].except);
+});

@@ -2,7 +2,9 @@ const BUILTIN = {
   fixed: ['fixed', 'resolved', 'works now', 'is working now'],
   tests: ['tests pass', 'tests passed', 'tests are passing', 'tests now pass', 'all tests pass', 'all tests passed', 'all green', 'suite passes', 'test suite passes', 'tests passing', 'all tests passing', 'tests are green', 'tests succeeded'],
 };
-const NEGATION = /(\bnot\b|n't\b|\bnever\b|\bunable\b|\bcannot\b|\byet to\b|\bfail(s|ed|ing)?\b)/i;
+const NEGATION = /(\bnot\b|n't\b|\bnever\b|\bnothing\b|\bunable\b|\bcannot\b|\byet to\b|\bfail(s|ed|ing)?\b)/i;
+// Past or reported work is not a claim about this session.
+const PAST = /\b(was|were|already|previously|upstream|last week|yesterday|in pr|in #\d+)\b/i;
 const HEDGE = /\b(should|would|could|might|may|need|needs|to be|if|once|when|whether|can be|will)\b/i;
 
 const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -44,17 +46,22 @@ export function matchClaims(text, config) {
     }
 
     // Split into clauses for tests/fixed matching
-    const clauses = s.split(/[,;:]|\s+but\s+|\s+—\s+/i);
+    // Code spans and quoted strings are content, not claims (file claims above still read them).
+    const bare = s.replace(/`[^`]*`/g, ' ').replace(/"[^"]*"|“[^”]*”/g, ' ');
+    const clauses = bare.split(/[,;:]|\s+but\s+|\s+—\s+/i);
     for (const clause of clauses) {
       const c = clause.trim();
-      if (!c || NEGATION.test(c) || HEDGE.test(c)) continue;
+      if (!c || NEGATION.test(c) || HEDGE.test(c) || PAST.test(c)) continue;
 
       for (const type of ['fixed', 'tests']) {
         if (seen.has(type)) continue;
         const p = phrases[type].find((ph) => hasPhrase(c, ph));
         if (p) {
           seen.add(type);
-          claims.push({ type, text: p });
+          const claim = { type, text: p };
+          // "All tests pass, except ..." admits failures; red-tests treats it as unverifiable.
+          if (type === 'tests' && /\bexcept\b/i.test(bare.slice(bare.toLowerCase().indexOf(p)))) claim.except = true;
+          claims.push(claim);
         }
       }
     }

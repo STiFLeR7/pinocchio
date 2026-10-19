@@ -10,11 +10,11 @@ export function redTests(ctx) {
   const fixed = ctx.claims.find((c) => c.type === 'fixed');
   if (!tests && !fixed) return null;
   const claim = tests ?? fixed;
-  const { lastEdit, after } = afterLastEdit(ctx.events);
+  const { lastEdit, after } = afterLastEdit(ctx.events, ctx.root);
   const runs = after.filter((e) => e.kind === 'bash' && isTestCommand(e.cmd, ctx.config));
   const last = runs[runs.length - 1] ?? null;
   const since = Math.max(lastEdit && Number.isFinite(lastEdit.ts) ? lastEdit.ts : 0, last && Number.isFinite(last.ts) ? last.ts : 0);
-  const badJ = ctx.findJUnit(since).find((j) => j.mtimeMs > since && j.result.failures + j.result.errors > 0) ?? null;
+  const badJ = since > 0 ? ctx.findJUnit(since).find((j) => j.mtimeMs > since && j.result.failures + j.result.errors > 0) ?? null : null;
   if (!last && !badJ) {
     if (!tests) return null;
     return { id, status: 'unknown', blocking: true, summary: 'no test run after last edit to read results from', evidence: {} };

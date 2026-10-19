@@ -7,7 +7,7 @@ const id = 'stale-tests';
 export function staleTests(ctx) {
   const claim = ctx.claims.find((c) => c.type === 'tests');
   if (!claim) return null;
-  const { lastEdit, after } = afterLastEdit(ctx.events);
+  const { lastEdit, after } = afterLastEdit(ctx.events, ctx.root);
   const bash = after.filter((e) => e.kind === 'bash');
   const lastEditRef = lastEdit ? { file: rel(ctx.root, lastEdit.file), line: lastEdit.line } : null;
   if (bash.some((e) => isTestCommand(e.cmd, ctx.config))) {

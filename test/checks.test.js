@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import path from 'node:path';
 import { staleTests } from '../src/checks/stale-tests.js';
 import { redTests } from '../src/checks/red-tests.js';
@@ -63,9 +64,39 @@ test('red-tests: fixed claim with no test run is not applicable', () => {
   assert.equal(redTests(ctx({ claims: FIXED, events: [ed('a.js')] })), null);
 });
 
-test('phantom-edit: fail when a claimed file has no change', () => {
-  const r = phantomEdit(ctx({ claims: [{ type: 'file', text: 'updated `src/b.js`', file: 'src/b.js' }], events: [ed('src/a.js')] }));
+test('phantom-edit: fail when a claimed file exists but has no change', () => {
+  const real = tmpdir();
+  fs.mkdirSync(path.join(real, 'src'));
+  fs.writeFileSync(path.join(real, 'src/b.js'), 'x');
+  const edit = { kind: 'edit', file: path.join(real, 'src/a.js'), line: 1, ts: 1000 };
+  const r = phantomEdit(ctx({ cwd: real, root: real, git: { isRepo: true, root: real, head: 'a', changed: {}, committed: [] }, claims: [{ type: 'file', text: 'updated `src/b.js`', file: 'src/b.js' }], events: [edit] }));
   assert.equal(r.status, 'fail');
+});
+test('phantom-edit: suffix match on an edited file', () => {
+  const r = phantomEdit(ctx({ claims: [{ type: 'file', text: 'x', file: 'paths.js' }], events: [ed('src/paths.js')] }));
+  assert.equal(r.status, 'pass');
+});
+test('phantom-edit: ambiguous suffix is unknown', () => {
+  const r = phantomEdit(ctx({ claims: [{ type: 'file', text: 'x', file: 'index.js' }], events: [ed('a/index.js'), ed('b/index.js')] }));
+  assert.equal(r.status, 'unknown');
+});
+test('phantom-edit: git-root-relative claim from a subdirectory cwd', () => {
+  const r = phantomEdit(ctx({ cwd: path.join(root, 'pkg'), claims: [{ type: 'file', text: 'x', file: 'pkg/lib.js' }], git: { isRepo: true, root, head: 'a', changed: { 'pkg/lib.js': 'M' }, committed: [] } }));
+  assert.equal(r.status, 'pass');
+});
+test('phantom-edit: claimed file that exists nowhere is unknown', () => {
+  const real = tmpdir();
+  const r = phantomEdit(ctx({ cwd: real, root: real, git: { isRepo: true, root: real, head: 'a', changed: {}, committed: [] }, claims: [{ type: 'file', text: 'x', file: 'nope.js' }] }));
+  assert.equal(r.status, 'unknown');
+});
+test('last edit ignores out-of-project and doc edits', () => {
+  const events = [ed('src/a.js'), sh('npm test'), { kind: 'edit', file: path.resolve(root, '..', 'elsewhere', 'x.md'), line: ++line, ts: 3000 }, ed('README.md', 3000)];
+  assert.equal(staleTests(ctx({ claims: TESTS, events })).status, 'pass');
+  assert.equal(redTests(ctx({ claims: TESTS, events })).status, 'pass');
+});
+test('red-tests: JUnit is not consulted without an edit or test run', () => {
+  const junit = [{ file: path.join(root, 'junit.xml'), mtimeMs: 5, result: { tests: 3, failures: 1, errors: 0, skipped: 0 } }];
+  assert.equal(redTests(ctx({ claims: FIXED, events: [], findJUnit: () => junit })), null);
 });
 test('phantom-edit: pass via edit event with absolute path (Review Focus 2)', () => {
   const r = phantomEdit(ctx({ claims: [{ type: 'file', text: 'x', file: 'src/a.js' }], events: [ed('src/a.js')] }));

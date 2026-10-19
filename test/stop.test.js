@@ -107,3 +107,25 @@ test('executable entry: real round trip prints hook JSON', () => {
   const out = execFileSync(process.execPath, [path.resolve('src/stop.js')], { input: JSON.stringify(input(dir, tp, 'All tests pass.')), encoding: 'utf8' });
   assert.equal(JSON.parse(out).decision, 'block');
 });
+
+test('unwritable ledger never blocks (block limit cannot be bypassed)', () => {
+  const dir = project();
+  fs.mkdirSync(path.join(dir, '.claude'), { recursive: true });
+  fs.writeFileSync(path.join(dir, '.claude', 'pinocchio'), 'a file, not a dir');
+  fs.writeFileSync(path.join(dir, 'a.js'), 'x');
+  const tp = transcript(dir, edit(path.join(dir, 'a.js')));
+  for (let i = 0; i < 4; i++) {
+    const out = run(input(dir, tp, 'All tests pass.'));
+    assert.equal(out.decision, undefined);
+    assert.match(out.systemMessage, /not blocking/);
+  }
+});
+
+test('ledger does not store the test command', () => {
+  const dir = project();
+  fs.writeFileSync(path.join(dir, 'a.js'), 'x');
+  const tp = transcript(dir, edit(path.join(dir, 'a.js')), bash('CI_TOKEN=abc npm test', { stdout: '3 passing' }));
+  const out = run(input(dir, tp, 'Fixed. All tests pass.'));
+  assert.match(out.systemMessage, /PASS/);
+  assert.ok(!JSON.stringify(readEntries(dir).at(-1)).includes('CI_TOKEN'));
+});

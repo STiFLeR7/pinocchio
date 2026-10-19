@@ -1,5 +1,6 @@
 import fs from 'node:fs';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
+import { Worker, isMainThread, parentPort, workerData } from 'node:worker_threads';
 import { loadConfig } from './config.js';
 import { parseTranscript } from './transcript.js';
 import { matchClaims } from './claims.js';
@@ -57,7 +58,7 @@ export function run(input, { env = process.env, findJUnit = findFreshJUnit, git 
   const stats = sessionStats(cwd, session);
   const wantBlock = (verdict === 'fail' && config.mode !== 'report') || (verdict === 'cant_tell' && config.mode === 'strict');
   const limitReached = wantBlock && stats.blocks >= config.maxBlocksPerSession;
-  const blocked = wantBlock && !limitReached;
+  let blocked = wantBlock && !limitReached;
 
   const changed = {};
   for (const p of Object.keys(gs.changed).slice(0, 50)) {
@@ -65,38 +66,68 @@ export function run(input, { env = process.env, findJUnit = findFreshJUnit, git 
     const h = abs && git.hashFile(abs);
     if (h) changed[p] = h;
   }
-  const blocksInSession = stats.blocks + (blocked ? 1 : 0);
-  const ledger = appendEntry(cwd, {
-    ts: new Date().toISOString(), session, verdict, mode: config.mode, blocked, blocks_in_session: blocksInSession,
+  // The ledger is the only block counter: if it cannot be written, blocking could loop forever.
+  const entry = (b) => ({
+    ts: new Date().toISOString(), session, verdict, mode: config.mode, blocked: b, blocks_in_session: stats.blocks + (b ? 1 : 0),
     elapsed_ms: Date.now() - t0,
     claims: claims.map((c) => ({ type: c.type, text: c.text, file: c.file })),
-    checks: results.map((r) => ({ id: r.id, status: r.status, evidence: r.evidence })),
+    checks: results.map((r) => {
+      const evidence = r.evidence === undefined ? undefined : JSON.parse(JSON.stringify(r.evidence));
+      if (evidence?.test_run) delete evidence.test_run.cmd; // commands may carry secrets
+      return { id: r.id, status: r.status, evidence };
+    }),
     git: { head: gs.head, changed },
-  }, { commitLedger: config.commitLedger });
+  });
+  const ledger = appendEntry(cwd, entry(blocked), { commitLedger: config.commitLedger });
+  const notes = [...(config.notes ?? [])];
+  if (blocked && !ledger) {
+    blocked = false;
+    notes.push('ledger unavailable, not blocking');
+  }
+  const blocksInSession = stats.blocks + (blocked ? 1 : 0);
 
   const systemMessage = formatReceipt({
     verdict, results, claims, sessionLies: stats.lies + (verdict === 'fail' ? 1 : 0), blocked, blocksInSession,
-    maxBlocks: config.maxBlocksPerSession, limitReached, ledgerHash: ledger?.hash ?? null, notes: config.notes,
+    maxBlocks: config.maxBlocksPerSession, limitReached, ledgerHash: ledger?.hash ?? null, notes,
   });
   return blocked ? { decision: 'block', reason: formatReason(results), systemMessage } : { systemMessage };
 }
 
-async function main() {
+function main() {
   const write = (o) => process.stdout.write(JSON.stringify(o));
-  const timer = setTimeout(() => {
-    write({ systemMessage: '🤥 Pinocchio · skipped (timeout)' });
+  const finish = (o) => {
+    if (o) write(o);
     process.exit(0);
-  }, 2000);
+  };
+  const skip = (why) => finish({ systemMessage: `🤥 Pinocchio · skipped (${String(why).slice(0, 80)})` });
+  const timer = setTimeout(() => skip('timeout'), 2000);
+  (async () => {
+    try {
+      const chunks = [];
+      for await (const c of process.stdin) chunks.push(c);
+      const input = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+      const w = new Worker(new URL(import.meta.url), { workerData: { input } });
+      w.on('message', (m) => (m?.error ? skip(m.error) : finish(m)));
+      w.on('error', (e) => skip(e?.message ?? e));
+    } catch (e) {
+      skip(e?.message ?? e);
+    }
+  })();
+}
+
+function isEntry() {
   try {
-    const chunks = [];
-    for await (const c of process.stdin) chunks.push(c);
-    const out = run(JSON.parse(Buffer.concat(chunks).toString('utf8')));
-    if (out) write(out);
-  } catch (e) {
-    write({ systemMessage: `🤥 Pinocchio · skipped (${String(e?.message ?? e).slice(0, 80)})` });
-  } finally {
-    clearTimeout(timer);
+    const norm = (p) => (process.platform === 'win32' ? p.toLowerCase() : p);
+    return norm(fs.realpathSync(process.argv[1])) === norm(fs.realpathSync(fileURLToPath(import.meta.url)));
+  } catch {
+    return false;
   }
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) main();
+if (!isMainThread) {
+  try {
+    parentPort.postMessage(run(workerData.input));
+  } catch (e) {
+    parentPort.postMessage({ error: String(e?.message ?? e) });
+  }
+} else if (isEntry()) main();

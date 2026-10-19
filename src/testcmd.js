@@ -17,12 +17,15 @@ function segments(cmd) {
     .split(/&&|\|\||;|\n|\|/)
     .map((s) => {
       let t = s.trim();
-      // Strip leading wrappers repeatedly
-      while (/^(env|time|sudo(-E)?|exec|command)\b/.test(t)) {
-        t = t.replace(/^(env|time|sudo(-E)?|exec|command)\s+/, '');
+      // Strip wrappers and parentheses until stable
+      let prev;
+      while (prev !== t) {
+        prev = t;
+        // Strip leading/trailing parentheses
+        t = t.replace(/^\(+|\)+$/g, '').trim();
+        // Strip leading wrappers
+        t = t.replace(/^(env|time|sudo( -E)?|exec|command)\s+/, '').trim();
       }
-      // Strip leading/trailing parentheses
-      t = t.replace(/^\(+|\)+$/g, '').trim();
       // Strip VAR=value pairs (including quoted values like FOO="a b")
       t = t.replace(/^(\w+=("[^"]*"|'[^']*'|\S*)\s+)+/, '');
       return t;

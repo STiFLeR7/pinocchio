@@ -15,7 +15,7 @@ test('recognizes common runners, chains and env prefixes', () => {
 });
 
 test('recognizes additional test runners and wrappers', () => {
-  for (const c of ['tox', 'nox -s tests', 'python -m unittest discover', 'python3 -m unittest', 'npm t', 'ctest', 'node --test', 'deno test', 'pnpm vitest', 'poetry run pytest', 'mvn verify', 'env CI=1 npm test', 'time npm test', 'FOO="a b" npm test', 'cd web && (npm test)']) {
+  for (const c of ['tox', 'nox -s tests', 'python -m unittest discover', 'python3 -m unittest', 'npm t', 'ctest', 'node --test', 'deno test', 'pnpm vitest', 'poetry run pytest', 'mvn verify', 'env CI=1 npm test', 'time npm test', 'FOO="a b" npm test', 'cd web && (npm test)', 'sudo -E npm test', 'sudo npm test', 'exec npm test', 'command npm test', '(time npm test)', '(env X=1 npm test)']) {
     assert.ok(isTestCommand(c, cfg), c);
   }
 });

@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const NAME = /^(junit.*|TEST-.*|test-results.*|.*junit.*|.*test-report.*)\.xml$/i;
-const SKIP_DIRS = new Set(['node_modules', '.git', '.venv', 'venv', '__pycache__', 'target', '.pinocchio']);
+const SKIP_DIRS = new Set(['node_modules', '.git', '.venv', 'venv', '__pycache__', 'target', '.pinocchio', 'dist', 'build', '.next', 'vendor', 'coverage', '.gradle', '.tox', '.mypy_cache', '.pytest_cache']);
 
 export function parseJUnit(xml) {
   if (typeof xml !== 'string' || !/<testsuites?\b/.test(xml)) return null;
@@ -25,11 +25,11 @@ export function parseJUnit(xml) {
   return totals;
 }
 
-export function findFreshJUnit(root, sinceMs, { maxFiles = 300, maxDepth = 4 } = {}) {
+export function findFreshJUnit(root, sinceMs, { maxFiles = 300, maxDepth = 4, maxEntries = 5000 } = {}) {
   const found = [];
-  let seen = 0;
+  let entries_visited = 0;
   const walk = (dir, depth) => {
-    if (depth > maxDepth || seen > maxFiles) return;
+    if (depth > maxDepth || entries_visited > maxEntries) return;
     let entries;
     try {
       entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -37,12 +37,12 @@ export function findFreshJUnit(root, sinceMs, { maxFiles = 300, maxDepth = 4 } =
       return;
     }
     for (const e of entries) {
-      if (seen > maxFiles) return;
+      if (entries_visited > maxEntries) return;
+      entries_visited++;
       const p = path.join(dir, e.name);
       if (e.isDirectory()) {
         if (!SKIP_DIRS.has(e.name)) walk(p, depth + 1);
       } else if (NAME.test(e.name)) {
-        seen++;
         try {
           const st = fs.statSync(p);
           if (st.mtimeMs <= sinceMs || st.size > 20 * 1024 * 1024) continue;

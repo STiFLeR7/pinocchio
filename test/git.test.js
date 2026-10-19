@@ -14,12 +14,17 @@ test('non-repo is reported, not thrown', () => {
 test('reports modified, untracked and deleted files relative to root', () => {
   const dir = initRepo(tmpdir());
   fs.mkdirSync(path.join(dir, 'sub'));
+  fs.writeFileSync(path.join(dir, 'deleted.txt'), 'will delete\n');
+  gitIn(dir, 'add', '.');
+  gitIn(dir, 'commit', '-q', '-m', 'add deleted file');
   fs.writeFileSync(path.join(dir, 'README.md'), 'changed\n');
   fs.writeFileSync(path.join(dir, 'sub', 'new.js'), 'x');
+  fs.unlinkSync(path.join(dir, 'deleted.txt'));
   const s = readGitState(path.join(dir, 'sub'));
   assert.equal(s.isRepo, true);
   assert.equal(s.changed['README.md'], 'M');
   assert.equal(s.changed['sub/new.js'], '??');
+  assert.equal(s.changed['deleted.txt'], 'D');
   assert.ok(s.head);
 });
 
@@ -28,6 +33,31 @@ test('ignores Pinocchio\'s own ledger folder', () => {
   fs.mkdirSync(path.join(dir, '.claude', 'pinocchio'), { recursive: true });
   fs.writeFileSync(path.join(dir, '.claude', 'pinocchio', 'ledger.jsonl'), '{}\n');
   assert.deepEqual(readGitState(dir).changed, {});
+});
+
+test('ignores Pinocchio\'s ledger at any depth', () => {
+  const dir = initRepo(tmpdir());
+  fs.mkdirSync(path.join(dir, 'sub', '.claude', 'pinocchio'), { recursive: true });
+  fs.writeFileSync(path.join(dir, 'sub', '.claude', 'pinocchio', 'ledger.jsonl'), '{}\n');
+  assert.deepEqual(readGitState(dir).changed, {});
+});
+
+test('reports staged rename without bogus original path', () => {
+  const dir = initRepo(tmpdir());
+  fs.writeFileSync(path.join(dir, 'a.txt'), 'content\n');
+  gitIn(dir, 'add', '.');
+  gitIn(dir, 'commit', '-q', '-m', 'add a.txt');
+  gitIn(dir, 'mv', 'a.txt', 'b.txt');
+  const s = readGitState(dir);
+  assert.equal(s.changed['b.txt'], 'R');
+  assert.equal(s.changed['a.txt'], undefined);
+});
+
+test('handles paths with spaces', () => {
+  const dir = initRepo(tmpdir());
+  fs.writeFileSync(path.join(dir, 'my file.js'), 'x');
+  const s = readGitState(dir);
+  assert.equal(s.changed['my file.js'], '??');
 });
 
 test('testFileDiff shows added lines', () => {

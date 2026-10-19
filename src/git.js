@@ -24,9 +24,9 @@ export function readGitState(cwd) {
       const e = parts[i];
       if (e.length < 4) continue;
       const status = e.slice(0, 2);
-      if (status[0] === 'R' || status[0] === 'C') i++; // skip the original path
+      if (/[RC]/.test(status)) i++; // skip the original path
       const p = e.slice(3);
-      if (p.startsWith('.claude/pinocchio/')) continue; // our own ledger is never evidence
+      if (/(^|\/)\.claude\/pinocchio\//.test(p)) continue; // our own ledger is never evidence
       changed[p] = status.trim() || status;
     }
     return { isRepo: true, root, head, changed };
@@ -38,7 +38,7 @@ export function readGitState(cwd) {
 export function testFileDiff(cwd, files) {
   if (!files.length) return '';
   try {
-    return git(cwd, ['diff', '-U0', 'HEAD', '--', ...files]);
+    return git(cwd, ['diff', '-U0', '--no-ext-diff', '--no-textconv', 'HEAD', '--', ...files]);
   } catch {
     return '';
   }
@@ -46,8 +46,8 @@ export function testFileDiff(cwd, files) {
 
 export function committedSince(cwd, sinceMs) {
   try {
-    const out = git(cwd, ['log', `--since=@${Math.floor(sinceMs / 1000)}`, '--name-only', '--format=']);
-    return [...new Set(out.split('\n').map((s) => s.trim()).filter(Boolean))];
+    const out = git(cwd, ['log', `--since=@${Math.floor(sinceMs / 1000)}`, '--name-only', '-z', '--format=']);
+    return [...new Set(out.split(/[\0\n]/).map((s) => s.trim()).filter(Boolean))];
   } catch {
     return [];
   }

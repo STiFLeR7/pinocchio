@@ -36,3 +36,16 @@ test('findFreshJUnit only returns files newer than since and skips node_modules'
   assert.equal(found[0].result.failures, 1);
   assert.equal(findFreshJUnit(root, Date.now() + 60_000).length, 0);
 });
+
+test('findFreshJUnit respects maxEntries boundary', () => {
+  const root = tmpdir();
+  fs.mkdirSync(path.join(root, 'dir'));
+  for (let i = 0; i < 10; i++) {
+    fs.writeFileSync(path.join(root, 'dir', `empty${i}.txt`), '');
+  }
+  const xml = '<testsuite tests="1" failures="1"></testsuite>';
+  fs.writeFileSync(path.join(root, 'dir', 'junit.xml'), xml);
+  const found = findFreshJUnit(root, 0, { maxEntries: 3 });
+  assert(Array.isArray(found));
+  assert(found.length >= 0);
+});

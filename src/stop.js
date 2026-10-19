@@ -94,10 +94,13 @@ export function run(input, { env = process.env, findJUnit = findFreshJUnit, git 
 }
 
 function main() {
-  const write = (o) => process.stdout.write(JSON.stringify(o));
+  let done = false;
+  // Exit only after stdout drained: a piped write can still be pending when exit() runs.
   const finish = (o) => {
-    if (o) write(o);
-    process.exit(0);
+    if (done) return;
+    done = true;
+    if (o) process.stdout.write(JSON.stringify(o), () => process.exit(0));
+    else process.exit(0);
   };
   const skip = (why) => finish({ systemMessage: `🤥 Pinocchio · skipped (${String(why).slice(0, 80)})` });
   const timer = setTimeout(() => skip('timeout'), 2000);

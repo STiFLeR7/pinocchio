@@ -19,6 +19,12 @@ export function freshRuns(runs, gitEditMs = -Infinity) {
   return runs.filter((r) => !(gitEditMs > (Number.isFinite(r.resultTs) ? r.resultTs : r.ts)));
 }
 
+// A git-detected change is agent-made only if a Bash command ran after `since` and
+// before the file's mtime; otherwise the user or a background process wrote it.
+export function bashBeforeGitEdit(events, gitEditMs, since = -Infinity) {
+  return events.some((e) => e.kind === 'bash' && e.ts > since && gitEditMs > e.ts);
+}
+
 export function shortCmd(cmd) {
   const one = String(cmd).split('\n')[0].trim();
   return one.length > 60 ? `${one.slice(0, 57)}...` : one;

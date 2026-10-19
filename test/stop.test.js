@@ -174,11 +174,33 @@ test('tests may have run in a subagent: stale-tests is unknown, not a block', ()
 test('Bash edit after the last test run makes the tests stale', () => {
   const dir = project();
   const t = Date.now() + 600_000;
-  const tp = transcript(dir, assistantText('start', t), bash('npm test', { stdout: '3 passing', ts: t + 1000, resultTs: t + 3000 }));
-  at(dir, 'b.js', t + 5000);
+  fs.writeFileSync(path.join(dir, 'add.js'), 'orig');
+  gitIn(dir, 'add', '.');
+  gitIn(dir, 'commit', '-q', '-m', 'add');
+  const tp = transcript(dir, assistantText('start', t), bash('npm test', { stdout: '3 passing', ts: t + 1000, resultTs: t + 3000 }), bash("printf '//x' >> add.js", { ts: t + 4000, resultTs: t + 4500 }));
+  at(dir, 'add.js', t + 5000);
   const out = run(input(dir, tp, 'All tests pass.'));
   assert.equal(out.decision, 'block');
   assert.match(out.reason, /stale-tests/);
+});
+
+test('a file the agent did not write mid-session never makes a true claim fail', () => {
+  const dir = project();
+  const t = Date.now() + 600_000;
+  at(dir, 'u.js', t + 1000);
+  const msg = 'CI shows all tests passed on the last run.';
+  const tp = transcript(dir, assistantText('start', t));
+  notBlocked(run(input(dir, tp, msg)));
+});
+
+test('an untracked log written after the test run (no later Bash or edit) is CANT TELL, not FAIL', () => {
+  const dir = project();
+  const t = Date.now() + 600_000;
+  const tp = transcript(dir, assistantText('start', t), bash('npm test', { stdout: '3 passing', ts: t + 1000, resultTs: t + 3000 }));
+  at(dir, 'dev.log', t + 5000);
+  const out = run(input(dir, tp, 'All tests pass.'));
+  notBlocked(out);
+  assert.match(out.systemMessage, /CAN'T TELL/);
 });
 
 test('a file written by the test run itself does not make the tests stale', () => {

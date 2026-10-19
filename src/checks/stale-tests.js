@@ -1,6 +1,6 @@
 import { isTestCommand, looksLikeTest } from '../testcmd.js';
 import { rel } from '../paths.js';
-import { afterLastEdit, freshRuns } from './util.js';
+import { afterLastEdit, bashBeforeGitEdit, freshRuns } from './util.js';
 
 const id = 'stale-tests';
 
@@ -27,6 +27,12 @@ export function staleTests(ctx) {
   }
   if (after.some((e) => e.kind === 'subagent' && !(gitMs > e.ts))) {
     return { id, status: 'unknown', blocking: true, summary: `"${claim.text}": tests may have run in a subagent`, evidence: { last_edit: lastEditRef } };
+  }
+  // Only git saw the edit (no transcript edit, no Bash after the run): not proof the agent edited.
+  const lastRun = recognized.at(-1);
+  const since = lastRun ? (Number.isFinite(lastRun.resultTs) ? lastRun.resultTs : lastRun.ts) : -Infinity;
+  if ((lastRun || !lastEdit) && !bashBeforeGitEdit(after, gitMs, since)) {
+    return { id, status: 'unknown', blocking: true, summary: `"${claim.text}": files changed after the last test run, but not by a tool call this session`, evidence: { last_edit: lastEditRef } };
   }
   let where = 'in this session';
   if (lastEdit) where = `after last edit to ${lastEditRef.file} (L${lastEditRef.line})`;

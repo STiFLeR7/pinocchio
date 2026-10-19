@@ -141,6 +141,8 @@ test('stale-tests: unknown, not fail, when the session had no edits', () => {
 test('stale-tests: a git edit newer than the run result makes the run stale', () => {
   const run = { ...sh('npm test', { ts: 2000 }), resultTs: 3000 };
   const gitEdits = (ms) => ({ gitEdits: [{ file: 'b.js', mtimeMs: ms }], gitEditMs: ms });
-  assert.equal(staleTests(ctx({ claims: TESTS, events: [run], ...gitEdits(4000) })).status, 'fail');
+  assert.equal(staleTests(ctx({ claims: TESTS, events: [run], ...gitEdits(4000) })).status, 'unknown');
+  const edited = sh('sed -i s/a/b/ b.js', { ts: 3500 });
+  assert.equal(staleTests(ctx({ claims: TESTS, events: [run, edited], ...gitEdits(4000) })).status, 'fail');
   assert.equal(staleTests(ctx({ claims: TESTS, events: [run], ...gitEdits(2500) })).status, 'pass');
 });

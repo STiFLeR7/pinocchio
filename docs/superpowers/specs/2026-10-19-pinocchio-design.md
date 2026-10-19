@@ -122,7 +122,7 @@ changed by `git status` (covers edits made through Bash).
   ledger #a41f… · blocked 1/2
 ```
 
-**Ledger** `.claude/pinocchio/ledger.jsonl`, one line per stop:
+**Ledger** `<project root>/.claude/pinocchio/ledger.jsonl` (project root = CLAUDE_PROJECT_DIR, else the git root, else cwd), one line per stop:
 ```json
 {"v":1,"ts":"2026-10-19T14:02:11Z","session":"5581…","seq":12,"verdict":"fail","mode":"default",
  "blocked":true,"blocks_in_session":1,"elapsed_ms":38,
@@ -146,7 +146,7 @@ changed by `git status` (covers edits made through Bash).
 - Fail open everywhere: unreadable/unknown transcript, missing git, malformed JUnit, unwritable ledger, bad config, uncaught exception, 2 s hard timeout. Each shows `🤥 Pinocchio · skipped (<reason>)` or a degraded-receipt note.
 - Read-only: no project commands, no network. `child_process` limited to the fixed read-only git subcommands via `execFile` with argv arrays.
 - Path confinement: claimed paths resolved and required to stay within `cwd`; otherwise UNKNOWN, never read.
-- Only write location: `.claude/pinocchio/`.
+- Only write location: `<project root>/.claude/pinocchio/ (project root = CLAUDE_PROJECT_DIR, else the git root, else cwd)`.
 - Blocks require positive evidence of a lie; missing evidence is CAN'T TELL.
 - README section "Safe to install" enumerates every read, write and process spawn.
 

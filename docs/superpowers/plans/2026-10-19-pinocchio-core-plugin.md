@@ -16,7 +16,7 @@
 
 - Node.js >= 18; zero runtime and dev dependencies; ESM (`"type": "module"`).
 - Read-only: never run project commands; no network; `child_process` only via `execFileSync('git', [...])` with subcommands `rev-parse`, `status`, `diff`, `log`.
-- Only write location: `<cwd>/.claude/pinocchio/`.
+- Only write location: `<project root>/.claude/pinocchio/ (project root = CLAUDE_PROJECT_DIR, else the git root, else cwd)`.
 - Fail open: any internal error yields no block; at most a `🤥 Pinocchio · skipped (<reason>)` systemMessage.
 - Block only on FAIL (default mode); `report` never blocks; `strict` also blocks CAN'T TELL; max 2 blocks per session by default.
 - Receipt <= 6 lines; delivered via `systemMessage` (user-only). Block `reason` quotes claim + evidence.

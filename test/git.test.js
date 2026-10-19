@@ -84,3 +84,17 @@ test('hashFile', () => {
   assert.equal(hashFile(path.join(dir, 'f')), 'sha256:ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad');
   assert.equal(hashFile(path.join(dir, 'missing')), null);
 });
+
+test('git calls never run a repo-configured fsmonitor hook', () => {
+  const dir = initRepo(tmpdir());
+  const marker = path.join(tmpdir(), 'ran');
+  const hook = path.join(tmpdir(), 'hook.sh');
+  const slash = (p) => p.split(path.sep).join('/');
+  fs.writeFileSync(hook, `#!/bin/sh\necho x > "${slash(marker)}"\n`, { mode: 0o755 });
+  gitIn(dir, 'config', 'core.fsmonitor', slash(hook));
+  fs.writeFileSync(path.join(dir, 'a.js'), 'x');
+  readGitState(dir);
+  committedSince(dir, Date.now() - 60_000);
+  testFileDiff(dir, ['a.js']);
+  assert.equal(fs.existsSync(marker), false);
+});

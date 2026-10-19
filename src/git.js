@@ -6,7 +6,8 @@ const ALLOWED = new Set(['rev-parse', 'status', 'diff', 'log']);
 
 function git(cwd, args) {
   if (!ALLOWED.has(args[0])) throw new Error(`git subcommand not allowed: ${args[0]}`);
-  return execFileSync('git', args, { cwd, encoding: 'utf8', timeout: 1500, stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 8 * 1024 * 1024 });
+  // A repo-configured fsmonitor is a command git would run for us: never let it.
+  return execFileSync('git', ['-c', 'core.fsmonitor=false', ...args], { cwd, encoding: 'utf8', timeout: 1500, stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 8 * 1024 * 1024 });
 }
 
 export function readGitState(cwd) {

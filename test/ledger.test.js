@@ -101,3 +101,11 @@ test('entry cannot inject hash/prev/seq/v fields', () => {
   assert.equal(es[0].v, 1);
   assert.equal(verifyChain(cwd).ok, true);
 });
+
+test('sessionStats survives rotation (reads ledger.1.jsonl too)', () => {
+  const cwd = tmpdir();
+  appendEntry(cwd, e({ verdict: 'fail', blocked: true }), { maxBytes: 10 });
+  appendEntry(cwd, e({ verdict: 'fail', blocked: true }), { maxBytes: 10 });
+  assert.ok(fs.existsSync(path.join(cwd, '.claude', 'pinocchio', 'ledger.1.jsonl')));
+  assert.deepEqual(sessionStats(cwd, 's1'), { blocks: 2, lies: 2 });
+});

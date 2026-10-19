@@ -13,10 +13,10 @@ export function canonical(v) {
   return `{${Object.keys(v).filter((k) => v[k] !== undefined).sort().map((k) => `${JSON.stringify(k)}:${canonical(v[k])}`).join(',')}}`;
 }
 
-export function readEntries(cwd) {
+export function readEntries(cwd, file = fileOf(cwd)) {
   let text;
   try {
-    text = fs.readFileSync(fileOf(cwd), 'utf8');
+    text = fs.readFileSync(file, 'utf8');
   } catch {
     return [];
   }
@@ -33,7 +33,8 @@ export function readEntries(cwd) {
 }
 
 export function sessionStats(cwd, session) {
-  const es = readEntries(cwd).filter((x) => x.session === session);
+  // Include the rotated file so rotation does not reset the block limit.
+  const es = [...readEntries(cwd, path.join(dirOf(cwd), 'ledger.1.jsonl')), ...readEntries(cwd)].filter((x) => x.session === session);
   return { blocks: es.filter((x) => x.blocked).length, lies: es.filter((x) => x.verdict === 'fail').length };
 }
 

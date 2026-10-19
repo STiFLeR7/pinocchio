@@ -65,3 +65,18 @@ test('file claims both path-like files', () => {
   const c = matchClaims('I updated `a.js` and `b.js`.', cfg);
   assert.deepEqual(c.filter((x) => x.type === 'file').map((x) => x.file), ['a.js', 'b.js']);
 });
+
+test('file claims must be chained to verb', () => {
+  const c = matchClaims('I updated the docs, see `x.js` for context.', cfg);
+  assert.deepEqual(c.filter((x) => x.type === 'file').map((x) => x.file), []);
+});
+
+test('file claims captures all chained paths', () => {
+  const c = matchClaims('I updated `a.js`, `b.js`, and `c.js`.', cfg);
+  assert.deepEqual(c.filter((x) => x.type === 'file').map((x) => x.file), ['a.js', 'b.js', 'c.js']);
+});
+
+test('file claims stops at unchained backticks', () => {
+  const c = matchClaims('I updated `a.js` and then ran `npm test`.', cfg);
+  assert.deepEqual(c.filter((x) => x.type === 'file').map((x) => x.file), ['a.js']);
+});

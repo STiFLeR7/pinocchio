@@ -1,0 +1,56 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { readGitState, testFileDiff, committedSince, hashFile } from '../src/git.js';
+import { tmpdir, initRepo, gitIn } from './helpers.js';
+
+test('non-repo is reported, not thrown', () => {
+  const s = readGitState(tmpdir());
+  assert.equal(s.isRepo, false);
+  assert.deepEqual(s.changed, {});
+});
+
+test('reports modified, untracked and deleted files relative to root', () => {
+  const dir = initRepo(tmpdir());
+  fs.mkdirSync(path.join(dir, 'sub'));
+  fs.writeFileSync(path.join(dir, 'README.md'), 'changed\n');
+  fs.writeFileSync(path.join(dir, 'sub', 'new.js'), 'x');
+  const s = readGitState(path.join(dir, 'sub'));
+  assert.equal(s.isRepo, true);
+  assert.equal(s.changed['README.md'], 'M');
+  assert.equal(s.changed['sub/new.js'], '??');
+  assert.ok(s.head);
+});
+
+test('ignores Pinocchio\'s own ledger folder', () => {
+  const dir = initRepo(tmpdir());
+  fs.mkdirSync(path.join(dir, '.claude', 'pinocchio'), { recursive: true });
+  fs.writeFileSync(path.join(dir, '.claude', 'pinocchio', 'ledger.jsonl'), '{}\n');
+  assert.deepEqual(readGitState(dir).changed, {});
+});
+
+test('testFileDiff shows added lines', () => {
+  const dir = initRepo(tmpdir());
+  fs.writeFileSync(path.join(dir, 'a.test.js'), 'it("x", () => {});\n');
+  gitIn(dir, 'add', '.');
+  gitIn(dir, 'commit', '-q', '-m', 'add test');
+  fs.writeFileSync(path.join(dir, 'a.test.js'), 'it.skip("x", () => {});\n');
+  assert.match(testFileDiff(dir, ['a.test.js']), /^\+it\.skip/m);
+});
+
+test('committedSince lists files committed after a time', () => {
+  const dir = initRepo(tmpdir());
+  const since = Date.now() - 1000;
+  fs.writeFileSync(path.join(dir, 'c.js'), 'x');
+  gitIn(dir, 'add', '.');
+  gitIn(dir, 'commit', '-q', '-m', 'c');
+  assert.ok(committedSince(dir, since).includes('c.js'));
+});
+
+test('hashFile', () => {
+  const dir = tmpdir();
+  fs.writeFileSync(path.join(dir, 'f'), 'abc');
+  assert.equal(hashFile(path.join(dir, 'f')), 'sha256:ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad');
+  assert.equal(hashFile(path.join(dir, 'missing')), null);
+});

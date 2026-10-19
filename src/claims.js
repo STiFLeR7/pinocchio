@@ -22,21 +22,21 @@ export function matchClaims(text, config) {
   for (const s of text.split(/(?<=[.!?\n])\s+/)) {
     // Extract file claims at sentence level (NEGATION skips them per sentence)
     if (!NEGATION.test(s)) {
-      // Find all matches of verbs followed by backticked paths
-      const verbPattern = '(?:updated|changed|modified|edited|added to|fixed)';
-      const fileVerbRegex = new RegExp('\\b' + verbPattern, 'gi');
+      // Match verb + backticked paths chained with ', ', ' and ', or ', and '
+      const fileVerbRegex = /\b(?:updated|changed|modified|edited|added to|fixed)\s+(`[^`]+`(?:\s*(?:,\s*and|,|and)\s*`[^`]+`)*)/gi;
       let verbMatch;
       while ((verbMatch = fileVerbRegex.exec(s)) !== null) {
-        const afterVerb = s.substring(verbMatch.index + verbMatch[0].length);
-        const backtickRegex = /`([^`]+)`/g;
-        let backtickMatch;
-        while ((backtickMatch = backtickRegex.exec(afterVerb)) !== null) {
-          const cleaned = backtickMatch[1];
+        const chainedGroup = verbMatch[1];
+        // Extract individual backticked tokens from the captured group
+        const tokenRegex = /`([^`]+)`/g;
+        let tokenMatch;
+        while ((tokenMatch = tokenRegex.exec(chainedGroup)) !== null) {
+          const cleaned = tokenMatch[1];
           if (isPathLike(cleaned) && !cleaned.includes(' ') && !cleaned.includes('(')) {
             const key = `file:${cleaned}`;
             if (!seen.has(key)) {
               seen.add(key);
-              claims.push({ type: 'file', text: backtickMatch[0], file: cleaned });
+              claims.push({ type: 'file', text: tokenMatch[0], file: cleaned });
             }
           }
         }

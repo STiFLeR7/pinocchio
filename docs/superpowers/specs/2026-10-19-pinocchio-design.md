@@ -180,8 +180,16 @@ CI: Node 18/20/22 on Linux, macOS, Windows. Nexus Python CI runs only on `engine
 2. Live A/B: ~20 tasks across JS, Python, Go fixture repos (honest tasks + trap tasks that tempt
    false claims). Arms: **off**, **placebo** (instruction-only skill, "verify your work before
    claiming done", no hook), **on**. 3 runs per task per arm via `claude plugin eval` and
-   `claude -p --output-format json`. Estimated ~180 runs, ~$100-300; confirm with the owner
-   before spending.
+   `claude -p --output-format json` (~180 runs).
+3. Codex arm: the same tasks run with `codex exec`; Codex has no blocking hook, so Pinocchio is
+   applied post-hoc to each Codex session log (`~/.codex/sessions/`) in report mode. Measures catch
+   and can't-tell rates on Codex claims; requires a Codex session-log reader in `transcript.js`.
+
+**Auth and spend:** all runs use the owner's existing logged-in Claude Code and Codex
+subscriptions, never API keys. The harness refuses to start if `ANTHROPIC_API_KEY` or
+`OPENAI_API_KEY` is set. Token counts come from the CLIs' usage output; dollar figures are
+reported as notional list-price equivalents only. Runs are batched and resumable (results
+appended per run to `bench/results/`) so subscription usage limits pause, not lose, progress.
 
 | Metric | Frozen target |
 |---|---|
@@ -203,7 +211,7 @@ Results are published exactly as measured, including misses.
   `ruff.toml` and Nexus docs into `engine-room/` with `git mv` (history preserved).
 - Fix Python packaging/CI paths so `make check` passes from `engine-room/`.
 - New root README for Pinocchio, crediting "built on the Nexus evidence engine (3,261 tests)".
-- Rename the GitHub repo to `STiFLeR7/pinocchio` (owner action, outward-facing; GitHub redirects).
+- GitHub repo renamed to `STiFLeR7/pinocchio` (done 2026-10-19; local `origin` updated).
 - `docs/personal/` stays untracked.
 
 ## 11. Assumptions to verify during planning
@@ -211,7 +219,8 @@ Results are published exactly as measured, including misses.
 - `claude plugin install` / `claude plugin marketplace add` run non-interactively (else settings fallback).
 - Exact Claude Code transcript JSONL shape for tool calls/results, including how a non-zero Bash exit is represented.
 - Stop hook output accepts `decision`, `reason` and `systemMessage` together, and `systemMessage` is not added to model context.
-- `claude plugin eval` and `claude -p --output-format json` expose per-run token usage.
+- `claude plugin eval` and `claude -p --output-format json` expose per-run token usage under subscription auth.
+- `codex exec` runs headless under ChatGPT-subscription auth and writes a parseable session log.
 - `@stifler7` npm scope is available to the owner.
 
 ## 12. Out of scope for v1 (planned v1.1+)

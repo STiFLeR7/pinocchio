@@ -60,10 +60,24 @@ export function appendEntry(cwd, entry, { commitLedger = false, maxBytes = 5 * 1
     } catch {
       /* no file yet */
     }
-    const body = { v: 1, ...entry, seq, prev };
-    const hash = sha(prev + canonical(body));
-    fs.appendFileSync(file, `${JSON.stringify({ ...body, hash })}\n`);
-    return { hash, seq };
+    // Prevent entry from injecting hash/prev/seq/v; write newline if file doesn't end with one
+    const { hash, prev: _, seq: __, v, ...safe } = entry;
+    const body = { v: 1, ...safe, seq, prev };
+    const hash_computed = sha(prev + canonical(body));
+    try {
+      const stat = fs.statSync(file);
+      if (stat.size > 0) {
+        const last_byte = Buffer.alloc(1);
+        const fd = fs.openSync(file, 'r');
+        fs.readSync(fd, last_byte, 0, 1, stat.size - 1);
+        fs.closeSync(fd);
+        if (last_byte[0] !== 10) fs.appendFileSync(file, '\n'); // 10 is '\n'
+      }
+    } catch {
+      /* no file yet, ok to skip */
+    }
+    fs.appendFileSync(file, `${JSON.stringify({ ...body, hash: hash_computed })}\n`);
+    return { hash: hash_computed, seq };
   } catch {
     return null;
   }

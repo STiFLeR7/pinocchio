@@ -66,3 +66,38 @@ test('unwritable location returns null instead of throwing', () => {
   fs.writeFileSync(path.join(cwd, '.claude'), 'a file, not a dir');
   assert.equal(appendEntry(cwd, e()), null);
 });
+
+test('handles torn last line (no newline at EOF)', () => {
+  const cwd = tmpdir();
+  const first = appendEntry(cwd, e());
+  fs.appendFileSync(file(cwd), '{"v":1,"broken');
+  const second = appendEntry(cwd, e({ verdict: 'fail' }));
+  const es = readEntries(cwd);
+  assert.equal(es.length, 2);
+  assert.equal(es[1].prev, first.hash);
+  assert.equal(verifyChain(cwd).ok, true);
+});
+
+test('strengthened rotation keeps chain linked', () => {
+  const cwd = tmpdir();
+  const first = appendEntry(cwd, e(), { maxBytes: 10 });
+  const second = appendEntry(cwd, e(), { maxBytes: 10 });
+  assert.ok(fs.existsSync(path.join(cwd, '.claude', 'pinocchio', 'ledger.1.jsonl')));
+  const es = readEntries(cwd);
+  assert.equal(es.length, 1);
+  assert.equal(es[0].prev, first.hash);
+  assert.equal(es[0].seq, 1);
+  assert.equal(second.seq, 1);
+  assert.equal(verifyChain(cwd).ok, true);
+});
+
+test('entry cannot inject hash/prev/seq/v fields', () => {
+  const cwd = tmpdir();
+  const result = appendEntry(cwd, { ...e(), hash: 'x', prev: 'y', seq: 99, v: 99 });
+  assert.ok(result);
+  const es = readEntries(cwd);
+  assert.equal(es[0].seq, 0);
+  assert.equal(es[0].prev, GENESIS);
+  assert.equal(es[0].v, 1);
+  assert.equal(verifyChain(cwd).ok, true);
+});

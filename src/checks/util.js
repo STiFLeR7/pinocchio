@@ -19,10 +19,13 @@ export function freshRuns(runs, gitEditMs = -Infinity) {
   return runs.filter((r) => !(gitEditMs > (Number.isFinite(r.resultTs) ? r.resultTs : r.ts)));
 }
 
-// A git-detected change is agent-made only if a Bash command ran after `since` and
-// before the file's mtime; otherwise the user or a background process wrote it.
-export function bashBeforeGitEdit(events, gitEditMs, since = -Infinity) {
-  return events.some((e) => e.kind === 'bash' && e.ts > since && gitEditMs > e.ts);
+// A git-detected change is agent-made only if a Bash command that names the file
+// ran after `since` and before the file's mtime; otherwise the user or a background process wrote it.
+export function bashBeforeGitEdit(events, gitEdits, since = -Infinity) {
+  return gitEdits.some((g) => {
+    const name = path.basename(g.file);
+    return events.some((e) => e.kind === 'bash' && e.ts > since && g.mtimeMs > e.ts && String(e.cmd).includes(name));
+  });
 }
 
 export function shortCmd(cmd) {

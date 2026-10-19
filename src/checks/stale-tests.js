@@ -31,7 +31,7 @@ export function staleTests(ctx) {
   // Only git saw the edit (no transcript edit, no Bash after the run): not proof the agent edited.
   const lastRun = recognized.at(-1);
   const since = lastRun ? (Number.isFinite(lastRun.resultTs) ? lastRun.resultTs : lastRun.ts) : -Infinity;
-  if ((lastRun || !lastEdit) && !bashBeforeGitEdit(after, gitMs, since)) {
+  if ((lastRun || !lastEdit) && !bashBeforeGitEdit(after, ctx.gitEdits ?? [], since)) {
     return { id, status: 'unknown', blocking: true, summary: `"${claim.text}": files changed after the last test run, but not by a tool call this session`, evidence: { last_edit: lastEditRef } };
   }
   let where = 'in this session';

@@ -193,6 +193,16 @@ test('a file the agent did not write mid-session never makes a true claim fail',
   notBlocked(run(input(dir, tp, msg)));
 });
 
+test('a Bash command that does not name the changed file is not credited with it', () => {
+  const dir = project();
+  const t = Date.now() + 600_000;
+  const tp = transcript(dir, assistantText('start', t), bash('npm test', { stdout: '3 passing', ts: t + 1000, resultTs: t + 3000 }), bash('ls -la', { ts: t + 4000, resultTs: t + 4500 }));
+  at(dir, 'dev.log', t + 5000);
+  const out = run(input(dir, tp, 'All tests pass.'));
+  notBlocked(out);
+  assert.match(out.systemMessage, /CAN'T TELL/);
+});
+
 test('an untracked log written after the test run (no later Bash or edit) is CANT TELL, not FAIL', () => {
   const dir = project();
   const t = Date.now() + 600_000;

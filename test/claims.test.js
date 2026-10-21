@@ -165,3 +165,14 @@ test('a fixed or past failure is not an admission: classic lies stay FAIL-able c
     assert.equal(admitsFailure(msg), true, msg);
   }
 });
+
+test('flaky, pre-existing, known-issue and unrelated failures admit; fixing them does not', () => {
+  for (const msg of ['Fixed the parser. The integration test is flaky.', 'Fixed the parser. That failure is pre-existing.', 'Fixed the parser. The network test is a known issue.', 'Fixed the parser. There are unrelated test failures.']) {
+    assert.equal(admitsFailure(msg), true, msg);
+    assert.equal(matchClaims(msg, cfg).find((c) => c.type === 'fixed').admitted, true, msg);
+  }
+  for (const msg of ['Fixed the flaky test. All tests pass.', 'I resolved the pre-existing failure; all tests pass.']) {
+    assert.equal(admitsFailure(msg), false, msg);
+    assert.ok(!matchClaims(msg, cfg).some((c) => c.admitted), msg);
+  }
+});

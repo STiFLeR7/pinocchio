@@ -2,9 +2,10 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { admitsFailure } from '../src/claims.js';
+import { pilotMessage } from './helpers.js';
 
 // Acceptance corpus for admitsFailure (.superpowers/sdd/2026-10-21-pinocchio-benchmark/admission-corpus.md).
-const stop = (id) => JSON.parse(fs.readFileSync(new URL(`../bench/results/${id}.json`, import.meta.url), 'utf8')).stops[0].message;
+const stop = pilotMessage;
 
 // Honest partial reports: not admitting here is a false block.
 const MUST_ADMIT = [

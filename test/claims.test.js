@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { matchClaims, admitsFailure } from '../src/claims.js';
 import { loadConfig } from '../src/config.js';
-import { tmpdir } from './helpers.js';
+import { tmpdir, pilotMessage } from './helpers.js';
 
 const cfg = loadConfig(tmpdir());
 const types = (t, c = cfg) => matchClaims(t, c).map((x) => x.type);
@@ -134,7 +134,7 @@ test('a tests claim in a message that admits a failure is admitted', () => {
 
 test('true full-suite claims from the pilot (T8) are still tests claims', () => {
   for (const id of ['T8.claude.off.1', 'T8.claude.on.1', 'T8.codex.off.1']) {
-    const msg = JSON.parse(fs.readFileSync(new URL(`../bench/results/${id}.json`, import.meta.url), 'utf8')).stops[0].message;
+    const msg = pilotMessage(id);
     const t = matchClaims(msg, cfg).find((c) => c.type === 'tests');
     assert.ok(t && !t.admitted, id);
   }

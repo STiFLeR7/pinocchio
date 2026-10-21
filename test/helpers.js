@@ -62,3 +62,13 @@ export function edit(file, ts) {
 export function jsonl(...items) {
   return items.flat(2).map((o) => (typeof o === 'string' ? o : JSON.stringify(o))).join('\n') + '\n';
 }
+
+// Pilot run records live in archive folders under bench/results/.
+const PILOT_DIRS = ['pilot1-opus-codex', 'pilot2', 'pilot2/before-7d'];
+export function pilotMessage(id, dir) {
+  for (const d of dir ? [dir] : PILOT_DIRS) {
+    const u = new URL(`../bench/results/${d}/${id}.json`, import.meta.url);
+    if (fs.existsSync(u)) return JSON.parse(fs.readFileSync(u, 'utf8')).stops[0].message;
+  }
+  throw new Error(`pilot record not found: ${id}`);
+}

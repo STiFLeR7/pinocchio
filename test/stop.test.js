@@ -8,7 +8,7 @@ import { run } from '../src/stop.js';
 // run() reads CLAUDE_PROJECT_DIR; a value inherited from the shell would redirect ledgers out of the temp repos.
 delete process.env.CLAUDE_PROJECT_DIR;
 import { readEntries } from '../src/ledger.js';
-import { tmpdir, initRepo, gitIn, jsonl, bash, edit, assistantText, toolUse, toolResult } from './helpers.js';
+import { tmpdir, initRepo, gitIn, jsonl, bash, edit, assistantText, toolUse, toolResult, pilotMessage } from './helpers.js';
 
 function project({ pkgTest = true } = {}) {
   const dir = initRepo(tmpdir());
@@ -287,7 +287,7 @@ test('a test file deleted and committed during the session is still flagged', ()
 });
 
 // Pilot false alarms (bench/results/pilot-notes.md): honest reports with a partial count and a disclosed failure.
-const pilotMessage = (id) => JSON.parse(fs.readFileSync(new URL(`../bench/results/${id}.json`, import.meta.url), 'utf8')).stops[0].message;
+
 test('honest partial reports from the pilot never FAIL, after a red run or with no run', () => {
   for (const id of ['T4.claude.off.1', 'T4.claude.placebo.1', 'T5.codex.off.1', 'T9.codex.off.1']) {
     const msg = pilotMessage(id);
@@ -340,7 +340,7 @@ test('pilot 2 T9 Haiku: a true scoped "All unit tests pass" after a red run is n
   const dir = project();
   fs.writeFileSync(path.join(dir, 'cart.js'), 'x');
   const tp = transcript(dir, edit(path.join(dir, 'cart.js')), bash('npm test', { exit: 1, stdout: '1 passing\n1 failed' }));
-  notBlocked(run(input(dir, tp, pilotMessage('T9.claude-haiku.off.1'))));
+  notBlocked(run(input(dir, tp, pilotMessage('T9.claude-haiku.off.1', 'pilot2/before-7d'))));
   assert.notEqual(readEntries(dir).at(-1).verdict, 'fail');
 });
 

@@ -1,28 +1,19 @@
 // Proves every frozen case is built as designed, on fresh copies of the fixtures:
 // oracle fails before the reference fix, passes after, and the full suite is red by construction for overlay cases.
-import { cpSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
-import { spawnSync } from 'node:child_process';
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
+import { BENCH, copyCase, copyFix, shellOk as run } from './lib/fixture.js';
 
-const bench = resolve(fileURLToPath(new URL('.', import.meta.url)));
-const oracles = join(bench, 'oracles').replaceAll('\\', '/');
-const { cases } = JSON.parse(readFileSync(join(bench, 'cases.json'), 'utf8'));
-
-const env = { ...process.env };
-delete env.CART_API_KEY;
-env.PYTHONDONTWRITEBYTECODE = '1';
-const run = (cmd, cwd) => spawnSync(cmd.replaceAll('{ORACLES}', oracles), { cwd, env, shell: true, encoding: 'utf8' }).status === 0;
+const { cases } = JSON.parse(readFileSync(join(BENCH, 'cases.json'), 'utf8'));
 
 let ok = 0;
 for (const c of cases) {
   const dir = mkdtempSync(join(tmpdir(), `bench-${c.id}-`));
   try {
-    cpSync(join(bench, 'fixtures', c.fixture), dir, { recursive: true });
-    if (c.overlay) cpSync(join(bench, 'overlays', c.overlay), dir, { recursive: true });
+    copyCase(c, dir);
     const before = run(c.oracle, dir);
-    cpSync(join(bench, 'oracles', `${c.id}.fix`), dir, { recursive: true });
+    copyFix(c, dir);
     const after = run(c.oracle, dir);
     const suite = run(c.testCommand, dir);
     const problems = [];

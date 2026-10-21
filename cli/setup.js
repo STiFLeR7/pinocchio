@@ -1,5 +1,5 @@
 // `pinocchio setup`: six step blocks; nothing is written before the Review step is confirmed.
-import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, isAbsolute, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -32,14 +32,23 @@ const firstLine = (r) => (r.stderr || '').trim().split('\n')[0] || 'no details';
 const labelOf = (list, v) => list.find((o) => o.value === v).label;
 const inside = (base, p) => { const r = relative(base, p); return r && !r.startsWith('..') && !isAbsolute(r) ? r.replace(/\\/g, '/') : null; };
 
-// State recorded and the registration it names still there (plugin listed, or the hook still in settings.json).
+const pluginEntry = (cli) => {
+  const r = cli.listPlugins();
+  return (r.ok && Array.isArray(r.json) && r.json.find((p) => p?.id === 'pinocchio@pinocchio')) || null;
+};
+const hasMarketplace = (cli) => {
+  const r = cli.listMarketplaces();
+  return r.ok && Array.isArray(r.json) && r.json.some((m) => m?.name === 'pinocchio');
+};
+
+// State recorded and the registration it names still there (plugin listed and enabled, or the hook still in settings.json).
 function installed(scopes, cwd, home, cli) {
   for (const scope of scopes) {
     const st = readState(statePath(scope, cwd, home));
     if (!st) continue;
     if (st.method === 'plugin') {
-      const r = cli.listPlugins();
-      if (r.ok && JSON.stringify(r.json ?? '').includes('pinocchio@pinocchio')) return st;
+      const p = pluginEntry(cli);
+      if (p && p.enabled !== false) return st;
     } else if (st.settings && hasHook(st.settings.file, st.settings.hookCommand)) return st;
   }
   return null;
@@ -115,16 +124,24 @@ export async function setup({
   const stateFile = statePath(scope, cwd, home);
   // The npx cache is temporary, so the hook runs a copy of the runtime; forward slashes work in bash and PowerShell.
   const hookCommand = `node "${runtimeDir.replace(/\\/g, '/')}/src/stop.js"`;
+  // Read-only probes: Pinocchio may already be installed (natively, or by an earlier run whose state is gone).
+  const plugin = claude.ok ? pluginEntry(cli) : null;
+  const marketplace = Boolean(claude.ok && !plugin && hasMarketplace(cli));
   const hookLines = [`+ hook     Stop hook in ${show(settingsFile)}`, `+ folder   ${show(runtimeDir)}/   (runtime copy)`];
   box(4, 'running', [
-    ...(claude.ok
-      ? [` + plugin   pinocchio@pinocchio   (via claude plugin install)`, '   if the plugin install fails:', ...hookLines.map((l) => `     ${l}`)]
+    ...(plugin ? [` = plugin   pinocchio@pinocchio   (already installed${plugin.enabled === false ? ', disabled' : ''})`]
+      : claude.ok ? [
+        ` + plugin   pinocchio@pinocchio   (via claude plugin install)`,
+        ...(marketplace ? [' = marketplace  pinocchio   (already added)'] : []),
+        '   if the plugin install fails:', ...hookLines.map((l) => `     ${l}`),
+      ]
       : hookLines.map((l) => ` ${l}`)),
     configExists ? ` = file     ${show(configFile)}   (exists, kept as is)` : ` + file     ${show(configFile)}   (your settings)`,
     ` + record   ${show(stateFile)}`,
     ` + folder   ${show(join(cwd, '.claude', 'pinocchio'))}/   (ledger, ${commitLedger ? 'committed' : 'ignored'})`,
     ' Token cost: ~93 tokens/session · 0 for the hook itself',
     ' Reads only: never edits code, never runs commands for you',
+    ...(scope === 'user' ? [' Mode and ledger settings apply to this project; other projects use defaults.'] : []),
   ]);
   if (!flags.yes) {
     if (!isTTY) {
@@ -141,21 +158,35 @@ export async function setup({
   const done = [];
   let method = 'settings';
   let reason = 'Claude Code CLI not found';
-  if (claude.ok) {
-    const add = cli.marketplaceAdd(scope);
-    const inst = add.ok ? cli.install(scope) : null;
-    if (inst?.ok) {
-      method = 'plugin';
-      done.push('✔ marketplace added', '✔ plugin installed');
-    } else if (add.ok) {
-      cli.marketplaceRemove(scope); // leave nothing half-installed behind
-      reason = `claude plugin install failed: ${firstLine(inst)}`;
-    } else reason = `claude plugin marketplace add failed: ${firstLine(add)}`;
+  // added* are true only for what this run added: uninstall removes exactly that.
+  let addedMarketplace = false;
+  let addedPlugin = false;
+  if (plugin) {
+    method = 'plugin';
+    done.push('✔ already installed (pinocchio@pinocchio)');
+    if (plugin.enabled === false) done.push('! the plugin is disabled — run: claude plugin enable pinocchio@pinocchio');
+  } else if (claude.ok) {
+    const add = marketplace ? { ok: true } : cli.marketplaceAdd(scope);
+    if (!add.ok) reason = `claude plugin marketplace add failed: ${firstLine(add)}`;
+    else {
+      addedMarketplace = !marketplace;
+      const inst = cli.install(scope);
+      if (inst.ok) {
+        method = 'plugin';
+        addedPlugin = true;
+        done.push(marketplace ? '✔ marketplace already added' : '✔ marketplace added', '✔ plugin installed');
+      } else {
+        if (addedMarketplace) cli.marketplaceRemove(scope); // leave nothing half-installed behind
+        addedMarketplace = false;
+        reason = `claude plugin install failed: ${firstLine(inst)}`;
+      }
+    }
   }
   let settings = null;
   let manual = false;
   if (method === 'settings') {
     done.push(`✖ ${reason}`, `→ using a Stop hook in ${show(settingsFile)} instead`);
+    rmSync(runtimeDir, { recursive: true, force: true }); // no stale files from an older runtime
     cpSync(join(PKG_ROOT, 'src'), join(runtimeDir, 'src'), { recursive: true });
     cpSync(join(PKG_ROOT, 'package.json'), join(runtimeDir, 'package.json'));
     done.push(`✔ runtime copied to ${show(runtimeDir)}/`);
@@ -173,7 +204,10 @@ export async function setup({
     files.push({ path: configFile, sha256: sha256File(configFile) });
     done.push('✔ settings saved');
   }
-  writeState(stateFile, { version: 1, scope, method, addedMarketplace: method === 'plugin', files, settings, at: new Date().toISOString() });
+  writeState(stateFile, {
+    version: 1, scope, method, addedMarketplace, addedPlugin, files, settings,
+    runtime: method === 'settings' ? runtimeDir : null, at: new Date().toISOString(),
+  });
   box(5, manual ? 'failed' : 'done', done);
   if (manual) {
     ui.line(`Add this to ${show(settingsFile)} by hand (merge with any "hooks" already there), then run: pinocchio doctor`);

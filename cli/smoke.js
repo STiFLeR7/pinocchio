@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { run } from '../src/stop.js';
 
-const git = (cwd, ...args) => execFileSync('git', ['-c', 'user.email=smoke@pinocchio', '-c', 'user.name=smoke', '-c', 'commit.gpgsign=false', ...args], { cwd, stdio: 'ignore' });
+const git = (cwd, ...args) => execFileSync('git', ['-c', 'user.email=smoke@pinocchio', '-c', 'user.name=smoke', '-c', 'commit.gpgsign=false', '-c', 'core.hooksPath=', ...args], { cwd, stdio: 'ignore' });
 
 export function smokeTest() {
   const repo = mkdtempSync(join(tmpdir(), 'pino-smoke-'));

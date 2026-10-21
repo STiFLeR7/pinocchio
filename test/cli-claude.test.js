@@ -22,7 +22,7 @@ test('install runs the exact argv with -y and --json', () => {
   withEnv({ STUB_LOG: log, STUB_FAIL: undefined }, () => {
     const c = claudeCli({ bin: STUB });
     assert.deepEqual(c.install('user'), { ok: true, json: { ok: true }, stderr: '' });
-    c.marketplaceAdd('project'); c.uninstall('user'); c.marketplaceRemove('project'); c.listPlugins();
+    c.marketplaceAdd('project'); c.uninstall('user'); c.marketplaceRemove('project'); c.listPlugins(); c.listMarketplaces();
   });
   assert.deepEqual(logged(log), [
     ['plugin', 'install', 'pinocchio@pinocchio', '--scope', 'user', '-y', '--json'],
@@ -30,6 +30,7 @@ test('install runs the exact argv with -y and --json', () => {
     ['plugin', 'uninstall', 'pinocchio@pinocchio', '--scope', 'user', '--json'],
     ['plugin', 'marketplace', 'remove', 'pinocchio', '--scope', 'project', '--json'],
     ['plugin', 'list', '--json'],
+    ['plugin', 'marketplace', 'list', '--json'],
   ]);
 });
 

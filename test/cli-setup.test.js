@@ -1,7 +1,7 @@
-import { test } from 'node:test';
+import { after, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { PassThrough } from 'node:stream';
@@ -15,7 +15,11 @@ import { registerHook, unregisterHook } from '../cli/fallback.js';
 import { smokeTest } from '../cli/smoke.js';
 
 const STUB = fileURLToPath(new URL('./fixtures/stub-claude-cli.mjs', import.meta.url));
-const tmp = () => mkdtempSync(join(tmpdir(), 'pino-setup-'));
+const made = [];
+const tmp = () => { const d = mkdtempSync(join(tmpdir(), 'pino-setup-')); made.push(d); return d; };
+after(() => { for (const d of made) rmSync(d, { recursive: true, force: true }); });
+const PLUGIN = '[{"id":"pinocchio@pinocchio","scope":"project","enabled":true}]';
+const LISTS = [['plugin', 'list', '--json'], ['plugin', 'marketplace', 'list', '--json']];
 const SYS = {
   node: { ok: true, version: 'v22.11.0' },
   git: { ok: true, version: 'git version 2.47.0' },
@@ -41,20 +45,21 @@ function snap(dir) {
 
 const logged = (log) => (existsSync(log) ? readFileSync(log, 'utf8').trim().split('\n').map((l) => JSON.parse(l)) : []);
 
-async function runSetup({ cwd = project(), home = tmp(), argv = ['--yes'], answers = [], isTTY = false, system = SYS, fail } = {}) {
+async function runSetup({ cwd = project(), home = tmp(), argv = ['--yes'], answers = [], isTTY = false, system = SYS, fail, plugins = '[]', marketplaces = '[]' } = {}) {
   const log = join(tmp(), 'stub.log');
   let out = '';
   const asked = [];
   const ui = createUI({ stream: { write: (s) => { out += s; }, isTTY: false }, color: false, unicode: true, width: 120 });
   const prompt = async (q) => { asked.push(q); return answers.shift(); };
-  const old = { log: process.env.STUB_LOG, fail: process.env.STUB_FAIL };
-  process.env.STUB_LOG = log;
+  const keys = ['STUB_LOG', 'STUB_FAIL', 'STUB_PLUGINS', 'STUB_MARKETPLACES'];
+  const old = Object.fromEntries(keys.map((k) => [k, process.env[k]]));
+  Object.assign(process.env, { STUB_LOG: log, STUB_PLUGINS: plugins, STUB_MARKETPLACES: marketplaces });
   if (fail) process.env.STUB_FAIL = fail; else delete process.env.STUB_FAIL;
   try {
     const code = await setup({ cwd, home, argv, ui, prompt, cli: claudeCli({ bin: STUB }), isTTY, system });
     return { code, out, asked, cwd, home, calls: logged(log) };
   } finally {
-    for (const [k, v] of [['STUB_LOG', old.log], ['STUB_FAIL', old.fail]]) if (v === undefined) delete process.env[k]; else process.env[k] = v;
+    for (const k of keys) if (old[k] === undefined) delete process.env[k]; else process.env[k] = old[k];
   }
 }
 
@@ -62,6 +67,7 @@ test('--yes project install calls marketplace add + install with --scope project
   const r = await runSetup();
   assert.equal(r.code, 0, r.out);
   assert.deepEqual(r.calls, [
+    ...LISTS,
     ['plugin', 'marketplace', 'add', 'STiFLeR7/pinocchio', '--scope', 'project', '--json'],
     ['plugin', 'install', 'pinocchio@pinocchio', '--scope', 'project', '-y', '--json'],
   ]);
@@ -71,7 +77,9 @@ test('--yes project install calls marketplace add + install with --scope project
   assert.equal(state.scope, 'project');
   assert.equal(state.method, 'plugin');
   assert.equal(state.addedMarketplace, true);
+  assert.equal(state.addedPlugin, true);
   assert.equal(state.settings, null);
+  assert.equal(state.runtime, null);
   assert.equal(state.files.length, 1);
   assert.equal(state.files[0].path, configFile);
   assert.match(state.files[0].sha256, /^[0-9a-f]{64}$/);
@@ -88,7 +96,7 @@ test('nothing is written when the user answers No at Review', async () => {
   assert.equal(r.code, 0);
   assert.deepEqual(r.asked, ['Where to install?', 'Mode?', 'Commit the lie ledger to git?', 'Install now?']);
   assert.deepEqual([snap(cwd), snap(home)], before);
-  assert.deepEqual(r.calls, []);
+  assert.deepEqual(r.calls, LISTS);
   assert.match(r.out, /Nothing written/);
 });
 
@@ -101,7 +109,7 @@ test('non-TTY without --yes exits 1 and writes nothing', async () => {
   assert.match(r.out, /Step 4 · Review — nothing written yet/);
   assert.match(r.out, /re-run with --yes/);
   assert.deepEqual(snap(cwd), before);
-  assert.deepEqual(r.calls, []);
+  assert.deepEqual(r.calls, LISTS);
 });
 
 test('second run is a no-op showing already set up', async () => {
@@ -109,7 +117,7 @@ test('second run is a no-op showing already set up', async () => {
   const home = tmp();
   assert.equal((await runSetup({ cwd, home })).code, 0);
   const before = [snap(cwd), snap(home)];
-  const r = await runSetup({ cwd, home });
+  const r = await runSetup({ cwd, home, plugins: PLUGIN });
   assert.equal(r.code, 0, r.out);
   assert.equal(r.out.match(/✔ already set up/g).length, 6);
   assert.deepEqual([snap(cwd), snap(home)], before);
@@ -120,7 +128,7 @@ test('marketplace add failure falls back to settings hook with runtime copy and 
   const r = await runSetup({ fail: 'add' });
   assert.equal(r.code, 0, r.out);
   assert.match(r.out, /marketplace add failed: stub: add failed/);
-  assert.deepEqual(r.calls.map((c) => c[1]), ['marketplace']);
+  assert.deepEqual(r.calls.slice(2).map((c) => c.slice(1, 3)), [['marketplace', 'add']]);
   const runtime = join(r.cwd, '.claude', 'pinocchio', 'runtime');
   const command = `node "${runtime.replace(/\\/g, '/')}/src/stop.js"`;
   const settingsFile = join(r.cwd, '.claude', 'settings.json');
@@ -129,6 +137,7 @@ test('marketplace add failure falls back to settings hook with runtime copy and 
   assert.equal(state.method, 'settings');
   assert.equal(state.addedMarketplace, false);
   assert.deepEqual(state.settings, { file: settingsFile, hookCommand: command });
+  assert.equal(state.runtime, runtime);
   assert.ok(existsSync(join(runtime, 'package.json')));
   // The copied runtime loads on its own: PINOCCHIO=off makes it exit 0 with no output.
   const hook = spawnSync(process.execPath, [join(runtime, 'src', 'stop.js')], { input: '{}', cwd: tmp(), encoding: 'utf8', env: { ...process.env, PINOCCHIO: 'off' } });
@@ -184,6 +193,56 @@ test('no claude CLI goes straight to the settings hook; codex is skill only', as
   assert.equal(readState(join(r.cwd, '.claude', 'pinocchio', 'install.json')).method, 'settings');
 });
 
+test('plugin already installed with no state: nothing is added, no settings hook', async () => {
+  const r = await runSetup({ plugins: PLUGIN, fail: 'add' });
+  assert.equal(r.code, 0, r.out);
+  assert.deepEqual(r.calls, [LISTS[0]]);
+  assert.ok(!existsSync(join(r.cwd, '.claude', 'settings.json')));
+  assert.ok(!existsSync(join(r.cwd, '.claude', 'pinocchio', 'runtime')));
+  assert.match(r.out, /already installed/);
+  const state = readState(join(r.cwd, '.claude', 'pinocchio', 'install.json'));
+  assert.deepEqual([state.method, state.addedMarketplace, state.addedPlugin], ['plugin', false, false]);
+});
+
+test('a substring match is not the plugin: only the exact id counts', async () => {
+  const r = await runSetup({ plugins: '[{"id":"not-pinocchio@pinocchio-fork"}]' });
+  assert.equal(r.code, 0, r.out);
+  assert.ok(r.calls.some((c) => c[1] === 'install'));
+});
+
+test('marketplace already present: no add call, install called, marketplace not ours', async () => {
+  const r = await runSetup({ marketplaces: '[{"name":"pinocchio"}]' });
+  assert.equal(r.code, 0, r.out);
+  assert.deepEqual(r.calls.slice(2), [['plugin', 'install', 'pinocchio@pinocchio', '--scope', 'project', '-y', '--json']]);
+  const state = readState(join(r.cwd, '.claude', 'pinocchio', 'install.json'));
+  assert.deepEqual([state.method, state.addedMarketplace, state.addedPlugin], ['plugin', false, true]);
+});
+
+test('install failure with a pre-existing marketplace never removes it', async () => {
+  const r = await runSetup({ marketplaces: '[{"name":"pinocchio"}]', fail: 'install' });
+  assert.equal(r.code, 0, r.out);
+  assert.deepEqual(r.calls.slice(2).map((c) => c[1]), ['install']);
+  assert.match(r.out, /claude plugin install failed: stub: install failed/);
+  assert.equal(readState(join(r.cwd, '.claude', 'pinocchio', 'install.json')).method, 'settings');
+});
+
+test('install failure after this run added the marketplace removes it again', async () => {
+  const r = await runSetup({ fail: 'install' });
+  assert.equal(r.code, 0, r.out);
+  assert.deepEqual(r.calls.slice(2).map((c) => c.slice(1, 3)), [['marketplace', 'add'], ['install', 'pinocchio@pinocchio'], ['marketplace', 'remove']]);
+  assert.equal(readState(join(r.cwd, '.claude', 'pinocchio', 'install.json')).addedMarketplace, false);
+});
+
+test('a stale runtime copy is replaced, not merged', async () => {
+  const cwd = project();
+  const stale = join(cwd, '.claude', 'pinocchio', 'runtime', 'src', 'old.js');
+  mkdirSync(join(stale, '..'), { recursive: true });
+  writeFileSync(stale, 'x');
+  const r = await runSetup({ cwd, fail: 'add' });
+  assert.equal(r.code, 0, r.out);
+  assert.ok(!existsSync(stale));
+});
+
 test('smoke test receipt starts with 🤥 Pinocchio · FAIL', () => {
   const s = smokeTest();
   assert.equal(s.ok, true, s.receipt);
@@ -194,11 +253,12 @@ test('smoke test receipt starts with 🤥 Pinocchio · FAIL', () => {
 test('user scope writes state under HOME', async () => {
   const r = await runSetup({ argv: ['--yes', '--scope', 'user', '--mode', 'strict', '--commit-ledger'] });
   assert.equal(r.code, 0, r.out);
-  assert.ok(r.calls.every((c) => c.includes('user')));
+  assert.ok(r.calls.slice(2).every((c) => c.includes('user')));
   const state = readState(join(r.home, '.claude', 'pinocchio', 'install.json'));
   assert.equal(state.scope, 'user');
   assert.ok(!existsSync(join(r.cwd, '.claude', 'pinocchio', 'install.json')));
   assert.deepEqual(JSON.parse(readFileSync(join(r.cwd, '.claude', 'pinocchio.json'), 'utf8')).mode, 'strict');
+  assert.match(r.out, /Mode and ledger settings apply to this project; other projects use defaults\./);
 });
 
 test('bad flag values exit 1 before anything runs', async () => {
@@ -207,6 +267,20 @@ test('bad flag values exit 1 before anything runs', async () => {
     assert.equal(r.code, 1);
     assert.deepEqual(r.calls, []);
   }
+});
+
+test('registerHook keeps a BOM and CRLF line endings and leaves no temp file', () => {
+  const dir = tmp();
+  const f = join(dir, 'settings.json');
+  writeFileSync(f, '\uFEFF{\r\n  "model": "opus"\r\n}\r\n');
+  assert.deepEqual(registerHook(f, 'c'), { ok: true });
+  const raw = readFileSync(f, 'utf8');
+  assert.ok(raw.startsWith('\uFEFF{\r\n  "model": "opus",\r\n'));
+  assert.ok(!/[^\r]\n/.test(raw));
+  assert.equal(JSON.parse(raw.slice(1)).hooks.Stop[0].hooks[0].command, 'c');
+  assert.equal(unregisterHook(f, 'c'), true);
+  assert.equal(readFileSync(f, 'utf8'), '\uFEFF{\r\n  "model": "opus"\r\n}\r\n');
+  assert.deepEqual(readdirSync(dir), ['settings.json']);
 });
 
 test('select: non-TTY reads a typed number, empty line takes the default', async () => {

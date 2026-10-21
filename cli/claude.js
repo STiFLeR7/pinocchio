@@ -34,5 +34,6 @@ export function claudeCli({ bin = process.env.PINOCCHIO_CLAUDE || 'claude' } = {
     uninstall: (scope) => plugin(scope, ['uninstall', PLUGIN]),
     marketplaceRemove: (scope) => plugin(scope, ['marketplace', 'remove', 'pinocchio']),
     listPlugins: () => run(['plugin', 'list', '--json']),
+    listMarketplaces: () => run(['plugin', 'marketplace', 'list', '--json']),
   };
 }

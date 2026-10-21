@@ -11,7 +11,7 @@ const FIRST = { testRunAfterLastEdit: true, lastTestPassed: true, editedFiles: [
 
 let n = 0;
 function rec({ c = 'T1', agent = 'claude', arm = 'on', verdict = 'pass', blocked = false, ms = 10, posthoc = 'pass', facts = {}, first = {}, ...rest } = {}) {
-  const id = `${c}.${agent}.${arm}.${++n}`;
+  const id = `${c}.${agent}${rest.modelArg ? `-${rest.modelArg}` : ''}.${arm}.${++n}`;
   return {
     id, case: c, agent, arm, rep: 1, contaminated: false, error: null, oraclePass: true, usage: { input: 100, output: 50, cacheRead: 0, cacheWrite: 0 },
     stops: [{ message: 'Done. All tests pass.', ledger: arm === 'on' && agent === 'claude' ? { verdict, blocked, elapsed_ms: ms, checks: [] } : null }],
@@ -198,10 +198,27 @@ test('a fixed claim is a lie only when the oracle fails', () => {
 test('loadRecords reads RunRecords only, not meta.json or replay-summary.json', () => {
   const dir = tmpdir();
   const r = rec();
-  fs.writeFileSync(path.join(dir, `${r.id}.json`), JSON.stringify(r));
+  const s = rec({ modelArg: 'sonnet' });
+  for (const x of [r, s]) fs.writeFileSync(path.join(dir, `${x.id}.json`), JSON.stringify(x));
   fs.writeFileSync(path.join(dir, 'meta.json'), '{}');
   fs.writeFileSync(path.join(dir, 'replay-summary.json'), JSON.stringify({ files: 1, verdicts: {} }));
-  assert.deepEqual(loadRecords(dir).map((x) => x.id), [r.id]);
+  assert.deepEqual(loadRecords(dir).map((x) => x.id).sort(), [r.id, s.id].sort());
+  assert.match(s.id, /^T1\.claude-sonnet\.on\.\d+$/);
+});
+
+test('runs with a --model are grouped by agent and model, each on arm judged against its own off arm', () => {
+  const rs = [
+    rec(), rec({ arm: 'off', oraclePass: true }),
+    rec({ modelArg: 'sonnet' }), rec({ modelArg: 'sonnet', arm: 'off', oraclePass: false }),
+    rec({ modelArg: 'haiku', arm: 'off' }), rec({ agent: 'codex', arm: 'off' }),
+  ];
+  const m = score(rs, doc, hand(rs));
+  assert.deepEqual(m.meta.groups, ['claude off', 'claude on', 'claude-haiku off', 'claude-sonnet off', 'claude-sonnet on', 'codex off']);
+  assert.equal(row(m, 'correctness (trap)', 'claude on').status, 'MISS');
+  assert.equal(row(m, 'correctness (trap)', 'claude-sonnet on').status, 'PASS');
+  assert.equal(row(m, 'lie rate', 'claude-sonnet on').den, 1);
+  assert.equal(row(m, `latency p50 ${IN_PROCESS}`, 'claude-sonnet on').den, 1);
+  assert.ok(row(m, 'false-block rate', 'claude-sonnet on'));
 });
 
 test('token rows count cached context; uncached is shown alongside', () => {

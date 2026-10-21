@@ -60,3 +60,28 @@ test('run.mjs refuses a codex on arm before starting any run', () => {
 test('every Claude arm loads no MCP server', () => {
   for (const arm of ['on', 'placebo', 'off']) assert.ok(claudeArgv(arm, 'hi', { repoRoot }).includes('--strict-mcp-config'), arm);
 });
+
+test('--model short names map to model ids, anything else passes through', () => {
+  const model = (m) => {
+    const argv = claudeArgv('off', 'hi', { repoRoot, model: m });
+    return argv.includes('--model') ? argv[argv.indexOf('--model') + 1] : null;
+  };
+  assert.equal(model('sonnet'), 'claude-sonnet-5-5');
+  assert.equal(model('haiku'), 'claude-haiku-4-5-20251001');
+  assert.equal(model('claude-opus-5-5'), 'claude-opus-5-5');
+  assert.equal(model(undefined), null);
+});
+
+test('codex gets -m before the prompt', () => {
+  assert.deepEqual(codexArgv('off', 'go', '/d', 'gpt-x').slice(-3), ['-m', 'gpt-x', 'go']);
+  assert.ok(!codexArgv('off', 'go', '/d').includes('-m'));
+});
+
+test('run.mjs refuses a --model that cannot be part of a file name', () => {
+  const env = { ...process.env };
+  delete env.ANTHROPIC_API_KEY;
+  delete env.OPENAI_API_KEY;
+  const r = spawnSync(process.execPath, ['bench/run.mjs', '--agent', 'claude', '--model', 'a/b'], { encoding: 'utf8', env });
+  assert.notEqual(r.status, 0);
+  assert.match(r.stderr, /--model must be/);
+});

@@ -213,21 +213,22 @@ function posthoc(transcriptPath, dir, stop) {
 }
 
 // Resolves to the RunRecord (also written to <resultsDir>/<id>.json). Fields a failed run never reached stay null,
-// e.g. oraclePass is null, not false, when the oracle did not run.
+// e.g. oraclePass is null, not false, when the oracle did not run. model is the --model value as given (e.g. sonnet):
+// it joins the agent in the id (T1.claude-sonnet.off.1); without it ids keep the plain <case>.<agent>.<arm>.<rep> form.
 export async function runOne({
-  caseObj, agent, arm, rep, repoRoot, resultsDir,
+  caseObj, agent, arm, rep, repoRoot, resultsDir, model: modelArg = null,
   cli = { claude: 'claude', codex: 'codex' },
   projectsDir = path.join(os.homedir(), '.claude', 'projects'),
   codexDir = path.join(os.homedir(), '.codex', 'sessions'),
   timeoutMs = TIMEOUT_MS,
   stop = stopRun, // test seam for the post-hoc Pinocchio run
 }) {
-  const id = `${caseObj.id}.${agent}.${arm}.${rep}`;
+  const id = `${caseObj.id}.${agent}${modelArg ? `-${modelArg}` : ''}.${arm}.${rep}`;
   const file = path.join(resultsDir, `${id}.json`);
   if (fs.existsSync(file)) return JSON.parse(fs.readFileSync(file, 'utf8'));
 
   const rec = {
-    id, case: caseObj.id, agent, arm, rep, startedAt: new Date().toISOString(), wallMs: 0, model: null, plugins: [], contaminated: false,
+    id, case: caseObj.id, agent, modelArg, arm, rep, startedAt: new Date().toISOString(), wallMs: 0, model: null, plugins: [], contaminated: false,
     mcpServers: [], slashCommands: [], skills: [], toolCount: null, result: null,
     usage: null, numTurns: null, stops: [], posthoc: null, facts: null, oraclePass: null, error: null,
   };
@@ -242,7 +243,7 @@ export async function runOne({
 
     const t0 = Date.now();
     rec.startedAt = new Date(t0).toISOString();
-    const argv = agent === 'claude' ? claudeArgv(arm, caseObj.prompt, { repoRoot }) : codexArgv(arm, caseObj.prompt, dir);
+    const argv = agent === 'claude' ? claudeArgv(arm, caseObj.prompt, { repoRoot, model: modelArg }) : codexArgv(arm, caseObj.prompt, dir, modelArg);
     const res = await runAgent(resolveCli(cli[agent]), argv, dir, timeoutMs);
     rec.wallMs = Date.now() - t0;
 

@@ -1,4 +1,4 @@
-// node bench/run.mjs --agent claude|codex --arms on,placebo,off --cases pilot|all|T1,T3 --reps 1
+// node bench/run.mjs --agent claude|codex --arms on,placebo,off --cases pilot|all|T1,T3 --reps 1 [--model sonnet|haiku|<id>]
 // Runs sequentially; ids with a result file in bench/results/ are skipped, so re-running resumes.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -8,8 +8,10 @@ import { BENCH } from './lib/fixture.js';
 import { runOne, PausedError, SetupError } from './lib/runner.js';
 
 assertSubscriptionOnly();
-const { values: a } = parseArgs({ options: { agent: { type: 'string' }, arms: { type: 'string', default: 'on,placebo,off' }, cases: { type: 'string', default: 'pilot' }, reps: { type: 'string', default: '1' } } });
+const { values: a } = parseArgs({ options: { agent: { type: 'string' }, arms: { type: 'string', default: 'on,placebo,off' }, cases: { type: 'string', default: 'pilot' }, reps: { type: 'string', default: '1' }, model: { type: 'string' } } });
 if (!['claude', 'codex'].includes(a.agent)) throw new Error('--agent claude|codex is required');
+// The model name becomes part of each result file name.
+if (a.model !== undefined && !/^[\w.[\]-]+$/.test(a.model)) throw new Error(`--model must be a short name or model id: ${a.model}`);
 const arms = a.arms.split(',');
 for (const arm of arms) if (!['on', 'placebo', 'off'].includes(arm)) throw new Error(`unknown arm: ${arm}`);
 // Pinocchio has no live hook in Codex: an "on" run would just be an off run under the wrong label.
@@ -27,7 +29,7 @@ try {
   for (let rep = 1; rep <= Number(a.reps); rep++) {
     for (const caseObj of picked) {
       for (const arm of arms) {
-        const r = await runOne({ caseObj, agent: a.agent, arm, rep, repoRoot, resultsDir });
+        const r = await runOne({ caseObj, agent: a.agent, model: a.model, arm, rep, repoRoot, resultsDir });
         console.log(`${r.id}  oracle=${r.oraclePass === null ? '-' : r.oraclePass ? 'pass' : 'fail'}  posthoc=${r.posthoc?.verdict ?? '-'}  ${(r.wallMs / 1000).toFixed(0)}s${r.contaminated ? '  CONTAMINATED' : ''}${r.error ? `  error: ${r.error}` : ''}`);
       }
     }

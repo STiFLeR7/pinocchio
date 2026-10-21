@@ -57,6 +57,17 @@ test('stops get no ledger outside the on arm', async () => {
   assert.deepEqual(r.stops.map((s) => s.ledger), [null, null]);
 });
 
+test('a --model run passes the model id and puts its short name in the id', async () => {
+  const { opts, resultsDir, spawns } = setup();
+  const r = await runOne({ ...opts, arm: 'off', model: 'sonnet' });
+  assert.equal(r.id, 'T1.claude-sonnet.off.1');
+  assert.equal(r.modelArg, 'sonnet');
+  assert.equal(r.model, 'claude-stub-1'); // the model the CLI reported
+  assert.ok(fs.existsSync(path.join(resultsDir, 'T1.claude-sonnet.off.1.json')));
+  const argv = spawns()[0];
+  assert.equal(argv[argv.indexOf('--model') + 1], 'claude-sonnet-5-5');
+});
+
 test('resume skips an existing result', async () => {
   const { opts, spawns } = setup();
   const first = await runOne({ ...opts, arm: 'off' });

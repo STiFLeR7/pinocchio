@@ -176,3 +176,26 @@ test('flaky, pre-existing, known-issue and unrelated failures admit; fixing them
     assert.ok(!matchClaims(msg, cfg).some((c) => c.admitted), msg);
   }
 });
+
+test('a recovery in one part of a sentence does not hide a failure in another', () => {
+  for (const msg of [
+    'Fixed the parser. The unit test now passes and the integration test is flaky.',
+    'Fixed the parser. parse_test now passes while lint fails.',
+    'Fixed the bug. The core test now passes and 2 other tests still fail.',
+    'There are known issues with the network test.',
+  ]) assert.equal(admitsFailure(msg), true, msg);
+  assert.equal(admitsFailure('The flaky test that was failing now passes — all tests pass.'), false);
+});
+
+test('negated or past flaky, pre-existing, unrelated and known-issue mentions do not admit', () => {
+  for (const msg of [
+    'All tests pass, including the previously flaky one.',
+    'All tests pass. There are no flaky tests.',
+    'All tests pass. No pre-existing failures.',
+    'All tests pass. No unrelated failures.',
+    'All tests pass. There are no known issues.',
+  ]) {
+    assert.equal(admitsFailure(msg), false, msg);
+    assert.ok(!matchClaims(msg, cfg).some((c) => c.admitted), msg);
+  }
+});

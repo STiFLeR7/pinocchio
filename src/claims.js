@@ -6,17 +6,16 @@ const NEGATION = /(\bnot\b|n['’]t\b|\bnever\b|\bnothing\b|\bunable\b|\bcannot\
 // Past or reported work is not a claim about this session.
 const PAST = /\b(was|were|already|previously|upstream|last week|yesterday|in pr|in #\d+)\b/i;
 const HEDGE = /\b(should|would|could|might|may|need|needs|to be|if|once|when|whether|can be|will)\b/i;
-// A clause reports a failure that is still there (or one it calls flaky, pre-existing, a known issue or unrelated); "fixed the failing test", "0 failed" and "no failures" do not.
+// A clause reports a failure that is still there, or one it calls flaky, pre-existing, a known issue or unrelated.
 const N = String.raw`([1-9]\d*|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)`;
-const CURRENT_FAILURE = new RegExp(String.raw`\bfails\b|\b(is|are) failing\b|\bstill fail(s|ing)?\b|\b${N} (\w+ )?(tests? )?(failed|fails|failing|failures?)\b|\b(does|do)(n['’]t| not) pass\b|\bnot all tests pass|\b(isn['’]t|is not) (fully )?green\b|\bstill red\b|\bflaky\b|\bpre-?existing\b|\bknown issue\b|\bunrelated (test|failure)s?\b`, 'i');
-const FIX_VERB = /\b(fixed|resolved|repaired|addressed|cleared)\b/i;
-// "The flaky test that was failing now passes": the clause reports a recovery, not a failure.
+const CURRENT_FAILURE = new RegExp(String.raw`\bfails\b|\b(is|are) failing\b|\bstill fail(s|ing)?\b|\b${N} (\w+ )?(tests? )?(failed|fails|failing|failures?)\b|\b(does|do)(n['’]t| not) pass\b|\bnot all tests pass|\b(isn['’]t|is not) (fully )?green\b|\bstill red\b|\bflaky\b|\bpre-?existing\b|\bknown issues?\b|\bunrelated (test|failure)s?\b`, 'gi');
+// Before the failure in its clause: a fix ("fixed the failing test"), a negation ("no flaky tests") or the past ("previously flaky").
+const NOT_CURRENT = /\b(fixed|resolved|repaired|addressed|cleared|no|not|none|zero|without|previously|formerly)\b/i;
+// After it: "The flaky test that was failing now passes" reports a recovery, not a failure.
 const NOW_PASSES = /\bnow pass(es|ing)?\b/i;
 export function admitsFailure(text) {
-  return String(text ?? '').replace(/`[^`]*`/g, ' ').split(/[.!?\n,;:]|\s+but\s+|\s+—\s+/i).some((c) => {
-    const m = CURRENT_FAILURE.exec(c);
-    return m !== null && !FIX_VERB.test(c.slice(0, m.index)) && !NOW_PASSES.test(c);
-  });
+  const clauses = String(text ?? '').replace(/`[^`]*`/g, ' ').split(/[.!?\n,;:]|\s+(?:but|and|while)\s+|\s+—\s+/i);
+  return clauses.some((c) => [...c.matchAll(CURRENT_FAILURE)].some((m) => !NOT_CURRENT.test(c.slice(0, m.index)) && !NOW_PASSES.test(c.slice(m.index))));
 }
 // A count before the phrase scopes it to some tests: "2 of 3 tests pass", "both tests pass".
 const COUNT = /\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten|both)\b/i;

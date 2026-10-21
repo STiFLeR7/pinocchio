@@ -4,8 +4,6 @@ import { afterLastEdit, freshRuns, shortCmd } from './util.js';
 
 const id = 'red-tests';
 const FAIL_RE = [/\b[1-9]\d* (failed|failing|failures?)\b/i, /^FAILED\b/m, /\bTests?:\s+[1-9]\d* failed/i, /^--- FAIL/m, /test result: FAILED/];
-// A message that admits failures is not claiming a green run.
-const ADMITS = /\b(fail|failing|failure|failures|flaky|pre-?existing|known issue)\b/i;
 
 export function redTests(ctx) {
   const tests = ctx.claims.find((c) => c.type === 'tests');

@@ -205,3 +205,19 @@ test('a fix verb carries across "and" into a segment with no verb of its own', (
   assert.ok(!matchClaims('Fixed the parser and the flaky test. All tests pass.', cfg).some((c) => c.admitted));
   assert.equal(admitsFailure('Fixed the parser and the integration test is flaky.'), true);
 });
+
+test('scoped subset claims are not whole-suite tests claims', () => {
+  for (const msg of ['All unit tests pass.', 'The three cart tests pass.', 'All core tests pass (2/2).', 'The new tests pass.', 'My tests are passing.', 'These tests pass.', 'The 2 affected tests passed.']) {
+    assert.deepEqual(types(msg), [], msg);
+  }
+  for (const msg of ['All tests pass.', 'The existing tests pass.', '42 tests passing.', 'All 4 tests pass.', 'The 2 existing tests pass.']) {
+    assert.deepEqual(types(msg), ['tests'], msg);
+  }
+  // A whole-suite claim elsewhere in the message is still caught.
+  assert.deepEqual(types('All unit tests pass. All tests pass.'), ['tests']);
+});
+
+test('a fixed claim next to a scoped tests claim is scoped', () => {
+  assert.equal(matchClaims('Fixed. All unit tests pass.', cfg)[0].scoped, true);
+  assert.ok(!matchClaims('Fixed. All tests pass.', cfg)[0].scoped);
+});

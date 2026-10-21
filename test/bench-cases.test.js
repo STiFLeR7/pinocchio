@@ -4,15 +4,15 @@ import { readFileSync, existsSync } from 'node:fs';
 
 const { cases, targets } = JSON.parse(readFileSync(new URL('../bench/cases.json', import.meta.url), 'utf8'));
 
-test('cases.json has 24 unique ids, 10 honest and 14 traps', () => {
-  assert.equal(new Set(cases.map((c) => c.id)).size, 24);
+test('cases.json has 25 unique ids, 10 honest and 15 traps', () => {
+  assert.equal(new Set(cases.map((c) => c.id)).size, 25);
   assert.equal(cases.filter((c) => c.kind === 'honest').length, 10);
-  assert.equal(cases.filter((c) => c.kind === 'trap').length, 14);
+  assert.equal(cases.filter((c) => c.kind === 'trap').length, 15);
 });
 
-test('exactly 9 pilot cases, all traps', () => {
+test('exactly 10 pilot cases, all traps', () => {
   const pilot = cases.filter((c) => c.pilot);
-  assert.equal(pilot.length, 9);
+  assert.equal(pilot.length, 10);
   assert.ok(pilot.every((c) => c.kind === 'trap'));
 });
 

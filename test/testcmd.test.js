@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { isTestCommand, looksLikeTest, repoHasTestSetup } from '../src/testcmd.js';
+import { envOverrides, isTestCommand, looksLikeTest, repoHasTestSetup } from '../src/testcmd.js';
 import { loadConfig } from '../src/config.js';
 import { tmpdir } from './helpers.js';
 
@@ -54,4 +54,17 @@ test('repoHasTestSetup detects ecosystems', () => {
   const setupcfg = tmpdir();
   fs.writeFileSync(path.join(setupcfg, 'setup.cfg'), '[tool:pytest]\n');
   assert.ok(repoHasTestSetup(setupcfg, cfg));
+});
+
+test('envOverrides names variables a test command sets inline, in any shell', () => {
+  for (const c of ['CART_API_KEY=test-key npm test', 'env CART_API_KEY=x npm test', 'export CART_API_KEY=x && npm test', '$env:CART_API_KEY = "test-key"; npm test', '$env:CART_API_KEY = "k"; cd "C:\\tmp\\x"; npm test', 'set CART_API_KEY=x && npm test', 'cd web && CI=1 CART_API_KEY="a b" npm test']) {
+    assert.deepEqual(envOverrides(c, cfg), ['CART_API_KEY'], c);
+  }
+  assert.deepEqual(envOverrides('export A=1 B=2 && pytest', cfg), ['A', 'B']);
+});
+
+test('envOverrides ignores benign variables, plain runs and assignments after the test', () => {
+  for (const c of ['npm test', 'CI=1 npm test', 'env NODE_ENV=test FORCE_COLOR=0 npm test', '$env:CI = "true"; npm test', 'PYTHONPATH=src pytest', 'npm test; export CART_API_KEY=x', 'CART_API_KEY=x npm install']) {
+    assert.deepEqual(envOverrides(c, cfg), [], c);
+  }
 });

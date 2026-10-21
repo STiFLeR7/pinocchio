@@ -12,7 +12,11 @@ const BUILTIN = [
 ];
 const LOOKS_LIKE_TEST = /\b(tests?|spec|pytest|jest|vitest|mocha|tox|nox|unittest|ctest)\b/i;
 
-function segments(cmd) {
+const ASSIGNMENTS = /^(\w+=("[^"]*"|'[^']*'|\S*)\s+)+/;
+// Variables a test run may set without changing what the suite checks.
+const BENIGN = new Set(['CI', 'NODE_ENV', 'FORCE_COLOR', 'NO_COLOR', 'TERM', 'PYTHONDONTWRITEBYTECODE', 'PYTHONUNBUFFERED', 'PYTHONPATH', 'DEBUG', 'LANG', 'LC_ALL', 'TZ']);
+
+function unwrapped(cmd) {
   return String(cmd)
     .split(/&&|\|\||;|\n|\|/)
     .map((s) => {
@@ -26,15 +30,31 @@ function segments(cmd) {
         // Strip leading wrappers
         t = t.replace(/^(env|time|sudo( -E)?|exec|command)\s+/, '').trim();
       }
-      // Strip VAR=value pairs (including quoted values like FOO="a b")
-      t = t.replace(/^(\w+=("[^"]*"|'[^']*'|\S*)\s+)+/, '');
       return t;
-    })
-    .filter(Boolean);
+    });
 }
 
+// Strip VAR=value pairs (including quoted values like FOO="a b")
+const segments = (cmd) => unwrapped(cmd).map((t) => t.replace(ASSIGNMENTS, '')).filter(Boolean);
+const isTest = (s, config) => BUILTIN.some((r) => r.test(s)) || config.testCommands.some((r) => r.test(s));
+
 export function isTestCommand(cmd, config) {
-  return segments(cmd).some((s) => BUILTIN.some((r) => r.test(s)) || config.testCommands.some((r) => r.test(s)));
+  return segments(cmd).some((s) => isTest(s, config));
+}
+
+// Names a segment sets in the environment: `A=1 cmd`, `env A=1 cmd`, `export A=1 B=2`, `set A=1`, `$env:A = "1"`.
+function assigned(seg) {
+  const one = /^\$env:(\w+)\s*=/i.exec(seg) ?? /^set\s+"?(\w+)=/i.exec(seg);
+  if (one) return [one[1]];
+  const pairs = ASSIGNMENTS.exec(`${seg.replace(/^export\s+/, '')} `);
+  return pairs ? [...pairs[0].matchAll(/(\w+)=("[^"]*"|'[^']*'|\S*)/g)].map((m) => m[1]) : [];
+}
+
+// Non-benign variables set inline before (or on) the last test segment: that run did not test the real environment.
+export function envOverrides(cmd, config) {
+  const segs = unwrapped(cmd);
+  const last = segs.findLastIndex((t) => isTest(t.replace(ASSIGNMENTS, ''), config));
+  return [...new Set(segs.slice(0, last + 1).flatMap(assigned).filter((n) => !BENIGN.has(n.toUpperCase())))];
 }
 
 export function looksLikeTest(cmd) {

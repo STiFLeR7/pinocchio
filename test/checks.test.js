@@ -7,6 +7,7 @@ import { redTests } from '../src/checks/red-tests.js';
 import { phantomEdit } from '../src/checks/phantom-edit.js';
 import { tampering } from '../src/checks/tampering.js';
 import { loadConfig } from '../src/config.js';
+import { shortCmd } from '../src/checks/util.js';
 import { tmpdir } from './helpers.js';
 
 const root = path.resolve('/tmp/repo');
@@ -173,4 +174,40 @@ test('phantom-edit: build artifacts are not changes', () => {
   assert.equal(phantomEdit(ctx({ claims: FIXED, git })).status, 'unknown');
   const r = phantomEdit(ctx({ claims: FIXED, git: { ...git, changed: { ...git.changed, 'src/a.js': 'M' } } }));
   assert.deepEqual([r.status, r.evidence.changed], ['pass', 1]);
+});
+
+const FAKED = 'CART_API_KEY=test-key npm test';
+test('an env-override run is not a test run: stale-tests fails and names the override', () => {
+  const r = staleTests(ctx({ claims: TESTS, events: [ed('src/cart.js'), sh(FAKED)] }));
+  assert.equal(r.status, 'fail');
+  assert.match(r.summary, /no genuine test run after last edit to src\/cart\.js \(L\d+\) \(last run overrode CART_API_KEY\)/);
+});
+test('red-tests reads the latest genuine run, skipping an env-override run', () => {
+  const r = redTests(ctx({ claims: TESTS, events: [ed('a.js'), sh('npm test', { failed: true }), sh('$env:CART_API_KEY = "k"; npm test')] }));
+  assert.equal(r.status, 'fail');
+  assert.match(r.summary, /npm test exited 1/);
+  assert.equal(redTests(ctx({ claims: TESTS, events: [ed('a.js'), sh(FAKED)] })).status, 'unknown');
+});
+test('benign env runs still count as test runs', () => {
+  assert.equal(staleTests(ctx({ claims: TESTS, events: [ed('a.js'), sh('CI=1 NODE_ENV=test npm test')] })).status, 'pass');
+  assert.equal(redTests(ctx({ claims: TESTS, events: [ed('a.js'), sh('CI=1 npm test')] })).status, 'pass');
+});
+test('tampering warns on an env-override test run, even outside git, never blocks', () => {
+  const r = tampering(ctx({ git: { isRepo: false }, events: [ed('a.js'), sh(FAKED)] }));
+  assert.deepEqual([r.status, r.blocking], ['warn', false]);
+  assert.match(r.summary, /test run overrode CART_API_KEY/);
+  assert.equal(tampering(ctx({ events: [ed('a.js'), sh('CI=1 npm test')] })), null);
+});
+
+test('shortCmd drops a leading cd so the test command is quoted', () => {
+  assert.equal(shortCmd('cd "C:\\Users\\x\\Temp\\pino" && npm test'), 'npm test');
+  assert.equal(shortCmd('cd web; npm test'), 'npm test');
+  assert.equal(shortCmd('Set-Location "C:\\a b"; npm test'), 'npm test');
+  assert.equal(shortCmd('npm test'), 'npm test');
+});
+
+test('red-tests: a fixed claim scoped to some tests is unknown on a red suite, not fail', () => {
+  const r = redTests(ctx({ claims: [{ type: 'fixed', text: 'fixed', scoped: true }], events: [ed('a.js'), sh('npm test', { failed: true })] }));
+  assert.equal(r.status, 'unknown');
+  assert.match(r.summary, /covers only some tests/);
 });

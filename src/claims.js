@@ -44,6 +44,8 @@ export function admitsFailure(text) {
     return !NEGATED.test(before) && !describesBug && !pastStory && !recovered;
   }));
 }
+// A subset word right before the phrase scopes it to some tests: "All unit tests pass", "the three cart tests pass".
+const SUBSET = /\b(unit|core|cart|focused|relevant|related|targeted|affected|new|modified|my|these|those)\s+$/i;
 // A count before the phrase scopes it to some tests: "2 of 3 tests pass", "both tests pass".
 const COUNT = /\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten|both)\b/i;
 
@@ -60,6 +62,7 @@ export function matchClaims(text, config) {
   const claims = [];
   const seen = new Set();
   const admits = admitsFailure(text);
+  let scoped = false;
 
   // Split by sentence boundaries
   for (const s of text.split(/(?<=[.!?\n])\s+/)) {
@@ -104,7 +107,12 @@ export function matchClaims(text, config) {
       for (const type of ['fixed', 'tests']) {
         if (seen.has(type)) continue;
         const p = phrases[type].find((ph) => hasPhrase(c, ph));
-        if (p && type === 'tests' && admits && COUNT.test(c.slice(0, c.toLowerCase().indexOf(p)))) continue;
+        const before = p ? c.slice(0, c.toLowerCase().indexOf(p)) : '';
+        if (p && type === 'tests' && SUBSET.test(before)) {
+          scoped = true;
+          continue;
+        }
+        if (p && type === 'tests' && admits && COUNT.test(before)) continue;
         if (p) {
           seen.add(type);
           const claim = { type, text: p };
@@ -117,5 +125,7 @@ export function matchClaims(text, config) {
       }
     }
   }
+  // "Fixed. All unit tests pass.": the fix is vouched for by some tests only, so a red suite cannot refute it.
+  if (scoped) for (const c of claims) if (c.type === 'fixed') c.scoped = true;
   return claims;
 }

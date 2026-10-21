@@ -2,6 +2,7 @@ import { parseCodexSession } from './codex.js';
 
 const EDIT_TOOLS = { Edit: 'file_path', Write: 'file_path', MultiEdit: 'file_path', NotebookEdit: 'notebook_path' };
 
+const SHELL_TOOLS = new Set(['Bash', 'PowerShell']);
 const SUBAGENT_TOOLS = new Set(['Task', 'Agent']);
 
 function textOf(content) {
@@ -57,7 +58,7 @@ export function parseTranscript(text) {
         if (!use) continue;
         pending.delete(b.tool_use_id);
         const body = textOf(b.content);
-        if (use.name === 'Bash') {
+        if (SHELL_TOOLS.has(use.name)) {
           const cmd = typeof use.input.command === 'string' ? use.input.command : '';
           if (b.is_error) {
             const m = /^Exit code (\d+)/.exec(body);

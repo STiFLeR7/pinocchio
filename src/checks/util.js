@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { confine } from '../paths.js';
+import { envOverrides, isTestCommand } from '../testcmd.js';
 
 const DOC = /\.(md|mdx|txt|rst)$/i;
 export const isDoc = (file) => DOC.test(file);
@@ -33,7 +34,14 @@ export function bashBeforeGitEdit(events, gitEdits, since = -Infinity) {
   });
 }
 
+// Recognized test runs. A run that overrides the environment inline (envOverrides) is tampered: not evidence of the real suite.
+export function testRuns(events, config) {
+  const runs = events.filter((e) => e.kind === 'bash' && isTestCommand(e.cmd, config));
+  const tampered = runs.filter((e) => envOverrides(e.cmd, config).length);
+  return { genuine: runs.filter((e) => !tampered.includes(e)), tampered };
+}
+
 export function shortCmd(cmd) {
-  const one = String(cmd).split('\n')[0].trim();
+  const one = String(cmd).split('\n')[0].trim().replace(/^(cd|Set-Location)\s+("[^"]*"|'[^']*'|\S+)\s*(&&|;)\s*/i, '');
   return one.length > 60 ? `${one.slice(0, 57)}...` : one;
 }

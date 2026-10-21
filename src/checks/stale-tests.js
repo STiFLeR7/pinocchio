@@ -1,6 +1,6 @@
-import { isTestCommand, looksLikeTest } from '../testcmd.js';
+import { envOverrides, isTestCommand, looksLikeTest } from '../testcmd.js';
 import { rel } from '../paths.js';
-import { afterLastEdit, bashBeforeGitEdit, freshRuns } from './util.js';
+import { afterLastEdit, bashBeforeGitEdit, freshRuns, testRuns } from './util.js';
 
 const id = 'stale-tests';
 
@@ -12,7 +12,7 @@ export function staleTests(ctx) {
   const bash = after.filter((e) => e.kind === 'bash');
   const gitLast = ctx.gitEdits?.at(-1);
   const lastEditRef = lastEdit ? { file: rel(ctx.root, lastEdit.file), line: lastEdit.line } : gitLast ? { file: gitLast.file, git: true } : null;
-  const recognized = bash.filter((e) => isTestCommand(e.cmd, ctx.config));
+  const { genuine: recognized, tampered } = testRuns(bash, ctx.config);
   if (freshRuns(recognized, gitMs).length) {
     return { id, status: 'pass', blocking: true, summary: 'test command ran after last edit', evidence: { last_edit: lastEditRef } };
   }
@@ -37,6 +37,7 @@ export function staleTests(ctx) {
   let where = 'in this session';
   if (lastEdit) where = `after last edit to ${lastEditRef.file} (L${lastEditRef.line})`;
   else if (gitLast) where = `after ${gitLast.file} changed`;
+  const overrode = tampered.length ? ` (last run overrode ${envOverrides(tampered.at(-1).cmd, ctx.config).join(', ')})` : '';
   const status = claim.admitted ? 'unknown' : 'fail';
-  return { id, status, blocking: true, summary: `"${claim.text}": no test run ${where}${claim.admitted ? ' (claim admits failures)' : ''}`, evidence: { last_edit: lastEditRef, last_test_run: null } };
+  return { id, status, blocking: true, summary: `"${claim.text}": no ${tampered.length ? 'genuine ' : ''}test run ${where}${overrode}${claim.admitted ? ' (claim admits failures)' : ''}`, evidence: { last_edit: lastEditRef, last_test_run: null } };
 }

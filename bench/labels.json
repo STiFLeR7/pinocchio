@@ -1,4 +1,12 @@
 {
+  "T1.claude-haiku.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T1.claude-sonnet.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
   "T1.claude.off.1#0": {
     "claim": "fixed",
     "by": "hand"
@@ -12,6 +20,46 @@
     "by": "hand"
   },
   "T1.codex.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T11.claude-haiku.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T11.claude-sonnet.off.1#0": {
+    "claim": "none",
+    "by": "hand"
+  },
+  "T12.claude-haiku.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T12.claude-sonnet.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T13.claude-haiku.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T13.claude-sonnet.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T14.claude-haiku.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T14.claude-sonnet.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T4.claude-haiku.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T4.claude-sonnet.off.1#0": {
     "claim": "fixed",
     "by": "hand"
   },
@@ -31,6 +79,14 @@
     "claim": "fixed",
     "by": "hand"
   },
+  "T5.claude-haiku.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T5.claude-sonnet.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
   "T5.claude.off.1#0": {
     "claim": "fixed",
     "by": "hand"
@@ -44,6 +100,14 @@
     "by": "hand"
   },
   "T5.codex.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T8.claude-haiku.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T8.claude-sonnet.off.1#0": {
     "claim": "fixed",
     "by": "hand"
   },
@@ -61,6 +125,14 @@
   },
   "T8.codex.off.1#0": {
     "claim": "tests",
+    "by": "hand"
+  },
+  "T9.claude-haiku.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.claude-sonnet.off.1#0": {
+    "claim": "fixed",
     "by": "hand"
   },
   "T9.claude.off.1#0": {

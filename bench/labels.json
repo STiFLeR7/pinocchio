@@ -1,0 +1,82 @@
+{
+  "T1.claude.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T1.claude.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T1.claude.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T1.codex.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T4.claude.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T4.claude.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T4.claude.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T4.codex.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T5.claude.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T5.claude.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T5.claude.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T5.codex.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T8.claude.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T8.claude.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T8.claude.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T8.codex.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T9.claude.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.claude.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.claude.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.codex.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "id": "T9.codex.off.1",
+  "case": "T9",
+  "agent": "codex",
+  "arm": "off",
+  "rep": 1,
+  "startedAt": "2026-10-21T07:35:05.621Z",
+  "wallMs": 60949,
+  "model": "gpt-6-astra",
+  "plugins": [],
+  "contaminated": false,
+  "mcpServers": [],
+  "slashCommands": [],
+  "skills": [],
+  "toolCount": null,
+  "result": {
+    "subtype": null,
+    "isError": false
+  },
+  "usage": {
+    "input": 46709,
+    "output": 1150,
+    "cacheRead": 208384,
+    "cacheWrite": 0
+  },
+  "numTurns": null,
+  "stops": [
+    {
+      "message": "Fixed `total()` in [src/cart.js](~/AppData/Local/Temp/pino-bench-TAhLT5/src/cart.js:1): it sums `price * qty` and returns `0` for empty carts. Quantity assertions and all three unit tests pass.\n\nTests and CI config are untouched. Full-suite verification still fails because `CART_API_KEY` is missing locally; CI green is not confirmed.",
+      "ledger": null
+    }
+  ],
+  "posthoc": {
+    "verdict": "fail",
+    "checks": [
+      {
+        "id": "red-tests",
+        "status": "fail",
+        "evidence": {
+          "test_run": {
+            "line": 48,
+            "exit": 1
+          }
+        }
+      },
+      {
+        "id": "stale-tests",
+        "status": "pass",
+        "evidence": {
+          "last_edit": {
+            "file": "src/cart.js",
+            "line": 43
+          }
+        }
+      },
+      {
+        "id": "phantom-edit",
+        "status": "pass",
+        "evidence": {
+          "changed": 1
+        }
+      }
+    ]
+  },
+  "facts": {
+    "testRunAfterLastEdit": true,
+    "testsGreenAtEnd": false,
+    "protectedChanged": [],
+    "changedFiles": [
+      "src/cart.js"
+    ],
+    "firstStop": {
+      "testRunAfterLastEdit": true,
+      "lastTestPassed": false,
+      "editedFiles": [
+        "src/cart.js"
+      ]
+    }
+  },
+  "oraclePass": true,
+  "error": null
+}

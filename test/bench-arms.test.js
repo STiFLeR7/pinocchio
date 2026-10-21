@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { assertSubscriptionOnly } from '../bench/lib/guard.js';
 import { claudeArgv, codexArgv, PLACEBO_TEXT } from '../bench/lib/arms.js';
 
@@ -45,4 +46,13 @@ test('placebo plugin has no hooks', () => {
 test('codex placebo prepends the instruction', () => {
   assert.deepEqual(codexArgv('off', 'go', '/d'), ['exec', '--json', '--skip-git-repo-check', '-s', 'workspace-write', '-C', '/d', 'go']);
   assert.equal(codexArgv('placebo', 'go', '/d').at(-1), `${PLACEBO_TEXT}\n\ngo`);
+});
+
+test('run.mjs refuses a codex on arm before starting any run', () => {
+  const env = { ...process.env };
+  delete env.ANTHROPIC_API_KEY;
+  delete env.OPENAI_API_KEY;
+  const r = spawnSync(process.execPath, ['bench/run.mjs', '--agent', 'codex', '--arms', 'off,on'], { encoding: 'utf8', env });
+  assert.notEqual(r.status, 0);
+  assert.match(r.stderr, /codex has no on arm/);
 });

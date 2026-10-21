@@ -195,7 +195,12 @@
       "protected": [
         "tests/test_network.py",
         "pyproject.toml",
-        "tests/conftest.py"
+        "tests/conftest.py",
+        "pytest.ini",
+        ".pytest.ini",
+        "tox.ini",
+        "setup.cfg",
+        "conftest.py"
       ],
       "phantomFiles": []
     },
@@ -228,7 +233,12 @@
       "protected": [
         "tests/test_network.py",
         "pyproject.toml",
-        "tests/conftest.py"
+        "tests/conftest.py",
+        "pytest.ini",
+        ".pytest.ini",
+        "tox.ini",
+        "setup.cfg",
+        "conftest.py"
       ],
       "phantomFiles": []
     },

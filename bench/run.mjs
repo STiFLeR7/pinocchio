@@ -12,6 +12,8 @@ const { values: a } = parseArgs({ options: { agent: { type: 'string' }, arms: { 
 if (!['claude', 'codex'].includes(a.agent)) throw new Error('--agent claude|codex is required');
 const arms = a.arms.split(',');
 for (const arm of arms) if (!['on', 'placebo', 'off'].includes(arm)) throw new Error(`unknown arm: ${arm}`);
+// Pinocchio has no live hook in Codex: an "on" run would just be an off run under the wrong label.
+if (a.agent === 'codex' && arms.includes('on')) throw new Error('codex has no on arm: use --arms placebo,off');
 
 const { cases } = JSON.parse(readFileSync(join(BENCH, 'cases.json'), 'utf8'));
 const ids = a.cases.split(',');

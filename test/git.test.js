@@ -98,3 +98,12 @@ test('git calls never run a repo-configured fsmonitor hook', () => {
   testFileDiff(dir, ['a.js']);
   assert.equal(fs.existsSync(marker), false);
 });
+
+test('root keeps the spelling of a symlinked cwd, from the repo root and a subfolder', () => {
+  const dir = initRepo(tmpdir());
+  fs.mkdirSync(path.join(dir, 'sub'));
+  const link = path.join(tmpdir(), 'link');
+  fs.symlinkSync(dir, link, 'junction');
+  assert.equal(readGitState(link).root, path.resolve(link));
+  assert.equal(readGitState(path.join(link, 'sub')).root, path.resolve(link));
+});

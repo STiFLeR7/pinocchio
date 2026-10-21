@@ -1,6 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import crypto from 'node:crypto';
+import path from 'node:path';
 
 const ALLOWED = new Set(['rev-parse', 'status', 'diff', 'log']);
 
@@ -12,7 +13,9 @@ function git(cwd, args) {
 
 export function readGitState(cwd) {
   try {
-    const root = git(cwd, ['rev-parse', '--show-toplevel']).trim();
+    // Resolve the root from cwd as spelled, not git's real path: a symlinked
+    // or 8.3 cwd (macOS /var, Windows RUNNER~1) must match transcript paths.
+    const root = path.resolve(cwd, git(cwd, ['rev-parse', '--show-cdup']).trim() || '.');
     let head = null;
     try {
       head = git(cwd, ['rev-parse', '--short', 'HEAD']).trim();

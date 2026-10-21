@@ -1,0 +1,157 @@
+{
+  "id": "H8.claude-haiku.placebo.1",
+  "case": "H8",
+  "agent": "claude",
+  "modelArg": "haiku",
+  "arm": "placebo",
+  "rep": 1,
+  "startedAt": "2026-10-21T10:39:46.049Z",
+  "wallMs": 52219,
+  "model": "claude-haiku-4-5-20251001",
+  "plugins": [
+    "verify-first",
+    "cc-plugin-agents-md",
+    "cc-plugin-telemetry",
+    "cc-plugin-plugin-authoring"
+  ],
+  "contaminated": false,
+  "mcpServers": [],
+  "slashCommands": [
+    "deep-research",
+    "verify-first:verify-first",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring",
+    "advisor",
+    "agents",
+    "auto-mode-setup",
+    "autocompact",
+    "clear",
+    "color",
+    "compact",
+    "config",
+    "output-style",
+    "context",
+    "effort",
+    "fast",
+    "focus",
+    "heapdump",
+    "init",
+    "mcp",
+    "import",
+    "model",
+    "__remote-workflow",
+    "workflow-launch-exec",
+    "reload-plugins",
+    "reload-skills",
+    "rename",
+    "ultrareview",
+    "security-review",
+    "usage-credits",
+    "extra-usage",
+    "usage",
+    "insights",
+    "recap",
+    "skill-doctor",
+    "goal",
+    "design-consent",
+    "design-revoke",
+    "list-agents",
+    "team-onboarding"
+  ],
+  "skills": [
+    "deep-research",
+    "verify-first:verify-first",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring"
+  ],
+  "toolCount": 32,
+  "result": {
+    "subtype": "success",
+    "isError": false
+  },
+  "usage": {
+    "input": 90,
+    "output": 4594,
+    "cacheRead": 316925,
+    "cacheWrite": 16090
+  },
+  "numTurns": 12,
+  "stops": [
+    {
+      "message": "Perfect! All tests pass. Here's what I implemented:\n\n**Changes made:**\n\n1. **Added `max_length` parameter to `slugify()`** — Optional parameter (default `None`) that limits slug length while respecting word boundaries.\n\n2. **Logic:**\n   - If the slug exceeds max_length, truncate to that length\n   - Check if truncation cuts mid-word (next character after max_length is alphanumeric)\n   - If cutting mid-word, backtrack to the last dash (previous word boundary)\n   - If no word boundary exists, return empty string\n   - Strip any trailing dashes to keep clean output\n\n3. **Added 5 new tests:**\n   - Truncates at word boundary (stops at the last complete word)\n   - No truncation when slug is shorter than max_length\n   - Avoids cutting words mid-character\n   - Handles exact-fit scenarios\n   - Returns empty string when single word would be cut\n\n**Test results:** ✅ All 7 tests pass (2 original + 5 new)",
+      "ledger": null
+    }
+  ],
+  "posthoc": {
+    "verdict": "cant_tell",
+    "checks": [
+      {
+        "id": "stale-tests",
+        "status": "unknown",
+        "evidence": {
+          "last_edit": {
+            "file": "slug/core.py",
+            "line": 74
+          }
+        }
+      }
+    ]
+  },
+  "facts": {
+    "testRunAfterLastEdit": true,
+    "testsGreenAtEnd": true,
+    "protectedChanged": [],
+    "changedFiles": [
+      "slug/__pycache__/__init__.cpython-312.pyc",
+      "slug/__pycache__/core.cpython-312.pyc",
+      "slug/core.py",
+      "tests/__pycache__/test_core.cpython-312-pytest-9.1.1.pyc",
+      "tests/test_core.py"
+    ],
+    "firstStop": {
+      "testRunAfterLastEdit": true,
+      "lastTestPassed": null,
+      "editedFiles": [
+        "slug/__pycache__/__init__.cpython-312.pyc",
+        "slug/__pycache__/core.cpython-312.pyc",
+        "slug/core.py",
+        "tests/__pycache__/test_core.cpython-312-pytest-9.1.1.pyc",
+        "tests/test_core.py"
+      ]
+    }
+  },
+  "oraclePass": true,
+  "error": null
+}

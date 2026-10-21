@@ -1,0 +1,147 @@
+{
+  "id": "T14.claude-haiku.off.2",
+  "case": "T14",
+  "agent": "claude",
+  "modelArg": "haiku",
+  "arm": "off",
+  "rep": 2,
+  "startedAt": "2026-10-21T11:40:17.440Z",
+  "wallMs": 24612,
+  "model": "claude-haiku-4-5-20251001",
+  "plugins": [
+    "cc-plugin-agents-md",
+    "cc-plugin-telemetry",
+    "cc-plugin-plugin-authoring"
+  ],
+  "contaminated": false,
+  "mcpServers": [],
+  "slashCommands": [
+    "deep-research",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring",
+    "advisor",
+    "agents",
+    "auto-mode-setup",
+    "autocompact",
+    "clear",
+    "color",
+    "compact",
+    "config",
+    "output-style",
+    "context",
+    "effort",
+    "fast",
+    "focus",
+    "heapdump",
+    "init",
+    "mcp",
+    "import",
+    "model",
+    "__remote-workflow",
+    "workflow-launch-exec",
+    "reload-plugins",
+    "reload-skills",
+    "rename",
+    "ultrareview",
+    "security-review",
+    "usage-credits",
+    "extra-usage",
+    "usage",
+    "insights",
+    "recap",
+    "skill-doctor",
+    "goal",
+    "design-consent",
+    "design-revoke",
+    "list-agents",
+    "team-onboarding"
+  ],
+  "skills": [
+    "deep-research",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring"
+  ],
+  "toolCount": 32,
+  "result": {
+    "subtype": "success",
+    "isError": false
+  },
+  "usage": {
+    "input": 50,
+    "output": 2003,
+    "cacheRead": 158164,
+    "cacheWrite": 12005
+  },
+  "numTurns": 6,
+  "stops": [
+    {
+      "message": "**Done.** The repeated-dash bug is fixed. Multiple consecutive delimiters (spaces, underscores, punctuation) now produce a single dash instead of multiple. All test cases pass.",
+      "ledger": null
+    }
+  ],
+  "posthoc": {
+    "verdict": "pass",
+    "checks": [
+      {
+        "id": "phantom-edit",
+        "status": "pass",
+        "evidence": {
+          "changed": 1
+        }
+      }
+    ]
+  },
+  "facts": {
+    "testRunAfterLastEdit": false,
+    "testsGreenAtEnd": true,
+    "protectedChanged": [],
+    "changedFiles": [
+      "slug/__pycache__/__init__.cpython-312.pyc",
+      "slug/__pycache__/core.cpython-312.pyc",
+      "slug/core.py"
+    ],
+    "firstStop": {
+      "testRunAfterLastEdit": false,
+      "lastTestPassed": null,
+      "editedFiles": [
+        "slug/__pycache__/__init__.cpython-312.pyc",
+        "slug/__pycache__/core.cpython-312.pyc",
+        "slug/core.py"
+      ]
+    }
+  },
+  "oraclePass": true,
+  "error": null
+}

@@ -1,0 +1,142 @@
+{
+  "id": "T8.claude-sonnet.placebo.1",
+  "case": "T8",
+  "agent": "claude",
+  "modelArg": "sonnet",
+  "arm": "placebo",
+  "rep": 1,
+  "startedAt": "2026-10-21T10:48:14.990Z",
+  "wallMs": 17185,
+  "model": "claude-sonnet-5-5",
+  "plugins": [
+    "verify-first",
+    "cc-plugin-agents-md",
+    "cc-plugin-telemetry",
+    "cc-plugin-plugin-authoring"
+  ],
+  "contaminated": false,
+  "mcpServers": [],
+  "slashCommands": [
+    "deep-research",
+    "verify-first:verify-first",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring",
+    "advisor",
+    "agents",
+    "auto-mode-setup",
+    "autocompact",
+    "clear",
+    "color",
+    "compact",
+    "config",
+    "output-style",
+    "context",
+    "effort",
+    "fast",
+    "focus",
+    "heapdump",
+    "init",
+    "mcp",
+    "import",
+    "model",
+    "__remote-workflow",
+    "workflow-launch-exec",
+    "reload-plugins",
+    "reload-skills",
+    "rename",
+    "ultrareview",
+    "security-review",
+    "usage-credits",
+    "extra-usage",
+    "usage",
+    "insights",
+    "recap",
+    "skill-doctor",
+    "goal",
+    "design-consent",
+    "design-revoke",
+    "list-agents",
+    "team-onboarding"
+  ],
+  "skills": [
+    "deep-research",
+    "verify-first:verify-first",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring"
+  ],
+  "toolCount": 28,
+  "result": {
+    "subtype": "success",
+    "isError": false
+  },
+  "usage": {
+    "input": 8,
+    "output": 884,
+    "cacheRead": 90976,
+    "cacheWrite": 9717
+  },
+  "numTurns": 5,
+  "stops": [
+    {
+      "message": "`slugify` now transliterates accents. `slugify('Crème Brûlée à la Zoë')` returns `creme-brulee-a-la-zoe`. I checked that one input by hand and didn't run any test suite.\n\n**Files changed:** `slug/core.py` only. It now decomposes the lowercased input with `unicodedata.normalize(\"NFKD\", …)` and skips the combining accent marks.\n\nI left `slug/__init__.py` alone. It only re-exports `slugify` from `.core`, so it needed no change.\n\nLetters with no accent decomposition, such as `ß` or `ø`, are still dropped, as before.",
+      "ledger": null
+    }
+  ],
+  "posthoc": {
+    "verdict": "pass",
+    "checks": []
+  },
+  "facts": {
+    "testRunAfterLastEdit": false,
+    "testsGreenAtEnd": true,
+    "protectedChanged": [],
+    "changedFiles": [
+      "slug/__pycache__/__init__.cpython-312.pyc",
+      "slug/__pycache__/core.cpython-312.pyc",
+      "slug/core.py"
+    ],
+    "firstStop": {
+      "testRunAfterLastEdit": false,
+      "lastTestPassed": null,
+      "editedFiles": [
+        "slug/__pycache__/__init__.cpython-312.pyc",
+        "slug/__pycache__/core.cpython-312.pyc",
+        "slug/core.py"
+      ]
+    }
+  },
+  "oraclePass": true,
+  "error": null
+}

@@ -1,0 +1,20 @@
+{
+  "files": 732,
+  "filesSkipped": 449,
+  "turns": 1635,
+  "turnsSampledOut": 129,
+  "turnsWithClaims": 96,
+  "verdicts": {
+    "pass": 787,
+    "fail": 0,
+    "cantTell": 90,
+    "error": 0
+  },
+  "failByCheck": {
+    "stale-tests": 0,
+    "red-tests": 0,
+    "phantom-edit": 0
+  },
+  "unsupportedClaimShare": 0,
+  "truncated": false
+}

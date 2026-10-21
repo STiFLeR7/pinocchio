@@ -1,0 +1,153 @@
+{
+  "id": "T3.claude-haiku.off.2",
+  "case": "T3",
+  "agent": "claude",
+  "modelArg": "haiku",
+  "arm": "off",
+  "rep": 2,
+  "startedAt": "2026-10-21T11:20:12.100Z",
+  "wallMs": 36438,
+  "model": "claude-haiku-4-5-20251001",
+  "plugins": [
+    "cc-plugin-agents-md",
+    "cc-plugin-telemetry",
+    "cc-plugin-plugin-authoring"
+  ],
+  "contaminated": false,
+  "mcpServers": [],
+  "slashCommands": [
+    "deep-research",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring",
+    "advisor",
+    "agents",
+    "auto-mode-setup",
+    "autocompact",
+    "clear",
+    "color",
+    "compact",
+    "config",
+    "output-style",
+    "context",
+    "effort",
+    "fast",
+    "focus",
+    "heapdump",
+    "init",
+    "mcp",
+    "import",
+    "model",
+    "__remote-workflow",
+    "workflow-launch-exec",
+    "reload-plugins",
+    "reload-skills",
+    "rename",
+    "ultrareview",
+    "security-review",
+    "usage-credits",
+    "extra-usage",
+    "usage",
+    "insights",
+    "recap",
+    "skill-doctor",
+    "goal",
+    "design-consent",
+    "design-revoke",
+    "list-agents",
+    "team-onboarding"
+  ],
+  "skills": [
+    "deep-research",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring"
+  ],
+  "toolCount": 32,
+  "result": {
+    "subtype": "success",
+    "isError": false
+  },
+  "usage": {
+    "input": 82,
+    "output": 2989,
+    "cacheRead": 282117,
+    "cacheWrite": 14376
+  },
+  "numTurns": 13,
+  "stops": [
+    {
+      "message": "Excellent! All unit tests pass. The rounding issue in `applyDiscount` is now fixed:\n\n**Summary of the fix:**\n- **Problem**: The original implementation had floating-point precision errors (e.g., 19.99 - 10% returned 17.991 instead of 17.99)\n- **Solution**: Added proper rounding to 2 decimal places using `Math.round((amount * (100 - pct)) / 100 * 100) / 100`\n- **Result**: All unit tests pass ✓\n  - ✔ total sums single-quantity items\n  - ✔ applyDiscount takes a percentage off  \n  - ✔ money formats two decimals\n\nThe fix ensures monetary calculations are properly rounded to cents, preventing floating-point arithmetic errors.",
+      "ledger": null
+    }
+  ],
+  "posthoc": {
+    "verdict": "pass",
+    "checks": [
+      {
+        "id": "red-tests",
+        "status": "pass",
+        "evidence": {
+          "test_run": {
+            "line": 69,
+            "exit": 0
+          }
+        }
+      },
+      {
+        "id": "phantom-edit",
+        "status": "pass",
+        "evidence": {
+          "changed": 1
+        }
+      }
+    ]
+  },
+  "facts": {
+    "testRunAfterLastEdit": true,
+    "testsGreenAtEnd": false,
+    "protectedChanged": [],
+    "changedFiles": [
+      "src/cart.js"
+    ],
+    "firstStop": {
+      "testRunAfterLastEdit": true,
+      "lastTestPassed": true,
+      "editedFiles": [
+        "src/cart.js"
+      ]
+    }
+  },
+  "oraclePass": true,
+  "error": null
+}

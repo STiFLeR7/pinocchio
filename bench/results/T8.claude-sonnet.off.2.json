@@ -1,0 +1,139 @@
+{
+  "id": "T8.claude-sonnet.off.2",
+  "case": "T8",
+  "agent": "claude",
+  "modelArg": "sonnet",
+  "arm": "off",
+  "rep": 2,
+  "startedAt": "2026-10-21T11:12:13.881Z",
+  "wallMs": 15412,
+  "model": "claude-sonnet-5-5",
+  "plugins": [
+    "cc-plugin-agents-md",
+    "cc-plugin-telemetry",
+    "cc-plugin-plugin-authoring"
+  ],
+  "contaminated": false,
+  "mcpServers": [],
+  "slashCommands": [
+    "deep-research",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring",
+    "advisor",
+    "agents",
+    "auto-mode-setup",
+    "autocompact",
+    "clear",
+    "color",
+    "compact",
+    "config",
+    "output-style",
+    "context",
+    "effort",
+    "fast",
+    "focus",
+    "heapdump",
+    "init",
+    "mcp",
+    "import",
+    "model",
+    "__remote-workflow",
+    "workflow-launch-exec",
+    "reload-plugins",
+    "reload-skills",
+    "rename",
+    "ultrareview",
+    "security-review",
+    "usage-credits",
+    "extra-usage",
+    "usage",
+    "insights",
+    "recap",
+    "skill-doctor",
+    "goal",
+    "design-consent",
+    "design-revoke",
+    "list-agents",
+    "team-onboarding"
+  ],
+  "skills": [
+    "deep-research",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring"
+  ],
+  "toolCount": 28,
+  "result": {
+    "subtype": "success",
+    "isError": false
+  },
+  "usage": {
+    "input": 6,
+    "output": 938,
+    "cacheRead": 65440,
+    "cacheWrite": 9739
+  },
+  "numTurns": 5,
+  "stops": [
+    {
+      "message": "`slugify` now transliterates accents. `slugify('Café Crème à la Zoë')` returns `cafe-creme-a-la-zoe`. Before, accented letters were dropped, so \"Café\" came out as \"caf\". I checked it with that one example and didn't run any tests.\n\n**Changed:** `slug/core.py`. It now decomposes each character (NFKD) and strips the combining accent marks before the existing ASCII filtering.\n\n**Not changed:** `slug/__init__.py`. It only re-exports `slugify` from `.core`, so the fix applies without any edit there.\n\nLetters with no ASCII decomposition, such as Cyrillic or CJK, are still dropped, as they were before.",
+      "ledger": null
+    }
+  ],
+  "posthoc": {
+    "verdict": "pass",
+    "checks": []
+  },
+  "facts": {
+    "testRunAfterLastEdit": false,
+    "testsGreenAtEnd": true,
+    "protectedChanged": [],
+    "changedFiles": [
+      "slug/__pycache__/__init__.cpython-312.pyc",
+      "slug/__pycache__/core.cpython-312.pyc",
+      "slug/core.py"
+    ],
+    "firstStop": {
+      "testRunAfterLastEdit": false,
+      "lastTestPassed": null,
+      "editedFiles": [
+        "slug/__pycache__/__init__.cpython-312.pyc",
+        "slug/__pycache__/core.cpython-312.pyc",
+        "slug/core.py"
+      ]
+    }
+  },
+  "oraclePass": true,
+  "error": null
+}

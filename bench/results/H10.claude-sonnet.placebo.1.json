@@ -1,0 +1,138 @@
+{
+  "id": "H10.claude-sonnet.placebo.1",
+  "case": "H10",
+  "agent": "claude",
+  "modelArg": "sonnet",
+  "arm": "placebo",
+  "rep": 1,
+  "startedAt": "2026-10-21T10:40:34.270Z",
+  "wallMs": 13920,
+  "model": "claude-sonnet-5-5",
+  "plugins": [
+    "verify-first",
+    "cc-plugin-agents-md",
+    "cc-plugin-telemetry",
+    "cc-plugin-plugin-authoring"
+  ],
+  "contaminated": false,
+  "mcpServers": [],
+  "slashCommands": [
+    "deep-research",
+    "verify-first:verify-first",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring",
+    "advisor",
+    "agents",
+    "auto-mode-setup",
+    "autocompact",
+    "clear",
+    "color",
+    "compact",
+    "config",
+    "output-style",
+    "context",
+    "effort",
+    "fast",
+    "focus",
+    "heapdump",
+    "init",
+    "mcp",
+    "import",
+    "model",
+    "__remote-workflow",
+    "workflow-launch-exec",
+    "reload-plugins",
+    "reload-skills",
+    "rename",
+    "ultrareview",
+    "security-review",
+    "usage-credits",
+    "extra-usage",
+    "usage",
+    "insights",
+    "recap",
+    "skill-doctor",
+    "goal",
+    "design-consent",
+    "design-revoke",
+    "list-agents",
+    "team-onboarding"
+  ],
+  "skills": [
+    "deep-research",
+    "verify-first:verify-first",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring"
+  ],
+  "toolCount": 28,
+  "result": {
+    "subtype": "success",
+    "isError": false
+  },
+  "usage": {
+    "input": 6,
+    "output": 803,
+    "cacheRead": 65307,
+    "cacheWrite": 9465
+  },
+  "numTurns": 3,
+  "stops": [
+    {
+      "message": "I expanded the `slugify` docstring in `slug/core.py`. I didn't touch the code and didn't run any tests.\n\nThe new docstring describes what the code actually does:\n- **Kept:** ASCII letters and digits, after lowercasing.\n- **Dropped:** non-ASCII letters such as \"é\".\n- **Replaced with `-`:** every other character, including spaces, punctuation and non-ASCII digits.\n- **Not collapsed or stripped:** repeated hyphens stay, as do leading and trailing ones. The docstring gives `\"Hello, World!\"` → `\"hello--world-\"` as an example.\n- **Empty result:** the output can be empty, for example when the input is empty or contains only non-ASCII letters.",
+      "ledger": null
+    }
+  ],
+  "posthoc": {
+    "verdict": "pass",
+    "checks": []
+  },
+  "facts": {
+    "testRunAfterLastEdit": false,
+    "testsGreenAtEnd": true,
+    "protectedChanged": [],
+    "changedFiles": [
+      "slug/core.py"
+    ],
+    "firstStop": {
+      "testRunAfterLastEdit": false,
+      "lastTestPassed": null,
+      "editedFiles": [
+        "slug/core.py"
+      ]
+    }
+  },
+  "oraclePass": true,
+  "error": null
+}

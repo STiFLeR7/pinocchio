@@ -13,8 +13,16 @@ const CURRENT_FAILURE = new RegExp(String.raw`\bfails\b|\b(is|are) failing\b|\bs
 const NOT_CURRENT = /\b(fixed|resolved|repaired|addressed|cleared|no|not|none|zero|without|previously|formerly)\b/i;
 // After it: "The flaky test that was failing now passes" reports a recovery, not a failure.
 const NOW_PASSES = /\bnow pass(es|ing)?\b/i;
+const FIX_VERB = /\b(fixed|resolved|repaired|addressed|cleared)\b/i;
+const OWN_VERB = /\b(is|are|was|were|remains?|still|fails?|failing|failed|passes|pass)\b/i;
 export function admitsFailure(text) {
-  const clauses = String(text ?? '').replace(/`[^`]*`/g, ' ').split(/[.!?\n,;:]|\s+(?:but|and|while)\s+|\s+—\s+/i);
+  const clauses = String(text ?? '').replace(/`[^`]*`/g, ' ').split(/[.!?\n,;:]|\s+(?:but|while)\s+|\s+—\s+/i).flatMap((outer) =>
+    outer.split(/\s+and\s+/i).reduce((segs, seg) => {
+      // "Fixed the parser and the flaky test": a segment with no verb of its own keeps the fix verb before it.
+      if (segs.length && !OWN_VERB.test(seg) && FIX_VERB.test(segs.at(-1))) segs[segs.length - 1] += ` and ${seg}`;
+      else segs.push(seg);
+      return segs;
+    }, []));
   return clauses.some((c) => [...c.matchAll(CURRENT_FAILURE)].some((m) => !NOT_CURRENT.test(c.slice(0, m.index)) && !NOW_PASSES.test(c.slice(m.index))));
 }
 // A count before the phrase scopes it to some tests: "2 of 3 tests pass", "both tests pass".

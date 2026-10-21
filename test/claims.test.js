@@ -199,3 +199,9 @@ test('negated or past flaky, pre-existing, unrelated and known-issue mentions do
     assert.ok(!matchClaims(msg, cfg).some((c) => c.admitted), msg);
   }
 });
+
+test('a fix verb carries across "and" into a segment with no verb of its own', () => {
+  assert.equal(admitsFailure('Fixed the parser and the flaky test. All tests pass.'), false);
+  assert.ok(!matchClaims('Fixed the parser and the flaky test. All tests pass.', cfg).some((c) => c.admitted));
+  assert.equal(admitsFailure('Fixed the parser and the integration test is flaky.'), true);
+});

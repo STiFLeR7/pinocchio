@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { runOne, extractStops, resolveCli, PausedError } from '../bench/lib/runner.js';
+import { runOne, extractStops, resolveCli, PausedError, SetupError } from '../bench/lib/runner.js';
 import { tmpdir, jsonl, assistantText, bash } from './helpers.js';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
@@ -71,6 +71,40 @@ test('missing transcript gives error, not a throw', async () => {
   const { opts, resultsDir } = setup(['--mode', 'notranscript']);
   const r = await runOne({ ...opts, arm: 'off' });
   assert.match(r.error, /transcript/);
+  assert.equal(r.oraclePass, null);
+  assert.equal(r.facts, null);
+  assert.ok(fs.existsSync(path.join(resultsDir, 'T1.claude.off.1.json')));
+});
+
+test('a throwing post-hoc run still measures facts and the oracle', async () => {
+  const { opts } = setup();
+  const r = await runOne({ ...opts, arm: 'off', stop: () => { throw new Error('boom'); } });
+  assert.equal(r.error, null);
+  assert.deepEqual(r.posthoc, { verdict: 'error', checks: [], error: 'boom' });
+  assert.deepEqual(r.facts.changedFiles, ['src/cart.js']);
+  assert.equal(r.oraclePass, false);
+});
+
+test('a CLI that cannot start throws SetupError and writes no file', async () => {
+  const { opts, resultsDir } = setup();
+  const cli = { claude: { cmd: path.join(tmpdir(), 'no-such-cli'), prefixArgs: [] } };
+  await assert.rejects(runOne({ ...opts, arm: 'off', cli }), (e) => e instanceof SetupError && /^cannot start .*no-such-cli: /.test(e.message));
+  assert.deepEqual(fs.readdirSync(resultsDir), []);
+});
+
+test('a grandchild holding the pipes does not stall a finished run', async () => {
+  const { opts } = setup(['--mode', 'linger']);
+  const r = await runOne({ ...opts, arm: 'off' });
+  assert.equal(r.error, null);
+  assert.equal(r.model, 'claude-stub-1');
+  assert.ok(r.wallMs < 6000, String(r.wallMs));
+});
+
+test('the timeout ends the run even when a grandchild holds the pipes', async () => {
+  const { opts, resultsDir } = setup(['--mode', 'hang']);
+  const r = await runOne({ ...opts, arm: 'off', timeoutMs: 500 });
+  assert.ok(r.wallMs < 6000, String(r.wallMs));
+  assert.match(r.error, /SIGTERM/);
   assert.ok(fs.existsSync(path.join(resultsDir, 'T1.claude.off.1.json')));
 });
 
@@ -122,4 +156,6 @@ test('extractStops splits at Stop hook feedback', () => {
   );
   assert.deepEqual(extractStops(text), ['first claim', 'second claim', 'third claim']);
   assert.deepEqual(extractStops(jsonl(assistantText('only'))), ['only']);
+  const endsOnFeedback = jsonl(assistantText('claim'), { type: 'user', timestamp: new Date().toISOString(), message: { role: 'user', content: 'Stop hook feedback: no' } });
+  assert.deepEqual(extractStops(endsOnFeedback), ['claim']);
 });

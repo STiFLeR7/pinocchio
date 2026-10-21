@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { parseArgs } from 'node:util';
 import { assertSubscriptionOnly } from './lib/guard.js';
 import { BENCH } from './lib/fixture.js';
-import { runOne, PausedError } from './lib/runner.js';
+import { runOne, PausedError, SetupError } from './lib/runner.js';
 
 assertSubscriptionOnly();
 const { values: a } = parseArgs({ options: { agent: { type: 'string' }, arms: { type: 'string', default: 'on,placebo,off' }, cases: { type: 'string', default: 'pilot' }, reps: { type: 'string', default: '1' } } });
@@ -26,12 +26,13 @@ try {
     for (const caseObj of picked) {
       for (const arm of arms) {
         const r = await runOne({ caseObj, agent: a.agent, arm, rep, repoRoot, resultsDir });
-        console.log(`${r.id}  oracle=${r.oraclePass ? 'pass' : 'fail'}  posthoc=${r.posthoc?.verdict ?? '-'}  ${(r.wallMs / 1000).toFixed(0)}s${r.contaminated ? '  CONTAMINATED' : ''}${r.error ? `  error: ${r.error}` : ''}`);
+        console.log(`${r.id}  oracle=${r.oraclePass === null ? '-' : r.oraclePass ? 'pass' : 'fail'}  posthoc=${r.posthoc?.verdict ?? '-'}  ${(r.wallMs / 1000).toFixed(0)}s${r.contaminated ? '  CONTAMINATED' : ''}${r.error ? `  error: ${r.error}` : ''}`);
       }
     }
   }
 } catch (e) {
-  if (!(e instanceof PausedError)) throw e;
-  console.log('paused: usage limit, re-run to resume');
+  if (e instanceof SetupError) console.log(e.message);
+  else if (e instanceof PausedError) console.log('paused: usage limit, re-run to resume');
+  else throw e;
   process.exit(2);
 }

@@ -1,9 +1,11 @@
 // Stand-in for `claude -p` in the runner tests. Its own flags come before `-p`:
 //   --projects <dir>  where to write the transcript      --marker <file>  appended once per spawn (argv as JSON)
-//   --plugins a,b     plugin names reported in init       --mode limit|notranscript
+//   --plugins a,b     plugin names reported in init       --mode limit|notranscript|linger|hang
+// linger: a grandchild keeps stdout/stderr open after the stub exits; hang: same, and the stub never exits.
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { spawn } from 'node:child_process';
 
 const argv = process.argv.slice(2);
 const own = {};
@@ -11,6 +13,12 @@ while (argv.length && argv[0] !== '-p') own[argv.shift().slice(2)] = argv.shift(
 const prompt = argv[1];
 const plugins = own.plugins ? own.plugins.split(',') : [];
 if (own.marker) fs.appendFileSync(own.marker, `${JSON.stringify(argv)}\n`);
+
+if (own.mode === 'linger' || own.mode === 'hang') {
+  spawn(process.execPath, ['-e', 'setTimeout(() => {}, 8000)'], { stdio: 'inherit', detached: true }).unref(); // detached: on Windows a plain child dies with the stub
+  if (own.mode === 'hang') setInterval(() => {}, 1000);
+}
+if (own.mode === 'hang') await new Promise(() => {});
 
 if (own.mode === 'limit') {
   process.stderr.write('Claude AI usage limit reached|1760000000\n');

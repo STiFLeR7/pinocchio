@@ -10,9 +10,12 @@ import { claudeArgv, codexArgv } from './arms.js';
 import { copyCase, shellOk } from './fixture.js';
 import { facts } from './facts.js';
 
+// Neither writes a result file: the run never really happened, so a re-run must retry it.
 export class PausedError extends Error {}
+export class SetupError extends Error {}
 
 const TIMEOUT_MS = 15 * 60_000;
+const DRAIN_MS = 2000;
 const LIMIT = /usage limit|rate limit|quota/i;
 const AUTHOR = ['-c', 'core.autocrlf=false', '-c', 'user.name=pinocchio-bench', '-c', 'user.email=bench@pinocchio.invalid', '-c', 'commit.gpgsign=false'];
 
@@ -45,16 +48,33 @@ export function resolveCli(cli, env = process.env) {
   return m ? { cmd: process.execPath, prefixArgs: [path.join(path.dirname(first), m[1])] } : { cmd: cli, prefixArgs: [] };
 }
 
-function runAgent({ cmd, prefixArgs = [] }, args, cwd) {
+function runAgent({ cmd, prefixArgs = [] }, args, cwd, timeoutMs) {
   return new Promise((resolve, reject) => {
     // ponytail: the timeout kills the CLI only, not tools it spawned; use a job object / process group if strays pile up
-    const child = spawn(cmd, [...prefixArgs, ...args], { cwd, env: process.env, timeout: TIMEOUT_MS, stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true });
+    const child = spawn(cmd, [...prefixArgs, ...args], { cwd, env: process.env, stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true });
     let stdout = '';
     let stderr = '';
+    let exit = null;
+    // Own timer, not spawn's timeout option: that one is only cleared on 'exit', so a failed spawn would hold the process for 15 min.
+    const timer = setTimeout(() => child.kill(), timeoutMs);
     child.stdout.on('data', (d) => (stdout += d));
     child.stderr.on('data', (d) => (stderr += d));
-    child.on('error', reject);
-    child.on('close', (code, signal) => resolve({ code, signal, stdout, stderr }));
+    child.on('error', (e) => {
+      clearTimeout(timer);
+      reject(new SetupError(`cannot start ${cmd}: ${e.message}`));
+    });
+    const done = () => {
+      child.stdout.destroy();
+      child.stderr.destroy();
+      resolve({ ...exit, stdout, stderr });
+    };
+    child.on('close', () => exit && done());
+    // A grandchild can hold the pipes open forever, so 'close' may never come: give it a bounded drain after exit.
+    child.on('exit', (code, signal) => {
+      clearTimeout(timer);
+      exit = { code, signal };
+      setTimeout(done, DRAIN_MS).unref();
+    });
   });
 }
 
@@ -62,12 +82,19 @@ function runAgent({ cmd, prefixArgs = [] }, args, cwd) {
 export function extractStops(transcriptText) {
   const stops = [];
   let last = null;
+  let repliedSinceStop = false;
   for (const o of jsonLines(transcriptText)) {
     const t = textOf(o?.message?.content);
-    if (o.type === 'assistant' && t) last = t;
-    else if (o.type === 'user' && t.trimStart().startsWith('Stop hook feedback')) stops.push(last);
+    if (o.type === 'assistant' && t) {
+      last = t;
+      repliedSinceStop = true;
+    } else if (o.type === 'user' && t.trimStart().startsWith('Stop hook feedback')) {
+      stops.push(last);
+      repliedSinceStop = false;
+    }
   }
-  stops.push(parseTranscript(transcriptText).lastAssistantText);
+  // Ending on feedback with no reply after it means the last stop is already counted.
+  if (repliedSinceStop || !stops.length) stops.push(parseTranscript(transcriptText).lastAssistantText);
   return stops;
 }
 
@@ -133,12 +160,12 @@ function codexOutcome(stdout, codexDir, dir, startedMs) {
 }
 
 // Verdict Pinocchio would give on the final transcript, written to a throwaway ledger so it never mixes with the live one.
-function posthoc(transcriptPath, dir) {
+function posthoc(transcriptPath, dir, stop) {
   const ledgerDir = fs.mkdtempSync(path.join(os.tmpdir(), 'pino-posthoc-'));
   try {
     const env = { ...process.env, CLAUDE_PROJECT_DIR: ledgerDir };
     delete env.PINOCCHIO;
-    stopRun({ session_id: 'posthoc', transcript_path: transcriptPath, cwd: dir }, { env });
+    stop({ session_id: 'posthoc', transcript_path: transcriptPath, cwd: dir }, { env });
     const e = readEntries(ledgerDir).at(-1);
     return { verdict: e?.verdict ?? null, checks: e?.checks ?? [] };
   } finally {
@@ -146,11 +173,15 @@ function posthoc(transcriptPath, dir) {
   }
 }
 
+// Resolves to the RunRecord (also written to <resultsDir>/<id>.json). Fields a failed run never reached stay null,
+// e.g. oraclePass is null, not false, when the oracle did not run.
 export async function runOne({
   caseObj, agent, arm, rep, repoRoot, resultsDir,
   cli = { claude: 'claude', codex: 'codex' },
   projectsDir = path.join(os.homedir(), '.claude', 'projects'),
   codexDir = path.join(os.homedir(), '.codex', 'sessions'),
+  timeoutMs = TIMEOUT_MS,
+  stop = stopRun, // test seam for the post-hoc Pinocchio run
 }) {
   const id = `${caseObj.id}.${agent}.${arm}.${rep}`;
   const file = path.join(resultsDir, `${id}.json`);
@@ -158,7 +189,7 @@ export async function runOne({
 
   const rec = {
     id, case: caseObj.id, agent, arm, rep, startedAt: new Date().toISOString(), wallMs: 0, model: null, plugins: [], contaminated: false,
-    usage: null, numTurns: null, stops: [], posthoc: null, facts: null, oraclePass: false, error: null,
+    usage: null, numTurns: null, stops: [], posthoc: null, facts: null, oraclePass: null, error: null,
   };
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'pino-bench-'));
   try {
@@ -172,7 +203,7 @@ export async function runOne({
     const t0 = Date.now();
     rec.startedAt = new Date(t0).toISOString();
     const argv = agent === 'claude' ? claudeArgv(arm, caseObj.prompt, { repoRoot }) : codexArgv(arm, caseObj.prompt, dir);
-    const res = await runAgent(resolveCli(cli[agent]), argv, dir);
+    const res = await runAgent(resolveCli(cli[agent]), argv, dir, timeoutMs);
     rec.wallMs = Date.now() - t0;
 
     const o = agent === 'claude' ? claudeOutcome(res.stdout, projectsDir) : codexOutcome(res.stdout, codexDir, dir, t0);
@@ -187,12 +218,16 @@ export async function runOne({
       const e = ledger[i];
       return { message, ledger: e ? { verdict: e.verdict, blocked: e.blocked, elapsed_ms: e.elapsed_ms, checks: e.checks } : null };
     });
-    rec.posthoc = posthoc(o.transcript, dir);
+    try {
+      rec.posthoc = posthoc(o.transcript, dir, stop);
+    } catch (e) {
+      rec.posthoc = { verdict: 'error', checks: [], error: String(e?.message ?? e) };
+    }
     rec.facts = facts({ events: parseTranscript(text).events, dir, base, caseObj });
     rec.oraclePass = shellOk(caseObj.oracle, dir);
     if (res.signal) rec.error = `agent killed (${res.signal}) after ${rec.wallMs} ms`;
   } catch (e) {
-    if (e instanceof PausedError) throw e;
+    if (e instanceof PausedError || e instanceof SetupError) throw e;
     rec.error = String(e?.message ?? e);
   } finally {
     try {

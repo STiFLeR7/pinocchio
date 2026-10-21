@@ -7,9 +7,12 @@ export function statePath(scope, projectDir, home = homedir()) {
   return join(scope === 'user' ? home : projectDir, '.claude', 'pinocchio', 'install.json');
 }
 
-// Missing or unparseable state reads as "nothing recorded".
+// Missing, unparseable or non-v1 state reads as "nothing recorded".
 export function readState(file) {
-  try { return JSON.parse(readFileSync(file, 'utf8')); } catch { return null; }
+  try {
+    const s = JSON.parse(readFileSync(file, 'utf8'));
+    return s && s.version === 1 ? s : null;
+  } catch { return null; }
 }
 
 export function writeState(file, state) {

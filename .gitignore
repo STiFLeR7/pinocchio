@@ -94,3 +94,6 @@ Thumbs.db
 # Evaluation repositories
 /pi_eval/
 /engine-room/pi_eval/
+
+# Pinocchio benchmark harness modules (bench/lib is source, not a Python build dir)
+!/bench/lib/

@@ -41,7 +41,7 @@ export function doctor({ cwd = process.cwd(), home = homedir(), ui = createUI(),
       : { ok: true, text: 'config ok' },
     chain.ok
       ? { ok: true, text: chain.count ? `ledger hash chain intact (${chain.count} entries)` : 'no ledger yet' }
-      : { ok: false, text: `ledger hash chain broken at entry ${chain.brokenAt}`, fix: 'inspect .claude/pinocchio/ledger.jsonl; move it aside to start a fresh chain' },
+      : { ok: false, text: `ledger hash chain broken at entry ${chain.brokenAt + 1}`, fix: 'inspect .claude/pinocchio/ledger.jsonl; move it aside to start a fresh chain' },
   ];
   const failed = checks.filter((c) => !c.ok);
   ui.box('Pinocchio doctor', failed.length ? 'failed' : 'done',

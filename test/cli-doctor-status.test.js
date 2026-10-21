@@ -49,7 +49,7 @@ test('doctor with broken chain reports it', () => {
   writeFileSync(ledgerFile(cwd), readFileSync(ledgerFile(cwd), 'utf8').replace('"pass"', '"fail"'));
   const o = capture();
   assert.equal(doctor({ cwd, home: tmp(), ui: o.ui, cli: cliWith(REG), system: SYS }), 1);
-  assert.match(o.out, /chain broken at entry 0/);
+  assert.match(o.out, /chain broken at entry 1/);
 });
 
 test('doctor: unregistered and disabled plugin each name their fix', () => {
@@ -119,5 +119,5 @@ test('status chain broken line', () => {
   writeFileSync(ledgerFile(cwd), lines.join('\n') + '\n');
   const o = capture();
   assert.equal(status({ cwd, ui: o.ui }), 0);
-  assert.match(o.out, /Ledger +✖ chain broken at entry 1/);
+  assert.match(o.out, /Ledger +✖ chain broken at entry 2/);
 });

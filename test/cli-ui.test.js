@@ -66,3 +66,10 @@ test('print methods write the render output with a 2-space margin', () => {
   ui.line('hello');
   assert.equal(got, '  hello\n');
 });
+
+test('box with null state prints the title without a glyph', () => {
+  const out = [];
+  const ui = createUI({ stream: { write: (s) => out.push(s), isTTY: false }, color: false, unicode: true, width: 40 });
+  ui.box('Title', null, ['x']);
+  assert.match(out.join(''), /─ Title ─/);
+});

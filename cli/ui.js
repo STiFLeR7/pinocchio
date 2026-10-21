@@ -80,7 +80,7 @@ export function createUI({
     return [top, ...body, `${f.bl}${f.h.repeat(width - 2)}${f.br}`].join('\n');
   }
 
-  const renderBox = (title, state, lines) => frame(`${glyph(state)} ${title}`, lines);
+  const renderBox = (title, state, lines) => frame(state ? `${glyph(state)} ${title}` : title, lines);
 
   function renderProgress(steps) {
     const cells = steps.map((s) => `${glyph(s.state)} ${s.n}  ${s.label}`);

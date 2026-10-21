@@ -11,8 +11,14 @@ name: Core CI
 on:
   push:
     branches: [master, "v*-planning"]
+    paths: ['engine-room/**', '.github/workflows/core-ci.yml']
   pull_request:
     branches: [master]
+    paths: ['engine-room/**', '.github/workflows/core-ci.yml']
+
+defaults:
+  run:
+    working-directory: engine-room
 
 # Cancel superseded runs on the same ref to save CI minutes.
 concurrency:
@@ -31,6 +37,7 @@ jobs:
       - uses: astral-sh/setup-uv@v4
         with:
           enable-cache: true
+          cache-dependency-glob: engine-room/uv.lock
       - name: Install dependencies
         run: uv sync --frozen
       - name: Ruff lint
@@ -46,6 +53,7 @@ jobs:
       - uses: astral-sh/setup-uv@v4
         with:
           enable-cache: true
+          cache-dependency-glob: engine-room/uv.lock
       - name: Install dependencies
         run: uv sync --frozen
       - name: MyPy strict
@@ -59,6 +67,7 @@ jobs:
       - uses: astral-sh/setup-uv@v4
         with:
           enable-cache: true
+          cache-dependency-glob: engine-room/uv.lock
       - name: Set up Python ${{ env.PYTHON_VERSION }}
         run: uv python install ${{ env.PYTHON_VERSION }}
       - name: Install dependencies
@@ -101,8 +110,8 @@ jobs:
         with:
           name: coverage-report
           path: |
-            coverage.xml
-            htmlcov/
+            engine-room/coverage.xml
+            engine-room/htmlcov/
           retention-days: 14
 
   build:
@@ -113,11 +122,12 @@ jobs:
       - uses: astral-sh/setup-uv@v4
         with:
           enable-cache: true
+          cache-dependency-glob: engine-room/uv.lock
       - name: Build sdist + wheel
         run: uv build
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: dist
-          path: dist/
+          path: engine-room/dist/
           retention-days: 14

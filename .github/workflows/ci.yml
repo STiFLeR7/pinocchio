@@ -9,8 +9,14 @@ name: Nexus CI
 on:
   push:
     branches: [main, master]
+    paths: ['engine-room/**', '.github/workflows/ci.yml']
   pull_request:
     branches: [main, master]
+    paths: ['engine-room/**', '.github/workflows/ci.yml']
+
+defaults:
+  run:
+    working-directory: engine-room
 
 jobs:
   test:

@@ -1,0 +1,9 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "pinocchio",
+  "description": "Catch your AI agent's false 'done' claims.",
+  "owner": { "name": "STiFLeR7", "url": "https://github.com/STiFLeR7" },
+  "plugins": [
+    { "name": "pinocchio", "description": "Checks completion claims against transcript, test and git evidence.", "source": "./", "category": "productivity" }
+  ]
+}

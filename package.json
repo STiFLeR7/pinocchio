@@ -1,0 +1,11 @@
+{
+  "name": "@stifler7/pinocchio",
+  "version": "0.1.0",
+  "description": "Your agent's nose grows when it lies. Checks AI coding agent completion claims against evidence.",
+  "type": "module",
+  "license": "MIT",
+  "engines": { "node": ">=18" },
+  "repository": { "type": "git", "url": "git+https://github.com/STiFLeR7/pinocchio.git" },
+  "files": ["src", "hooks", "skills", ".claude-plugin"],
+  "scripts": { "test": "node test/run.mjs" }
+}

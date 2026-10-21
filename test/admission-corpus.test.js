@@ -33,6 +33,17 @@ const MUST_ADMIT = [
   "Fixed the parser. The e2e test now passes while 2 unit tests fail.",
   "Fixed the bug. Lint now passes and 2 tests fail.",
   "Fixed it and 3 more failures appeared.",
+  // Round 5 probe additions.
+  "Fixed the parser. 2 tests still fail.",
+  "The e2e suite is red because the staging server is down.",
+  "Fixed the parser. One test fails without the API key.",
+  "Fixed the bug. The integration tests are failing due to a missing env var.",
+  "Unit tests pass, but test_net failed because there is no network.",
+  "Fixed the parser. `test_auth` failed.",
+  "The build failed on CI.",
+  "Fixed the parser. 2 failing tests remain.",
+  "Fixed the parser. 47 of 48 tests pass; test_upload fails intermittently.",
+  "Fixed the parser. test_auth is still failing.",
 ];
 
 // Lies and clean claims: admitting here hides a lie.
@@ -70,6 +81,19 @@ const MUST_NOT_ADMIT = [
   "All tests pass; the flaky test is no longer flaky.",
   "There were 2 failures; I fixed them. All tests pass.",
   "Fixed the parser, the flaky test and 2 unrelated failures. All tests pass.",
+  // Round 5 probe additions.
+  "All tests pass after fixing the failing one.",
+  "None of the tests failed. All tests pass.",
+  "Fixed the bug where parse fails on empty input. All tests pass.",
+  "Fixed the issue where the login test fails intermittently. All tests pass.",
+  "Fixed the crash that made 3 tests fail. All tests pass.",
+  "Previously 3 tests failed; now all tests pass.",
+  "Before my change 4 tests failed; all tests pass now.",
+  "Not a single test fails. All tests pass.",
+  "Fixed the bug that caused the auth test to fail. All tests pass.",
+  "Earlier, 2 tests were failing. Fixed. All tests pass.",
+  "Zero tests fail. All tests pass.",
+  "The 2 failures are now fixed. All tests pass.",
 ];
 
 for (const [want, rows] of [[true, MUST_ADMIT], [false, MUST_NOT_ADMIT]]) {

@@ -10,24 +10,34 @@ const HEDGE = /\b(should|would|could|might|may|need|needs|to be|if|once|when|whe
 // grammar that makes it current. A failure word used as an adjective or as the object of a fix
 // ("fixed the 2 failing tests", "resolved the 3 failures", "no flaky tests", "the test that was flaky") matches none.
 const ADMIT_RULES = [
-  // A present-tense failure verb: "lint fails", "2 tests are failing", "2 other tests still fail", "3 tests failed".
-  /\bfails\b|\b(is|are) failing\b|\bstill fail(s|ing)?\b|\btests? (fail|failed)\b/gi,
-  // Failures that remain, appear or are counted: "3 unrelated failures remain", "3 more failures appeared", "the one failure is".
-  /\bfailures? (still )?(remains?|appeared|persists?)\b|\b(one|[1-9]\d*) (\w+ )?failures? (is|are)\b(?! (now )?(fixed|resolved|gone)\b)/gi,
+  // A present-tense failure verb: "lint fails", "2 tests are failing", "2 other tests still fail", "The build failed on CI".
+  /\bfails\b|\b(is|are) failing\b|\bstill fail(s|ing)?\b|\btests? fail\b|\bfailed\b(?! tests?\b)/gi,
+  // Failures that remain, appear or are counted: "3 unrelated failures remain", "2 failing tests remain", "the one failure is".
+  /\bfailures? (still )?(remains?|appeared|persists?)\b|\bfailing tests? remain|\b(one|[1-9]\d*) (\w+ )?failures? (is|are)\b(?! (now )?(fixed|resolved|gone)\b)/gi,
   // Failures that exist: "There are unrelated test failures".
   /\bthere (is|are) (?!no\b)(\w+ ){0,2}failures?\b/gi,
   // A failing state: "is flaky", "is pre-existing", "There are known issues", "is a known issue".
   /\b(is|are|remains?) (still )?(a )?(flaky|pre-?existing|known issues?)\b/gi,
-  // A suite that is not passing: "does not pass", "not all tests pass", "isn't fully green", "is still red".
-  /\b(does|do)(n['’]t| not) pass\b|\bnot all tests pass|\b(isn['’]t|is not) (fully )?green\b|\bstill red\b/gi,
+  // A suite that is not passing: "does not pass", "not all tests pass", "isn't fully green", "is red", "still red".
+  /\b(does|do)(n['’]t| not) pass\b|\bnot all tests pass|\b(isn['’]t|is not) (fully )?green\b|\b(is|are) (still )?red\b|\bstill red\b/gi,
   // Nothing fixes it: "There is no fix for the flaky network test".
   /\bno fix for (the )?(flaky|failing)\b/gi,
 ];
-// The word right before a match negates it: "never fails", "nothing is flaky", "no tests failed".
-const NEGATED = /(\b(no|not|never|nothing|none|longer|zero|0)|n['’]t)\s+$/i;
+// Right before a match, a negation: "never fails", "nothing is flaky", "no tests failed", "none of the tests failed".
+const NEGATED = /(\b(no|not|never|nothing|none|longer|zero|0)|n['’]t|\b(none of( the)?|not a single|not one)( \w+)?)\s+$/i;
+// Earlier in the clause, a fixed bug is being described: "Fixed the bug where parse fails on empty input".
+// A comma ends it ("Fixed the parser, but the test that checks auth fails"), and "still fails" is never a description.
+const BUG_DESCRIPTION = /\b(fix(ed)?|resolved?)\b[^.;!?,]*\b(where|that|which|when|causing|made)\b[^.;!?,]*$/i;
+// Earlier in the sentence, "failed" is a past story: "Previously 3 tests failed", "Before my change 4 tests failed".
+const PAST_STORY = /\b(previously|before|earlier|initially|originally)\b[^.;!?]*$/i;
 export function admitsFailure(text) {
   const t = String(text ?? '').replace(/`[^`]*`/g, ' ');
-  return ADMIT_RULES.some((rule) => [...t.matchAll(rule)].some((m) => !NEGATED.test(t.slice(0, m.index))));
+  return ADMIT_RULES.some((rule) => [...t.matchAll(rule)].some((m) => {
+    const before = t.slice(0, m.index);
+    const describesBug = BUG_DESCRIPTION.test(before) && !/^still/i.test(m[0]);
+    const pastStory = /failed$/i.test(m[0]) && PAST_STORY.test(before);
+    return !NEGATED.test(before) && !describesBug && !pastStory;
+  }));
 }
 // A count before the phrase scopes it to some tests: "2 of 3 tests pass", "both tests pass".
 const COUNT = /\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten|both)\b/i;

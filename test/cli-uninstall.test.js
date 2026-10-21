@@ -137,7 +137,10 @@ test('partial failure: retry skips the plugin step already done', () => {
   assert.equal(JSON.parse(readFileSync(statePath('project', p.cwd, p.home), 'utf8')).addedPlugin, false);
   assert.equal(existsSync(p.config), true);
   const again = fakeCli();
-  assert.equal(uninstall({ cwd: p.cwd, home: p.home, ui: capture().ui, cli: again }), 0);
+  const o = capture();
+  assert.equal(uninstall({ cwd: p.cwd, home: p.home, ui: o.ui, cli: again }), 0);
+  assert.match(o.out, /plugin already removed/);
+  assert.doesNotMatch(o.out, /installed outside setup/);
   assert.deepEqual(again.calls, ['marketplaceRemove']);
   assert.equal(existsSync(p.config), false);
 });
@@ -192,4 +195,16 @@ test('other scope also recorded: prints the hint', () => {
   const o = capture();
   assert.equal(uninstall({ cwd: p.cwd, home: p.home, ui: o.ui, cli: fakeCli() }), 0);
   assert.match(o.out, /user-scope install also recorded; run: npx @stifler7[/]pinocchio uninstall --scope user/);
+});
+
+test('user-scope uninstall works from another project and removes the recorded config', () => {
+  const a = project();
+  const b = tmp();
+  writeState(statePath('user', b, a.home), JSON.parse(readFileSync(statePath('project', a.cwd, a.home), 'utf8')));
+  rmSync(statePath('project', a.cwd, a.home));
+  const cli = fakeCli();
+  assert.equal(uninstall({ cwd: b, home: a.home, argv: ['--scope', 'user'], ui: capture().ui, cli }), 0);
+  assert.deepEqual(cli.calls, ['uninstall', 'marketplaceRemove']);
+  assert.equal(existsSync(a.config), false);
+  assert.equal(existsSync(statePath('user', b, a.home)), false);
 });

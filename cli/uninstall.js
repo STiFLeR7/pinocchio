@@ -12,6 +12,8 @@ const inside = (base, p) => { const r = relative(base, p); return r && !r.starts
 
 // Equal to base or inside it.
 const within = (base, p) => { const r = relative(resolve(base), resolve(p)); return r === '' || (!r.startsWith('..') && !isAbsolute(r)); };
+// The config setup writes, wherever the project is: only that file name in a .claude dir (removal is also hash-gated).
+const isSetupConfig = (p) => /(^|\/)\.claude\/pinocchio\.json$/.test(resolve(p).replace(/\\/g, '/'));
 // A settings.json that exists but cannot be read as JSON (a missing file is fine).
 const invalidJson = (file) => {
   try { JSON.parse(readFileSync(file, 'utf8').replace(/^﻿/, '')); return false; } catch (e) { return e.code !== 'ENOENT'; }
@@ -42,7 +44,7 @@ export function uninstall({ cwd = process.cwd(), home = homedir(), argv = [], ui
   const settingsOk = [join(cwd, '.claude', 'settings.json'), join(home, '.claude', 'settings.json')].map((p) => resolve(p));
   const bad = [
     st.runtime && !within(join(scopeRoot, '.claude', 'pinocchio', 'runtime'), st.runtime) && `runtime ${st.runtime}`,
-    ...(st.files ?? []).filter((f) => !within(join(cwd, '.claude'), f.path) && !within(join(home, '.claude'), f.path)).map((f) => `file ${f.path}`),
+    ...(st.files ?? []).filter((f) => !isSetupConfig(f.path)).map((f) => `file ${f.path}`),
     st.settings && !settingsOk.includes(resolve(st.settings.file)) && `settings ${st.settings.file}`,
   ].filter(Boolean);
   if (bad.length) return fail(`✖ install record names paths setup would not write: ${bad.join(', ')}`, `Nothing was removed. Check or delete ${show(stateFile)} by hand.`);
@@ -54,8 +56,9 @@ export function uninstall({ cwd = process.cwd(), home = homedir(), argv = [], ui
       const l = cli.listPlugins();
       return l.ok && Array.isArray(l.json) && !l.json.some((p) => p?.id === 'pinocchio@pinocchio');
     }]);
-    else lines.push('✔ kept pinocchio plugin (installed outside setup)');
+    else lines.push(st.removedPlugin ? '✔ plugin already removed' : '✔ kept pinocchio plugin (installed outside setup)');
     if (st.addedMarketplace) steps.push(['marketplace removed', 'claude plugin marketplace remove', 'addedMarketplace', () => cli.marketplaceRemove(scope), () => false]);
+    else if (st.removedMarketplace) lines.push('✔ marketplace already removed');
     for (const [done, what, key, run, gone] of steps) {
       if (gone()) lines.push(`✔ ${done} (already gone)`);
       else {
@@ -64,6 +67,7 @@ export function uninstall({ cwd = process.cwd(), home = homedir(), argv = [], ui
         lines.push(`✔ ${done}`);
       }
       st[key] = false;
+      st[key.replace('added', 'removed')] = true;
       writeState(stateFile, st);
     }
   } else if (st.settings) {

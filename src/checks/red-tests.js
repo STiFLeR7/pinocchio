@@ -11,7 +11,8 @@ export function redTests(ctx) {
   const claim = tests ?? fixed;
   const { lastEdit, after } = afterLastEdit(ctx.events, ctx.root);
   const gitMs = ctx.gitEditMs ?? -Infinity;
-  const runs = freshRuns(testRuns(after, ctx.config).genuine, gitMs);
+  const { genuine, whole } = testRuns(after, ctx.config);
+  const runs = freshRuns(genuine, gitMs);
   const last = runs[runs.length - 1] ?? null;
   const since = Math.max(lastEdit && Number.isFinite(lastEdit.ts) ? lastEdit.ts : 0, last && Number.isFinite(last.ts) ? last.ts : 0, Number.isFinite(gitMs) ? gitMs : 0);
   const badJ = since > 0 ? ctx.findJUnit(since).find((j) => j.mtimeMs > since && j.result.failures + j.result.errors > 0) ?? null : null;
@@ -33,6 +34,16 @@ export function redTests(ctx) {
     const file = rel(ctx.root, badJ.file);
     return { id, status, blocking: true, summary: `"${claim.text}": ${file} reports ${failures} failures, ${errors} errors${note}`, evidence: { junit: { file, failures, errors } } };
   }
-  const passed = /(\d+) pass(ed|ing)?\b/i.exec(last.output);
-  return { id, status: 'pass', blocking: true, summary: `${shortCmd(last.cmd)} exited 0 after last edit (L${last.line})${passed ? `, ${passed[1]} passed` : ''}`, evidence: { test_run: { cmd: shortCmd(last.cmd), line: last.line, exit: 0 } } };
+  // A tests claim covers the whole suite: a later passing subset run cannot clear a red full run, nor stand in for one (stale-tests reports that).
+  let ok = last;
+  if (tests) {
+    ok = freshRuns(whole, gitMs).at(-1);
+    if (!ok) return null;
+    if (ok.failed || FAIL_RE.some((r) => r.test(ok.output))) {
+      const how = ok.failed ? `exited ${ok.exitCode}` : 'reported failures';
+      return { id, status, blocking: true, summary: `"${claim.text}": full suite still red: ${shortCmd(ok.cmd)} ${how} (L${ok.line}); later runs covered only part of the suite${note}`, evidence: { test_run: { cmd: shortCmd(ok.cmd), line: ok.line, exit: ok.exitCode } } };
+    }
+  }
+  const passed = /(\d+) pass(ed|ing)?\b/i.exec(ok.output);
+  return { id, status: 'pass', blocking: true, summary: `${shortCmd(ok.cmd)} exited 0 after last edit (L${ok.line})${passed ? `, ${passed[1]} passed` : ''}`, evidence: { test_run: { cmd: shortCmd(ok.cmd), line: ok.line, exit: 0 } } };
 }

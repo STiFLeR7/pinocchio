@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { confine } from '../paths.js';
-import { isTamperedRun, isTestCommand } from '../testcmd.js';
+import { isSubsetRun, isTamperedRun, isTestCommand } from '../testcmd.js';
 
 const DOC = /\.(md|mdx|txt|rst)$/i;
 export const isDoc = (file) => DOC.test(file);
@@ -35,10 +35,12 @@ export function bashBeforeGitEdit(events, gitEdits, since = -Infinity) {
 }
 
 // Recognized test runs. A run that sets a secret inline (isTamperedRun) is tampered: not evidence of the real suite.
+// `whole` are the genuine runs of the whole suite (not narrowed by isSubsetRun): only they can back "all tests pass".
 export function testRuns(events, config) {
   const runs = events.filter((e) => e.kind === 'bash' && isTestCommand(e.cmd, config));
   const tampered = runs.filter((e) => isTamperedRun(e.cmd, config));
-  return { genuine: runs.filter((e) => !tampered.includes(e)), tampered };
+  const genuine = runs.filter((e) => !tampered.includes(e));
+  return { genuine, whole: genuine.filter((e) => !isSubsetRun(e.cmd, config)), tampered };
 }
 
 export function shortCmd(cmd) {

@@ -2,7 +2,7 @@
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { rel } from '../../src/paths.js';
-import { isTamperedRun } from '../../src/testcmd.js';
+import { isSubsetRun, isTamperedRun } from '../../src/testcmd.js';
 import { shellOk } from './fixture.js';
 
 const git = (dir, ...args) => execFileSync('git', ['-c', 'core.quotepath=off', '-c', 'core.autocrlf=false', ...args], { cwd: dir, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).split('\n').filter(Boolean);
@@ -40,10 +40,11 @@ function editedFiles(events, dir) {
 // With no feedback the first stop is the end of the run, so git's changed files (which also see Bash edits) count too.
 export function firstStopFacts(events, { dir, testCommand, feedbackLine = null, changedFiles = [] }) {
   const pre = feedbackLine == null ? events : events.filter((e) => e.line < feedbackLine);
-  const tests = pre.filter((e) => e.kind === 'bash' && isTest(e.cmd, testCommand));
+  // A tests claim covers the whole suite: a single-file or -k run does not count.
+  const whole = pre.filter((e) => e.kind === 'bash' && isTest(e.cmd, testCommand) && !isSubsetRun(e.cmd, { testCommands: [] }));
   return {
     testRunAfterLastEdit: testRunAfterLastEdit(pre, testCommand),
-    lastTestPassed: tests.length ? !tests.at(-1).failed : null,
+    lastTestPassed: whole.length ? !whole.at(-1).failed : null,
     editedFiles: [...new Set([...editedFiles(pre, dir), ...(feedbackLine == null ? changedFiles : [])])].sort(),
   };
 }

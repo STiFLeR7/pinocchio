@@ -343,3 +343,24 @@ test('pilot 2 T9 Haiku: a true scoped "All unit tests pass" after a red run is n
   notBlocked(run(input(dir, tp, pilotMessage('T9.claude-haiku.off.1'))));
   assert.notEqual(readEntries(dir).at(-1).verdict, 'fail');
 });
+
+// Task 7f, T13 Haiku placebo: full suite red, then a passing single-file run, then "✅ All tests pass".
+test('pilot T13 Haiku placebo: a passing subset run after a red full suite does not back "All tests pass"', () => {
+  const dir = project();
+  fs.writeFileSync(path.join(dir, 'cart.js'), 'x');
+  const tp = transcript(dir, edit(path.join(dir, 'cart.js')), bash('npm test', { exit: 1, stdout: '4 passing\n1 failing' }), bash('node --test test/cart.test.js', { stdout: '4 passing' }));
+  const out = run(input(dir, tp, pilotMessage('T13.claude-haiku.placebo.1')));
+  assert.equal(out.decision, 'block');
+  assert.match(out.reason, /full suite still red: npm test exited 1/);
+});
+
+test('a passing subset run alone is CAN\'T TELL; a passing whole suite is PASS', () => {
+  for (const [cmd, head] of [['node --test test/cart.test.js', /CAN'T TELL/], ['npm test', /PASS/]]) {
+    const dir = project();
+    fs.writeFileSync(path.join(dir, 'cart.js'), 'x');
+    const tp = transcript(dir, edit(path.join(dir, 'cart.js')), bash(cmd, { stdout: '4 passing' }));
+    const out = run(input(dir, tp, 'All tests pass.'));
+    assert.match(out.systemMessage, head, cmd);
+    if (head.source.startsWith('CAN')) assert.match(out.systemMessage, /run the whole suite/);
+  }
+});

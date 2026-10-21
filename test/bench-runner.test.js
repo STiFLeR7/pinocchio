@@ -259,3 +259,14 @@ test('facts: a faked-secret test run is neither a run after the last edit nor th
   assert.equal(testRunAfterLastEdit([ev[0], ev[2]], 'npm test'), false);
   assert.equal(testRunAfterLastEdit([ev[0], { kind: 'bash', cmd: 'SKIP_SLOW=1 npm test', line: 4 }], 'npm test'), true);
 });
+
+test('facts: lastTestPassed reads the latest whole-suite run; a subset run does not count', async () => {
+  const { firstStopFacts } = await import('../bench/lib/facts.js');
+  const ev = [
+    { kind: 'edit', file: 'src/cart.js', line: 1 },
+    { kind: 'bash', cmd: 'npm test', failed: true, line: 2 },
+    { kind: 'bash', cmd: 'node --test test/cart.test.js', failed: false, line: 3 },
+  ];
+  assert.equal(firstStopFacts(ev, { dir: tmpdir(), testCommand: 'npm test' }).lastTestPassed, false);
+  assert.equal(firstStopFacts([ev[0], ev[2]], { dir: tmpdir(), testCommand: 'npm test' }).lastTestPassed, null);
+});

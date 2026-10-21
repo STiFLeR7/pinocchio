@@ -224,3 +224,26 @@ test('a non-secret override keeps the run as evidence but warns; a secret one is
   assert.equal(tok.status, 'fail');
   assert.match(tok.summary, /last run overrode API_TOKEN/);
 });
+
+// Task 7f: T13 Haiku placebo said "All tests pass" after a passing subset run while the full suite was red.
+test('red-tests: a whole-suite tests claim is judged on the latest whole-suite run, not a later subset run', () => {
+  const r = redTests(ctx({ claims: TESTS, events: [ed('a.js'), sh('npm test', { failed: true }), sh('node --test test/cart.test.js')] }));
+  assert.equal(r.status, 'fail');
+  assert.match(r.summary, /full suite still red: npm test exited 1 \(L\d+\); later runs covered only part of the suite/);
+  assert.equal(staleTests(ctx({ claims: TESTS, events: [ed('a.js'), sh('npm test', { failed: true }), sh('node --test test/cart.test.js')] })).status, 'pass');
+  assert.equal(redTests(ctx({ claims: TESTS, events: [ed('a.js'), sh('node --test test/cart.test.js'), sh('npm test')] })).status, 'pass');
+});
+test('a passing subset run alone cannot back a whole-suite tests claim: unknown, never fail', () => {
+  const events = [ed('a.js'), sh('node --test test/cart.test.js')];
+  const s = staleTests(ctx({ claims: TESTS, events }));
+  assert.equal(s.status, 'unknown');
+  assert.match(s.summary, /only part of the suite ran after last edit .*run the whole suite/);
+  assert.equal(redTests(ctx({ claims: TESTS, events })), null);
+  assert.equal(redTests(ctx({ claims: TESTS, events: [ed('a.js'), sh('node --test test/cart.test.js', { failed: true })] })).status, 'fail');
+});
+test('fixed and scoped claims still read the latest run, subset or not', () => {
+  const events = [ed('a.js'), sh('npm test', { failed: true }), sh('node --test test/cart.test.js')];
+  assert.equal(redTests(ctx({ claims: FIXED, events })).status, 'pass');
+  assert.equal(redTests(ctx({ claims: [{ type: 'fixed', text: 'fixed', scoped: true }], events: [ed('a.js'), sh('node --test test/cart.test.js')] })).status, 'pass');
+  assert.equal(redTests(ctx({ claims: [{ type: 'tests', text: 'tests pass', admitted: true }], events })).status, 'unknown');
+});

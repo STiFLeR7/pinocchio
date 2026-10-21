@@ -1,6 +1,6 @@
 import { envOverrides, isTestCommand, looksLikeTest } from '../testcmd.js';
 import { rel } from '../paths.js';
-import { afterLastEdit, bashBeforeGitEdit, freshRuns, testRuns } from './util.js';
+import { afterLastEdit, bashBeforeGitEdit, freshRuns, shortCmd, testRuns } from './util.js';
 
 const id = 'stale-tests';
 
@@ -12,9 +12,14 @@ export function staleTests(ctx) {
   const bash = after.filter((e) => e.kind === 'bash');
   const gitLast = ctx.gitEdits?.at(-1);
   const lastEditRef = lastEdit ? { file: rel(ctx.root, lastEdit.file), line: lastEdit.line } : gitLast ? { file: gitLast.file, git: true } : null;
-  const { genuine: recognized, tampered } = testRuns(bash, ctx.config);
-  if (freshRuns(recognized, gitMs).length) {
+  const { genuine: recognized, whole, tampered } = testRuns(bash, ctx.config);
+  if (freshRuns(whole, gitMs).length) {
     return { id, status: 'pass', blocking: true, summary: 'test command ran after last edit', evidence: { last_edit: lastEditRef } };
+  }
+  // Only subset runs (one file, a -k selector): not evidence for a whole-suite claim, nor proof that it is false.
+  const subset = freshRuns(recognized, gitMs).at(-1);
+  if (subset) {
+    return { id, status: 'unknown', blocking: true, summary: `"${claim.text}": only part of the suite ran after last edit (${shortCmd(subset.cmd)}, L${subset.line}); run the whole suite`, evidence: { last_edit: lastEditRef } };
   }
   if (!ctx.hasTestSetup) {
     return { id, status: 'unknown', blocking: true, summary: `"${claim.text}": no recognized test command (add yours: .claude/pinocchio.json)`, evidence: { last_edit: lastEditRef } };

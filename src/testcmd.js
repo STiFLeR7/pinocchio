@@ -8,7 +8,7 @@ const BUILTIN = [
   /^go test\b/, /^cargo test\b/, /^ctest\b/,
   /^(mvn|\.\/mvnw) (\S+ )*test\b/, /^mvn (\S+ )*verify\b/, /^(gradle|\.\/gradlew) (\S+ )*test\b/, /^dotnet test\b/,
   /^(bundle exec )?rspec\b/, /^(vendor\/bin\/)?phpunit\b/, /^make (test|check)\b/,
-  /^node (\S+ )*--test\b/, /^deno test\b/, /^(pnpm|yarn|bun) (exec |dlx )?(vitest|jest|mocha)\b/,
+  /^node (\S+ )*?--test\b/, /^deno test\b/, /^(pnpm|yarn|bun) (exec |dlx )?(vitest|jest|mocha)\b/,
 ];
 const LOOKS_LIKE_TEST = /\b(tests?|spec|pytest|jest|vitest|mocha|tox|nox|unittest|ctest)\b/i;
 
@@ -67,6 +67,21 @@ export function envOverrides(cmd, config) {
 // A secret word ends a name part: CART_API_KEY, SECRETKEY, AUTH_HEADER; not AUTHOR, TOKENIZER, KEYBOARD.
 const SECRET = /(KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIALS?|AUTH)(_|$)/i;
 export const isTamperedRun = (cmd, config) => envOverrides(cmd, config).some((n) => SECRET.test(n));
+
+// Arguments that narrow a run to part of the suite: a selector, a node id, or a file or directory path (not go's ./...).
+const SELECTOR = /^(-k|-g|-t|-run|--grep|--testNamePattern|--test-name-pattern|--filter|--only|--test-only|--onlyChanged|--lf|--last-failed)(=|$)/;
+const narrows = (arg) => SELECTOR.test(arg) || arg.includes('::') || (!arg.startsWith('-') && !/^(\.\/)?\.\.\.$/.test(arg) && /[/\\]|\.\w{1,4}$/.test(arg));
+
+// A test run whose every test segment narrows the suite. Redirections (`> out/log.txt`, `2>&1`) are not arguments.
+// ponytail: a path that happens to be the whole suite (`node --test test/`) counts as a subset; read package.json if that bites.
+export function isSubsetRun(cmd, config) {
+  const runners = [...BUILTIN, ...config.testCommands];
+  const args = segments(cmd).flatMap((s) => {
+    const m = runners.map((r) => r.exec(s)).find(Boolean);
+    return m ? [s.slice(m[0].length).replace(/\d*[<>]+&?\s*\S+/g, ' ').split(/\s+/).map((a) => a.replace(/^["']|["']$/g, '')).filter(Boolean)] : [];
+  });
+  return args.length > 0 && args.every((a) => a.some(narrows));
+}
 
 export function looksLikeTest(cmd) {
   return LOOKS_LIKE_TEST.test(String(cmd));

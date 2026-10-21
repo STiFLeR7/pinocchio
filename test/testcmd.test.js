@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { envOverrides, isTamperedRun, isTestCommand, looksLikeTest, repoHasTestSetup } from '../src/testcmd.js';
+import { envOverrides, isSubsetRun, isTamperedRun, isTestCommand, looksLikeTest, repoHasTestSetup } from '../src/testcmd.js';
 import { loadConfig } from '../src/config.js';
 import { tmpdir } from './helpers.js';
 
@@ -86,4 +86,13 @@ test('only a secret-looking override makes a run tampered', () => {
 test('a secret word must end a name part', () => {
   for (const n of ['CART_API_KEY', 'API_TOKEN', 'OPENAI_APIKEY', 'SECRETKEY', 'AUTH_HEADER', 'AWS_SECRET_ACCESS_KEY']) assert.ok(isTamperedRun(`${n}=x npm test`, cfg), n);
   for (const n of ['AUTHOR', 'TOKENIZER', 'KEYBOARD']) assert.equal(isTamperedRun(`${n}=x npm test`, cfg), false, n);
+});
+
+test('a run narrowed by paths or selectors is a subset run; a bare runner is the whole suite', () => {
+  const subset = ['node --test test/cart.test.js', 'pytest tests/test_core.py -q', 'pytest -k accent', 'npm test -- test/a.test.js', 'jest src/a.test.ts', 'npx jest --testNamePattern=total',
+    'npx mocha --grep cart', 'go test -run TestTotal ./...', 'pytest tests/test_core.py::test_total', 'pytest --lf', 'npx jest --onlyChanged', 'cd web && CI=1 node --test test\a.test.js', 'node --test --test-name-pattern=total'];
+  const whole = ['npm test', 'npm run test', 'pnpm test', 'yarn test', 'pytest', 'python -m pytest -q', 'node --test', 'go test ./...', 'cargo test', 'npx jest', 'npm test -- --silent',
+    'pytest -x --maxfail=1 -v', 'npx jest --reporter=dot --color', 'npm test 2>&1 | tail -20', 'npm test > out/log.txt', 'cd "C:/tmp/pino" && npm test', 'npm test && node --test test/a.test.js', 'ls src/a.js'];
+  for (const c of subset) assert.ok(isSubsetRun(c, cfg), c);
+  for (const c of whole) assert.equal(isSubsetRun(c, cfg), false, c);
 });

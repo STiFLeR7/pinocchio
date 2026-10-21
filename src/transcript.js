@@ -1,3 +1,5 @@
+import { parseCodexSession } from './codex.js';
+
 const EDIT_TOOLS = { Edit: 'file_path', Write: 'file_path', MultiEdit: 'file_path', NotebookEdit: 'notebook_path' };
 
 const SUBAGENT_TOOLS = new Set(['Task', 'Agent']);
@@ -8,7 +10,18 @@ function textOf(content) {
   return '';
 }
 
+function isCodexLog(text) {
+  const first = String(text).split('\n').find((l) => l.trim());
+  if (!first) return false;
+  try {
+    return JSON.parse(first)?.type === 'session_meta';
+  } catch {
+    return false;
+  }
+}
+
 export function parseTranscript(text) {
+  if (isCodexLog(text)) return parseCodexSession(text);
   const pending = new Map();
   const events = [];
   let lastAssistantText = null;

@@ -1,14 +1,14 @@
 // `pinocchio setup`: six step blocks; nothing is written before the Review step is confirmed.
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { dirname, isAbsolute, join, relative } from 'node:path';
+import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { createUI } from './ui.js';
 import { checkSystem, detectTests } from './detect.js';
 import { claudeCli } from './claude.js';
-import { statePath, readState, writeState, sha256File } from './state.js';
-import { hasHook, hookGroup, registerHook } from './fallback.js';
+import { statePath, findState, hookSettingsFiles, runtimeRoot, within, writeState, sha256File } from './state.js';
+import { hasHook, hookGroup, registerHook, unregisterHook } from './fallback.js';
 import { smokeTest } from './smoke.js';
 import { select } from './prompt.js';
 
@@ -41,15 +41,23 @@ const hasMarketplace = (cli) => {
   return r.ok && Array.isArray(r.json) && r.json.some((m) => m?.name === 'pinocchio');
 };
 
-// State recorded and the registration it names still there (plugin listed and enabled, or the hook still in settings.json).
+// POSIX shells take a single-quoted path literally; cmd and PowerShell need double quotes (no " in Windows paths).
+export const hookCommandFor = (stopJs, platform = process.platform) =>
+  (platform === 'win32' ? `node "${stopJs}"` : `node '${stopJs.replace(/'/g, "'\\''")}'`);
+
+// The settings hook is live: still in its settings file, and the runtime copy it runs is still there.
+const hookLive = (st) => Boolean(st.settings && hasHook(st.settings.file, st.settings.hookCommand)
+  && st.runtime && existsSync(join(st.runtime, 'src', 'stop.js')));
+
+// State recorded and the registration it names still there (plugin listed and enabled, or the settings hook live).
 function installed(scopes, cwd, home, cli) {
   for (const scope of scopes) {
-    const st = readState(statePath(scope, cwd, home));
+    const st = findState(scope, cwd, home)?.st;
     if (!st) continue;
     if (st.method === 'plugin') {
       const p = pluginEntry(cli);
       if (p && p.enabled !== false) return st;
-    } else if (st.settings && hasHook(st.settings.file, st.settings.hookCommand)) return st;
+    } else if (hookLive(st)) return st;
   }
   return null;
 }
@@ -57,7 +65,7 @@ function installed(scopes, cwd, home, cli) {
 export async function setup({
   cwd = process.cwd(), home = homedir(), argv = [], ui = createUI(),
   prompt = (question, options) => select(question, options), cli = claudeCli(),
-  isTTY = Boolean(process.stdin.isTTY && process.stdout.isTTY), system,
+  isTTY = Boolean(process.stdin.isTTY && process.stdout.isTTY), system, platform = process.platform,
 } = {}) {
   let flags;
   try {
@@ -78,7 +86,7 @@ export async function setup({
   ui.line('');
   if (prev) {
     for (let n = 1; n <= 6; n++) box(n, 'done', ['✔ already set up']);
-    ui.line(`Pinocchio is already set up (${prev.scope} scope, via ${prev.method === 'plugin' ? 'the plugin' : 'a settings.json hook'}). Nothing written.`);
+    ui.line(`Pinocchio is already set up (${prev.scope} scope, via ${prev.method === 'plugin' ? 'the plugin' : 'a settings hook'}). Nothing written.`);
     return 0;
   }
 
@@ -90,7 +98,7 @@ export async function setup({
     claude.ok ? `✔ Claude Code ${ver(claude.version)}` : '─ Claude Code not found',
   ].join('      ')];
   if (codex.ok) sys.push(`● Codex ${ver(codex.version)}  → skill only (Codex has no blocking hook)`);
-  if (!claude.ok) sys.push('  → Pinocchio will add a Stop hook to settings.json instead');
+  if (!claude.ok) sys.push('  → Pinocchio will add a Stop hook to your Claude Code settings instead');
   if (!node.ok) sys.push('fix: install Node 18 or newer — https://nodejs.org');
   if (!git.ok) sys.push('fix: install git — https://git-scm.com');
   box(1, node.ok && git.ok ? 'done' : 'failed', sys);
@@ -119,11 +127,14 @@ export async function setup({
   const scopeRoot = scope === 'user' ? home : cwd;
   const configFile = join(cwd, '.claude', 'pinocchio.json');
   const configExists = existsSync(configFile);
-  const settingsFile = join(scopeRoot, '.claude', 'settings.json');
-  const runtimeDir = join(scopeRoot, '.claude', 'pinocchio', 'runtime');
+  // Project scope uses settings.local.json: the hook holds a machine-specific absolute path, so it must not be committed.
+  const settingsFile = join(scopeRoot, '.claude', scope === 'user' ? 'settings.json' : 'settings.local.json');
   const stateFile = statePath(scope, cwd, home);
+  const installDir = dirname(stateFile);
+  const runtimeDir = runtimeRoot(stateFile);
+  const earlier = findState(scope, cwd, home); // a previous run whose registration is gone: merged, not forgotten
   // The npx cache is temporary, so the hook runs a copy of the runtime; forward slashes work in bash and PowerShell.
-  const hookCommand = `node "${runtimeDir.replace(/\\/g, '/')}/src/stop.js"`;
+  const hookCommand = hookCommandFor(`${runtimeDir.replace(/\\/g, '/')}/src/stop.js`, platform);
   // Read-only probes: Pinocchio may already be installed (natively, or by an earlier run whose state is gone).
   const plugin = claude.ok ? pluginEntry(cli) : null;
   const marketplace = Boolean(claude.ok && !plugin && hasMarketplace(cli));
@@ -155,6 +166,9 @@ export async function setup({
   }
 
   // 5 · Install
+  // The .gitignore comes first, so nothing setup puts in its folder ever shows in git (even with a committed ledger).
+  mkdirSync(installDir, { recursive: true });
+  writeFileSync(join(installDir, '.gitignore'), '*\n');
   const done = [];
   let method = 'settings';
   let reason = 'Claude Code CLI not found';
@@ -196,7 +210,7 @@ export async function setup({
     done.push(reg.ok ? '✔ Stop hook added' : `✖ ${show(settingsFile)} left untouched: ${reg.reason}`);
   }
   // A config recorded by an earlier setup stays recorded, so uninstall can still remove it.
-  const files = configExists ? (readState(stateFile)?.files ?? []).filter((f) => f.path === configFile) : [];
+  const files = configExists ? (earlier?.st.files ?? []).filter((f) => f.path === configFile) : [];
   if (configExists) done.push(`✔ kept existing ${show(configFile)}`);
   else {
     mkdirSync(dirname(configFile), { recursive: true });
@@ -204,10 +218,22 @@ export async function setup({
     files.push({ path: configFile, sha256: sha256File(configFile) });
     done.push('✔ settings saved');
   }
-  writeState(stateFile, {
-    version: 1, scope, method, addedMarketplace, addedPlugin, files, settings,
-    runtime: method === 'settings' ? runtimeDir : null, at: new Date().toISOString(),
-  });
+  // What an earlier run added and is still there stays recorded, so uninstall still removes it.
+  const prevSt = earlier?.st ?? {};
+  if (prevSt.addedMarketplace && (plugin || marketplace)) addedMarketplace = true;
+  if (prevSt.addedPlugin && plugin) addedPlugin = true;
+  const runtime = method === 'settings' ? runtimeDir : null;
+  writeState(stateFile, { version: 1, scope, method, addedMarketplace, addedPlugin, files, settings, runtime, at: new Date().toISOString() });
+  // Leftovers of the earlier run this one replaced: its runtime copy (only inside its own folder) and its hook entry.
+  if (prevSt.runtime && prevSt.runtime !== runtime && within(runtimeRoot(earlier.file), prevSt.runtime)) {
+    rmSync(prevSt.runtime, { recursive: true, force: true });
+  }
+  const old = prevSt.settings;
+  const oldOk = old?.file && hookSettingsFiles(scope, cwd, home, earlier.legacy).some((f) => resolve(f) === resolve(old.file));
+  if (oldOk && (old.file !== settings?.file || old.hookCommand !== settings?.hookCommand)) {
+    try { unregisterHook(old.file, old.hookCommand); } catch { /* left in place; it only points at a removed runtime */ }
+  }
+  if (earlier?.legacy) rmSync(earlier.file, { force: true });
   box(5, manual ? 'failed' : 'done', done);
   if (manual) {
     ui.line(`Add this to ${show(settingsFile)} by hand (merge with any "hooks" already there), then run: pinocchio doctor`);

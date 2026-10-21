@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { createUI } from '../cli/ui.js';
 import { doctor } from '../cli/doctor.js';
 import { status } from '../cli/status.js';
-import { writeState, statePath } from '../cli/state.js';
+import { writeState, statePath, legacyStatePath } from '../cli/state.js';
 import { appendEntry } from '../src/ledger.js';
 
 const made = [];
@@ -61,16 +61,44 @@ test('doctor: unregistered and disabled plugin each name their fix', () => {
   assert.match(d.out, /fix: run: claude plugin enable pinocchio@pinocchio/);
 });
 
+// A settings-hook install: hook in settings.local.json, runtime copy with src/stop.js, state at `stateFile`.
+function hookInstall(cwd, stateFile, runtime) {
+  const file = join(cwd, '.claude', 'settings.local.json');
+  const hookCommand = 'node "x/src/stop.js"';
+  mkdirSync(join(runtime, 'src'), { recursive: true });
+  writeFileSync(join(runtime, 'src', 'stop.js'), '');
+  writeFileSync(file, JSON.stringify({ hooks: { Stop: [{ hooks: [{ type: 'command', command: hookCommand }] }] } }));
+  writeState(stateFile, { version: 1, method: 'settings', settings: { file, hookCommand }, runtime });
+}
+const noPlugins = { listPlugins: () => ({ ok: false, json: null }) };
+
 test('doctor accepts a settings hook recorded in install state', () => {
   const cwd = tmp();
-  const file = join(cwd, '.claude', 'settings.json');
-  const hookCommand = 'node "x/src/stop.js"';
-  mkdirSync(join(cwd, '.claude'), { recursive: true });
-  writeFileSync(file, JSON.stringify({ hooks: { Stop: [{ hooks: [{ type: 'command', command: hookCommand }] }] } }));
   const home = tmp();
-  writeState(statePath('project', cwd, home), { version: 1, method: 'settings', settings: { file, hookCommand } });
+  hookInstall(cwd, statePath('project', cwd, home), join(cwd, '.claude', 'pinocchio-install', 'runtime'));
   const o = capture();
-  assert.equal(doctor({ cwd, home, ui: o.ui, cli: { listPlugins: () => ({ ok: false, json: null }) }, system: SYS }), 0);
+  assert.equal(doctor({ cwd, home, ui: o.ui, cli: noPlugins, system: SYS }), 0);
+  assert.match(o.out, /Stop hook registered \(project settings\.local\.json\)/);
+});
+
+test('doctor reads a legacy install record in the ledger dir', () => {
+  const cwd = tmp();
+  const home = tmp();
+  hookInstall(cwd, legacyStatePath('project', cwd, home), join(cwd, '.claude', 'pinocchio', 'runtime'));
+  const o = capture();
+  assert.equal(doctor({ cwd, home, ui: o.ui, cli: noPlugins, system: SYS }), 0);
+});
+
+test('doctor: settings hook whose runtime copy is gone names the setup fix', () => {
+  const cwd = tmp();
+  const home = tmp();
+  const runtime = join(cwd, '.claude', 'pinocchio-install', 'runtime');
+  hookInstall(cwd, statePath('project', cwd, home), runtime);
+  rmSync(runtime, { recursive: true });
+  const o = capture();
+  assert.equal(doctor({ cwd, home, ui: o.ui, cli: noPlugins, system: SYS }), 1);
+  assert.match(o.out, /runtime copy is missing/);
+  assert.match(o.out, /fix: run: npx @stifler7\/pinocchio setup/);
 });
 
 test('doctor flags missing node and git', () => {

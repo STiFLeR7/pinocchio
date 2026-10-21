@@ -55,8 +55,8 @@ test('.js bin runs through node and listPlugins parses json', () => {
 });
 
 test('statePath for both scopes', () => {
-  assert.equal(statePath('project', '/p', '/h'), join('/p', '.claude', 'pinocchio', 'install.json'));
-  assert.equal(statePath('user', '/p', '/h'), join('/h', '.claude', 'pinocchio', 'install.json'));
+  assert.equal(statePath('project', '/p', '/h'), join('/p', '.claude', 'pinocchio-install', 'install.json'));
+  assert.equal(statePath('user', '/p', '/h'), join('/h', '.claude', 'pinocchio-install', 'install.json'));
 });
 
 test('state round-trips, missing and corrupt read as null', () => {

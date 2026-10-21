@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createUI } from '../cli/ui.js';
 import { uninstall } from '../cli/uninstall.js';
-import { statePath, writeState, sha256File } from '../cli/state.js';
+import { statePath, legacyStatePath, writeState, sha256File } from '../cli/state.js';
 import { registerHook } from '../cli/fallback.js';
 
 const made = [];
@@ -75,10 +75,12 @@ test('edited config is kept', () => {
 test('settings fallback hook removed, other keys intact, runtime deleted', () => {
   const cwd = tmp();
   const home = tmp();
-  const settingsFile = join(cwd, '.claude', 'settings.json');
-  const runtime = join(cwd, '.claude', 'pinocchio', 'runtime');
+  const settingsFile = join(cwd, '.claude', 'settings.local.json');
+  const runtime = join(cwd, '.claude', 'pinocchio-install', 'runtime');
   const ledger = join(cwd, '.claude', 'pinocchio', 'ledger.jsonl');
   mkdirSync(join(runtime, 'src'), { recursive: true });
+  mkdirSync(join(cwd, '.claude', 'pinocchio'));
+  writeFileSync(join(runtime, '..', '.gitignore'), '*\n');
   writeFileSync(join(runtime, 'src', 'a.js'), 'x');
   writeFileSync(ledger, 'keep me\n');
   writeFileSync(settingsFile, JSON.stringify({ theme: 'dark' }));
@@ -92,7 +94,73 @@ test('settings fallback hook removed, other keys intact, runtime deleted', () =>
   assert.deepEqual(JSON.parse(readFileSync(settingsFile, 'utf8')), { theme: 'dark' });
   assert.deepEqual(cli.calls, []);
   assert.equal(existsSync(runtime), false);
+  assert.equal(existsSync(join(cwd, '.claude', 'pinocchio-install')), false); // its .gitignore went with it
   assert.equal(readFileSync(ledger, 'utf8'), 'keep me\n');
+});
+
+test('setup folder with anything besides .gitignore left in it is kept', () => {
+  const p = project();
+  const mine = join(p.cwd, '.claude', 'pinocchio-install', 'notes.txt');
+  writeFileSync(join(mine, '..', '.gitignore'), '*\n');
+  writeFileSync(mine, 'mine');
+  assert.equal(uninstall({ cwd: p.cwd, home: p.home, ui: capture().ui, cli: fakeCli() }), 0);
+  assert.equal(readFileSync(mine, 'utf8'), 'mine');
+  assert.equal(existsSync(join(mine, '..', '.gitignore')), true);
+});
+
+test('legacy install record in the ledger dir is still removed, ledger dir kept', () => {
+  const cwd = tmp();
+  const home = tmp();
+  const dir = join(cwd, '.claude', 'pinocchio');
+  const settingsFile = join(cwd, '.claude', 'settings.json'); // where older setups put the project hook
+  const runtime = join(dir, 'runtime');
+  mkdirSync(join(runtime, 'src'), { recursive: true });
+  writeFileSync(join(dir, 'ledger.jsonl'), 'keep me\n');
+  registerHook(settingsFile, 'node old/stop.js');
+  writeState(legacyStatePath('project', cwd, home), {
+    version: 1, scope: 'project', method: 'settings', addedMarketplace: false, addedPlugin: false,
+    files: [], settings: { file: settingsFile, hookCommand: 'node old/stop.js' }, runtime, at: 't',
+  });
+  const o = capture();
+  assert.equal(uninstall({ cwd, home, ui: o.ui, cli: fakeCli() }), 0, o.out);
+  assert.deepEqual(JSON.parse(readFileSync(settingsFile, 'utf8')), {});
+  assert.equal(existsSync(runtime), false);
+  assert.equal(existsSync(legacyStatePath('project', cwd, home)), false);
+  assert.equal(readFileSync(join(dir, 'ledger.jsonl'), 'utf8'), 'keep me\n');
+});
+
+test('containment follows the record: current records may not name the old runtime or project settings.json', () => {
+  const p = project();
+  const base = { version: 1, scope: 'project', method: 'settings', addedMarketplace: false, addedPlugin: false, files: [], settings: null, runtime: null, at: 't' };
+  for (const evil of [{ runtime: join(p.cwd, '.claude', 'pinocchio', 'runtime') }, { settings: { file: join(p.cwd, '.claude', 'settings.json'), hookCommand: 'x' } }]) {
+    writeState(statePath('project', p.cwd, p.home), { ...base, ...evil });
+    const o = capture();
+    assert.equal(uninstall({ cwd: p.cwd, home: p.home, ui: o.ui, cli: fakeCli() }), 1);
+    assert.match(o.out, /would not write/);
+  }
+  // A user-scope record may only name ~/.claude/settings.json.
+  rmSync(statePath('project', p.cwd, p.home));
+  writeState(statePath('user', p.cwd, p.home), { ...base, scope: 'user', settings: { file: join(p.cwd, '.claude', 'settings.local.json'), hookCommand: 'x' } });
+  const o = capture();
+  assert.equal(uninstall({ cwd: p.cwd, home: p.home, ui: o.ui, cli: fakeCli() }), 1);
+  assert.match(o.out, /would not write/);
+});
+
+test('a settings install that owns a marketplace from an earlier run removes it', () => {
+  const cwd = tmp();
+  const home = tmp();
+  const settingsFile = join(cwd, '.claude', 'settings.local.json');
+  registerHook(settingsFile, 'c');
+  writeState(statePath('project', cwd, home), {
+    version: 1, scope: 'project', method: 'settings', addedMarketplace: true, addedPlugin: false,
+    files: [], settings: { file: settingsFile, hookCommand: 'c' }, runtime: null, at: 't',
+  });
+  const cli = fakeCli();
+  const o = capture();
+  assert.equal(uninstall({ cwd, home, ui: o.ui, cli }), 0, o.out);
+  assert.deepEqual(cli.calls, ['marketplaceRemove']);
+  assert.doesNotMatch(o.out, /kept pinocchio plugin/);
+  assert.match(o.out, /Stop hook removed/);
 });
 
 test('no state prints nothing to remove', () => {
@@ -180,7 +248,7 @@ test('hand-edited state pointing outside setup paths is refused and deletes noth
 
 test('invalid settings.json is reported, not "already gone", and nothing is removed', () => {
   const p = project({ method: 'settings', addedPlugin: false, addedMarketplace: false });
-  const settingsFile = join(p.cwd, '.claude', 'settings.json');
+  const settingsFile = join(p.cwd, '.claude', 'settings.local.json');
   writeFileSync(settingsFile, '{ // comment}');
   writeState(statePath('project', p.cwd, p.home), { version: 1, scope: 'project', method: 'settings', addedMarketplace: false, addedPlugin: false, files: [], settings: { file: settingsFile, hookCommand: 'x' }, runtime: null, at: 't' });
   const o = capture();

@@ -1,9 +1,11 @@
 // `pinocchio doctor`: checks the install and prints one fix line per failed check.
+import { existsSync } from 'node:fs';
 import { homedir } from 'node:os';
+import { basename, join } from 'node:path';
 import { createUI } from './ui.js';
 import { checkSystem } from './detect.js';
 import { claudeCli } from './claude.js';
-import { statePath, readState } from './state.js';
+import { findState } from './state.js';
 import { hasHook } from './fallback.js';
 import { loadConfig } from '../src/config.js';
 import { verifyChain } from '../src/ledger.js';
@@ -20,9 +22,12 @@ function registration(cwd, home, cli) {
       : { ok: true, text: 'plugin registered (pinocchio@pinocchio)' };
   }
   for (const scope of ['project', 'user']) {
-    const st = readState(statePath(scope, cwd, home));
+    const st = findState(scope, cwd, home)?.st;
     if (st?.method === 'settings' && st.settings && hasHook(st.settings.file, st.settings.hookCommand)) {
-      return { ok: true, text: `Stop hook registered (${scope} settings.json)` };
+      const where = `${scope} ${basename(st.settings.file)}`;
+      return st.runtime && existsSync(join(st.runtime, 'src', 'stop.js'))
+        ? { ok: true, text: `Stop hook registered (${where})` }
+        : { ok: false, text: `Stop hook registered (${where}) but its runtime copy is missing`, fix: SETUP };
     }
   }
   return { ok: false, text: 'not registered with Claude Code', fix: SETUP };

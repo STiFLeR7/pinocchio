@@ -10,8 +10,11 @@ function textOf(content) {
   return '';
 }
 
+// Sniffs the first non-empty line only; splitting a large transcript just to read one line is wasted work.
 function isCodexLog(text) {
-  const first = String(text).split('\n').find((l) => l.trim());
+  const s = String(text).trimStart();
+  const end = s.indexOf('\n');
+  const first = end < 0 ? s : s.slice(0, end);
   if (!first) return false;
   try {
     return JSON.parse(first)?.type === 'session_meta';

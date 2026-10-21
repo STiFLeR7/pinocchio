@@ -46,6 +46,18 @@ test('codex: failed file changes are dropped; sub-agent activity is kept', () =>
   assert.deepEqual(parseCodexSession(codexLog(failed, sub)).events.map((e) => e.kind), ['subagent']);
 });
 
+test('codex: only completed file changes become edits', () => {
+  const pending = item({ type: 'FileChange', status: 'in_progress', changes: { 'C:\\r\\a.js': {} } });
+  const declined = item({ type: 'FileChange', status: 'declined', changes: { 'C:\\r\\b.js': {} } });
+  assert.deepEqual(parseCodexSession(codexLog(pending, declined)).events, []);
+});
+
+test('parseTranscript sniffs Codex after leading blank lines, and not past the first line', () => {
+  assert.equal(parseTranscript(`\n  \n${codexLog(cmd('npm test'))}`).events.length, 1);
+  const claudeFirst = `${JSON.stringify({ type: 'user', message: { content: 'hi' } })}\n${codexLog(cmd('npm test'))}`;
+  assert.equal(parseTranscript(claudeFirst).events.length, 0);
+});
+
 test('codex: last_agent_message is the final text', () => {
   assert.equal(parseCodexSession(codexLog()).lastAssistantText, 'All tests pass.');
 });

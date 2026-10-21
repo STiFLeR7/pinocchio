@@ -40,7 +40,7 @@ export function parseCodexSession(text) {
       const cmd = Array.isArray(it.command) ? String(it.command.at(-1) ?? '') : String(it.command ?? '');
       events.push({ kind: 'bash', cmd, failed: it.exit_code !== 0, exitCode: it.exit_code, output: it.aggregated_output ?? '', line, ts: p.started_at_ms, resultTs: p.completed_at_ms });
     } else if (it.type === 'FileChange') {
-      if (it.status === 'failed') continue;
+      if (it.status !== 'completed') continue; // failed or still pending: nothing was written
       for (const file of Object.keys(it.changes ?? {})) events.push({ kind: 'edit', file, line, ts: p.completed_at_ms });
     } else if (SUBAGENT_ITEMS.has(it.type)) {
       events.push({ kind: 'subagent', line, ts: p.completed_at_ms });

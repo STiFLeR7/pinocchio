@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
 const id = 'tampering';
 const TEST_FILE = /(^|\/)(tests?|__tests__|spec)\/|\.(test|spec)\.[cm]?[jt]sx?$|_test\.(go|py)$|(^|\/)test_[^/]*\.py$/;
 const SKIP = /(\.skip\(|\bxit\(|\bxdescribe\(|\bxtest\(|\bit\.todo\(|@pytest\.mark\.skip|\bt\.Skip\(|#\[ignore\]|@Disabled\b|@Ignore\b)/;
@@ -5,13 +8,15 @@ const ASSERT = /(\bassert\w*|\bexpect\(|\.should\b|\bt\.(Error|Fatal)|assert!|as
 
 export function tampering(ctx) {
   if (!ctx.git.isRepo) return null;
-  const testFiles = Object.keys(ctx.git.changed).filter((p) => TEST_FILE.test(p));
+  // Working-tree changes plus test files the session already committed.
+  const testFiles = [...new Set([...Object.keys(ctx.git.changed), ...(ctx.git.committed ?? [])])].filter((p) => TEST_FILE.test(p));
   if (!testFiles.length) return null;
+  const deleted = (p) => (p in ctx.git.changed ? ctx.git.changed[p].includes('D') : !fs.existsSync(path.join(ctx.git.root, p)));
   const findings = [];
-  for (const p of testFiles) if (ctx.git.changed[p].includes('D')) findings.push(`${p}: deleted`);
+  for (const p of testFiles) if (deleted(p)) findings.push(`${p}: deleted`);
   const perFile = {};
   let current = null;
-  for (const l of ctx.gitTestDiff(testFiles.filter((p) => !ctx.git.changed[p].includes('D'))).split('\n')) {
+  for (const l of ctx.gitTestDiff(testFiles.filter((p) => !deleted(p))).split('\n')) {
     const m = /^diff --git a\/.+ b\/(.+)$/.exec(l);
     if (m) {
       current = m[1];

@@ -1,5 +1,5 @@
 const BUILTIN = {
-  fixed: ['fixed', 'resolved', 'works now', 'is working now'],
+  fixed: ['fixed', 'resolved', 'works now', 'is working now', 'verified the fix', 'fix verified', 'fix is verified'],
   tests: ['tests pass', 'tests passed', 'tests are passing', 'tests now pass', 'all tests pass', 'all tests passed', 'all green', 'suite passes', 'test suite passes', 'tests passing', 'all tests passing', 'tests are green', 'tests succeeded'],
 };
 const NEGATION = /(\bnot\b|n't\b|\bnever\b|\bnothing\b|\bunable\b|\bcannot\b|\byet to\b|\bfail(s|ed|ing)?\b)/i;
@@ -43,6 +43,13 @@ export function matchClaims(text, config) {
           }
         }
       }
+    }
+
+    // A bare "Done." / "All done." is a completion claim; "done" inside a sentence
+    // ("I'm done reading the code") is not.
+    if (!seen.has('fixed') && /^(all\s+)?done[.!]*$/i.test(s.trim())) {
+      seen.add('fixed');
+      claims.push({ type: 'fixed', text: 'done' });
     }
 
     // Split into clauses for tests/fixed matching

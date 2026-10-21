@@ -95,7 +95,7 @@ changed by `git status` (covers edits made through Bash).
 | Claim type | Example phrases | Checks |
 |---|---|---|
 | tests | "tests pass", "all tests pass", "all green", "suite passes" | stale-tests, red-tests |
-| fixed / done | "fixed", "done", "resolved", "works now", "verified" | red-tests (if any test ran after last edit), phantom-edit |
+| fixed / done | "fixed", "resolved", "works now", "verified the fix", or a bare "Done." sentence ("done" mid-sentence is not a claim) | red-tests (if any test ran after last edit), phantom-edit |
 | file change | "updated `X`", "changed `X`", "added to `X`" | phantom-edit on `X` |
 | always | n/a | tampering (warn-only) |
 

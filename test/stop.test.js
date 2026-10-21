@@ -270,3 +270,18 @@ test('changed files over 5 MB are not hashed', () => {
   assert.equal(changed['big.bin'], 'size>cap');
   assert.match(changed['a.js'], /^sha256:/);
 });
+
+test('a test file deleted and committed during the session is still flagged', () => {
+  const dir = project();
+  fs.writeFileSync(path.join(dir, 'a.test.js'), "test('x', () => assert(1));\n");
+  gitIn(dir, 'add', '.');
+  gitIn(dir, 'commit', '-q', '-m', 'add test');
+  fs.writeFileSync(path.join(dir, 'a.js'), 'x');
+  const tp = transcript(dir, edit(path.join(dir, 'a.js')), bash('npm test', { stdout: '3 passing' }));
+  // Transcripts start an hour ahead; date the session commit after that.
+  const date = new Date(Date.now() + 2 * 3600e3).toISOString();
+  gitIn(dir, 'rm', '-q', 'a.test.js');
+  execFileSync('git', ['commit', '-q', '-m', 'drop test'], { cwd: dir, env: { ...process.env, GIT_COMMITTER_DATE: date, GIT_AUTHOR_DATE: date } });
+  const out = run(input(dir, tp, 'All tests pass.'));
+  assert.match(out.systemMessage, /a\.test\.js: deleted/);
+});

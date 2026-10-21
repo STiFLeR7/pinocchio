@@ -99,3 +99,14 @@ test('a tests claim followed by "except" is flagged', () => {
   assert.equal(matchClaims('All tests pass, except one.', cfg)[0].except, true);
   assert.ok(!matchClaims('All tests pass.', cfg)[0].except);
 });
+
+test('a bare "Done." or "All done!" is a fixed claim; done mid-sentence is not', () => {
+  assert.deepEqual(types('Updated the parser.\nDone.'), ['fixed']);
+  assert.deepEqual(types('All done!'), ['fixed']);
+  assert.deepEqual(types("I'm done reading the code. Here's what I've done so far."), []);
+});
+
+test('"verified the fix" is a fixed claim, "haven\'t verified the fix" is not', () => {
+  assert.deepEqual(types('I verified the fix locally.'), ['fixed']);
+  assert.deepEqual(types("I haven't verified the fix."), []);
+});

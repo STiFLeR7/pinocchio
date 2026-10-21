@@ -39,10 +39,11 @@ export function readGitState(cwd) {
   }
 }
 
-export function testFileDiff(cwd, files) {
+// base: the commit the session started from, so test changes committed mid-session still show.
+export function testFileDiff(cwd, files, base = 'HEAD') {
   if (!files.length) return '';
   try {
-    return git(cwd, ['diff', '-U0', '--no-ext-diff', '--no-textconv', 'HEAD', '--', ...files]);
+    return git(cwd, ['diff', '-U0', '--no-ext-diff', '--no-textconv', base, '--', ...files]);
   } catch {
     return '';
   }
@@ -54,6 +55,17 @@ export function committedSince(cwd, sinceMs) {
     return [...new Set(out.split(/[\0\n]/).map((s) => s.trim()).filter(Boolean))];
   } catch {
     return [];
+  }
+}
+
+// Parent of the oldest commit made since sinceMs, or HEAD when the session made none.
+export function sessionBase(cwd, sinceMs) {
+  try {
+    const first = git(cwd, ['log', `--since=@${Math.floor(sinceMs / 1000)}`, '--reverse', '--format=%H']).split('\n')[0].trim();
+    if (!first) return 'HEAD';
+    return git(cwd, ['rev-parse', '--verify', '-q', `${first}^`]).trim() || 'HEAD';
+  } catch {
+    return 'HEAD';
   }
 }
 

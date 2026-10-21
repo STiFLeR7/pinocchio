@@ -71,13 +71,14 @@ export function run(input, { env = process.env, findJUnit = findFreshJUnit, git 
   if (!events.some((e) => e.kind === 'edit') && !claims.length && !gitEdits.length) return null;
 
   const committed = gs.isRepo && Number.isFinite(startTs) ? git.committedSince(cwd, startTs) : [];
+  const testBase = committed.length ? git.sessionBase(cwd, startTs) : 'HEAD';
   const ctx = {
     events, claims, config, cwd, root, message, gitEdits,
     gitEditMs: gitEdits.length ? gitEdits[gitEdits.length - 1].mtimeMs : -Infinity,
     git: { ...gs, committed },
     hasTestSetup: repoHasTestSetup(root, config),
     findJUnit: (since) => findJUnit(root, since),
-    gitTestDiff: (files) => git.testFileDiff(root, files),
+    gitTestDiff: (files) => git.testFileDiff(root, files, testBase),
   };
   const results = orderResults(CHECKS.map((check) => check(ctx)));
   const verdict = decide(results, claims);

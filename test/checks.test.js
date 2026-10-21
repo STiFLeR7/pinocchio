@@ -155,7 +155,22 @@ test('red-tests and stale-tests: an admitted claim is unknown, never fail', () =
 });
 
 test('build artifacts are not edits', () => {
-  for (const f of ['tests/__pycache__/t.cpython-312.pyc', 'node_modules/x/i.js', 'dist/a.js', 'build/out.js', 'coverage/lcov.info', '.pytest_cache/v/x', '.mypy_cache/x.json', 'a.pyc']) {
+  for (const f of ['tests/__pycache__/t.cpython-312.pyc', 'pkg/node_modules/x/i.js', 'dist/a.js', 'build/out.js', 'coverage/lcov.info', '.pytest_cache/v/x', 'src/.mypy_cache/x.json', 'a.pyc']) {
     assert.equal(staleTests(ctx({ claims: TESTS, events: [ed('a.js'), sh('npm test'), ed(f)] })).status, 'pass', f);
   }
+  // dist/build/coverage count only at the repo root.
+  assert.equal(staleTests(ctx({ claims: TESTS, events: [ed('a.js'), sh('npm test'), ed('src/build/x.js')] })).status, 'fail');
+});
+
+test('a project under a build/ folder still counts its edits', () => {
+  const r = path.resolve('/tmp/build/proj');
+  const e = { kind: 'edit', file: path.join(r, 'a.js'), line: ++line, ts: 1000 };
+  assert.equal(staleTests(ctx({ root: r, cwd: r, claims: TESTS, events: [sh('npm test', { ts: 500 }), e] })).status, 'fail');
+});
+
+test('phantom-edit: build artifacts are not changes', () => {
+  const git = { isRepo: true, root, head: 'a', changed: { '__pycache__/core.cpython-312.pyc': '??', 'dist/a.js': 'M' }, committed: [] };
+  assert.equal(phantomEdit(ctx({ claims: FIXED, git })).status, 'unknown');
+  const r = phantomEdit(ctx({ claims: FIXED, git: { ...git, changed: { ...git.changed, 'src/a.js': 'M' } } }));
+  assert.deepEqual([r.status, r.evidence.changed], ['pass', 1]);
 });

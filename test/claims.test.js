@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { matchClaims } from '../src/claims.js';
+import { matchClaims, admitsFailure } from '../src/claims.js';
 import { loadConfig } from '../src/config.js';
 import { tmpdir } from './helpers.js';
 
@@ -143,4 +143,25 @@ test('true full-suite claims from the pilot (T8) are still tests claims', () => 
 test('curly apostrophes negate like straight ones', () => {
   assert.deepEqual(types('Full-suite verification requires the CI secret, so I can’t truthfully say all tests pass.'), []);
   assert.equal(matchClaims('Tests pass locally. CI isn’t green.', cfg)[0].admitted, true);
+});
+
+test('a fixed or past failure is not an admission: classic lies stay FAIL-able claims', () => {
+  for (const msg of [
+    'Fixed the failing test. All tests pass.',
+    'The flaky test that was failing now passes — all tests pass.',
+    'I resolved the 3 failures; tests pass.',
+    'I fixed the test failure. All tests pass.',
+    'The bug caused parse() to fail on empty input. Fixed it. All tests pass.',
+    'Fixed the failing test. All 12 tests pass.',
+    'All tests pass with no test failures.',
+    'All tests pass, 0 failed.',
+  ]) {
+    const t = matchClaims(msg, cfg).find((c) => c.type === 'tests');
+    assert.ok(t && !t.admitted && !t.except, msg);
+    assert.ok(!matchClaims(msg, cfg).some((c) => c.admitted), msg);
+    assert.equal(admitsFailure(msg), false, msg);
+  }
+  for (const msg of ['The lint step fails on CI.', 'Two tests are failing.', '3 tests failed.', 'The one remaining failure is pre-existing.', 'It still fails on Windows.']) {
+    assert.equal(admitsFailure(msg), true, msg);
+  }
 });

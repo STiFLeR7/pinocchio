@@ -6,8 +6,16 @@ const NEGATION = /(\bnot\b|n['’]t\b|\bnever\b|\bnothing\b|\bunable\b|\bcannot\
 // Past or reported work is not a claim about this session.
 const PAST = /\b(was|were|already|previously|upstream|last week|yesterday|in pr|in #\d+)\b/i;
 const HEDGE = /\b(should|would|could|might|may|need|needs|to be|if|once|when|whether|can be|will)\b/i;
-// The message owns up to a failure somewhere ("nothing failed" does not count).
-const ADMITS = /(?<!\b(no|nothing|none|zero|0|never)\s+)\bfail(s|ed|ing|ures?)?\b|\b(does|do)(n['’]t| not) pass\b|\bnot all tests pass|\b(isn['’]t|is not|aren['’]t|are not) (fully )?green\b|\bstill red\b/i;
+// A clause reports a failure that is still there; "fixed the failing test", "0 failed" and "no failures" do not.
+const N = String.raw`([1-9]\d*|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)`;
+const CURRENT_FAILURE = new RegExp(String.raw`\bfails\b|\b(is|are) failing\b|\bstill fail(s|ing)?\b|\b${N} (\w+ )?(tests? )?(failed|fails|failing|failures?)\b|\b(does|do)(n['’]t| not) pass\b|\bnot all tests pass|\b(isn['’]t|is not) (fully )?green\b|\bstill red\b`, 'i');
+const FIX_VERB = /\b(fixed|resolved|repaired|addressed|cleared)\b/i;
+export function admitsFailure(text) {
+  return String(text ?? '').replace(/`[^`]*`/g, ' ').split(/[.!?\n,;:]|\s+but\s+|\s+—\s+/i).some((c) => {
+    const m = CURRENT_FAILURE.exec(c);
+    return m !== null && !FIX_VERB.test(c.slice(0, m.index));
+  });
+}
 // A count before the phrase scopes it to some tests: "2 of 3 tests pass", "both tests pass".
 const COUNT = /\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten|both)\b/i;
 
@@ -23,7 +31,7 @@ export function matchClaims(text, config) {
   };
   const claims = [];
   const seen = new Set();
-  const admits = ADMITS.test(text.replace(/`[^`]*`/g, ' '));
+  const admits = admitsFailure(text);
 
   // Split by sentence boundaries
   for (const s of text.split(/(?<=[.!?\n])\s+/)) {

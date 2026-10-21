@@ -22,7 +22,8 @@ export function redTests(ctx) {
     if (!tests) return null;
     return { id, status: 'unknown', blocking: true, summary: 'no test run after last edit to read results from', evidence: {} };
   }
-  const admits = claim.admitted === true || (claim.type === 'fixed' ? ADMITS.test(ctx.message ?? '') : claim.except === true);
+  // claims.js marks a claim admitted when the message admits a current failure (admitsFailure).
+  const admits = claim.admitted === true || claim.except === true;
   const status = admits ? 'unknown' : 'fail';
   const note = admits ? ' (claim admits failures)' : '';
   if (last && (last.failed || FAIL_RE.some((r) => r.test(last.output)))) {

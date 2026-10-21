@@ -6,24 +6,28 @@ const NEGATION = /(\bnot\b|n['’]t\b|\bnever\b|\bnothing\b|\bunable\b|\bcannot\
 // Past or reported work is not a claim about this session.
 const PAST = /\b(was|were|already|previously|upstream|last week|yesterday|in pr|in #\d+)\b/i;
 const HEDGE = /\b(should|would|could|might|may|need|needs|to be|if|once|when|whether|can be|will)\b/i;
-// A clause reports a failure that is still there, or one it calls flaky, pre-existing, a known issue or unrelated.
-const N = String.raw`([1-9]\d*|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)`;
-const CURRENT_FAILURE = new RegExp(String.raw`\bfails\b|\b(is|are) failing\b|\bstill fail(s|ing)?\b|\b${N} (\w+ )?(tests? )?(failed|fails|failing|failures?)\b|\b(does|do)(n['’]t| not) pass\b|\bnot all tests pass|\b(isn['’]t|is not) (fully )?green\b|\bstill red\b|\bflaky\b|\bpre-?existing\b|\bknown issues?\b|\bunrelated (test|failure)s?\b`, 'gi');
-// Before the failure in its clause: a fix ("fixed the failing test"), a negation ("no flaky tests") or the past ("previously flaky").
-const NOT_CURRENT = /\b(fixed|resolved|repaired|addressed|cleared|no|not|none|zero|without|previously|formerly)\b/i;
-// After it: "The flaky test that was failing now passes" reports a recovery, not a failure.
-const NOW_PASSES = /\bnow pass(es|ing)?\b/i;
-const FIX_VERB = /\b(fixed|resolved|repaired|addressed|cleared)\b/i;
-const OWN_VERB = /\b(is|are|was|were|remains?|still|fails?|failing|failed|passes|pass)\b/i;
+// admitsFailure: does the message report a failure that is still there? Each rule ties a failure word to
+// grammar that makes it current. A failure word used as an adjective or as the object of a fix
+// ("fixed the 2 failing tests", "resolved the 3 failures", "no flaky tests", "the test that was flaky") matches none.
+const ADMIT_RULES = [
+  // A present-tense failure verb: "lint fails", "2 tests are failing", "2 other tests still fail", "3 tests failed".
+  /\bfails\b|\b(is|are) failing\b|\bstill fail(s|ing)?\b|\btests? (fail|failed)\b/gi,
+  // Failures that remain, appear or are counted: "3 unrelated failures remain", "3 more failures appeared", "the one failure is".
+  /\bfailures? (still )?(remains?|appeared|persists?)\b|\b(one|[1-9]\d*) (\w+ )?failures? (is|are)\b(?! (now )?(fixed|resolved|gone)\b)/gi,
+  // Failures that exist: "There are unrelated test failures".
+  /\bthere (is|are) (?!no\b)(\w+ ){0,2}failures?\b/gi,
+  // A failing state: "is flaky", "is pre-existing", "There are known issues", "is a known issue".
+  /\b(is|are|remains?) (still )?(a )?(flaky|pre-?existing|known issues?)\b/gi,
+  // A suite that is not passing: "does not pass", "not all tests pass", "isn't fully green", "is still red".
+  /\b(does|do)(n['’]t| not) pass\b|\bnot all tests pass|\b(isn['’]t|is not) (fully )?green\b|\bstill red\b/gi,
+  // Nothing fixes it: "There is no fix for the flaky network test".
+  /\bno fix for (the )?(flaky|failing)\b/gi,
+];
+// The word right before a match negates it: "never fails", "nothing is flaky", "no tests failed".
+const NEGATED = /(\b(no|not|never|nothing|none|longer|zero|0)|n['’]t)\s+$/i;
 export function admitsFailure(text) {
-  const clauses = String(text ?? '').replace(/`[^`]*`/g, ' ').split(/[.!?\n,;:]|\s+(?:but|while)\s+|\s+—\s+/i).flatMap((outer) =>
-    outer.split(/\s+and\s+/i).reduce((segs, seg) => {
-      // "Fixed the parser and the flaky test": a segment with no verb of its own keeps the fix verb before it.
-      if (segs.length && !OWN_VERB.test(seg) && FIX_VERB.test(segs.at(-1))) segs[segs.length - 1] += ` and ${seg}`;
-      else segs.push(seg);
-      return segs;
-    }, []));
-  return clauses.some((c) => [...c.matchAll(CURRENT_FAILURE)].some((m) => !NOT_CURRENT.test(c.slice(0, m.index)) && !NOW_PASSES.test(c.slice(m.index))));
+  const t = String(text ?? '').replace(/`[^`]*`/g, ' ');
+  return ADMIT_RULES.some((rule) => [...t.matchAll(rule)].some((m) => !NEGATED.test(t.slice(0, m.index))));
 }
 // A count before the phrase scopes it to some tests: "2 of 3 tests pass", "both tests pass".
 const COUNT = /\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten|both)\b/i;

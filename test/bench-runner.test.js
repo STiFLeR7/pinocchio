@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { runOne, extractStops, resolveCli, PausedError, SetupError } from '../bench/lib/runner.js';
+import { runOne, extractStops, resolveCli, agentEnv, PausedError, SetupError } from '../bench/lib/runner.js';
 import { score } from '../bench/lib/metrics.js';
 import { tmpdir, jsonl, assistantText, bash } from './helpers.js';
 
@@ -111,11 +111,51 @@ test('the timeout ends the run even when a grandchild holds the pipes', async ()
   assert.ok(fs.existsSync(path.join(resultsDir, 'T1.claude.off.1.json')));
 });
 
-test('contaminated when off arm loads pinocchio', async () => {
-  const { opts } = setup(['--plugins', 'pinocchio']);
-  assert.equal((await runOne({ ...opts, arm: 'off' })).contaminated, true);
-  const { opts: o2 } = setup([]);
-  assert.equal((await runOne({ ...o2, arm: 'on' })).contaminated, true);
+test('contaminated unless the arm loads exactly its own plugins', async () => {
+  const runs = [['off', 'pinocchio', true], ['on', '', true], ['off', 'superpowers', true], ['on', 'pinocchio,waypoint', true], ['placebo', 'verify-first', false], ['on', 'pinocchio', false], ['off', '', false]];
+  for (const [arm, plugins, want] of runs) {
+    const { opts } = setup(plugins ? ['--plugins', plugins] : []);
+    assert.equal((await runOne({ ...opts, arm })).contaminated, want, `${arm} with [${plugins}]`);
+  }
+});
+
+test('the record keeps what the init event loaded', async () => {
+  const r = await runOne({ ...setup().opts, arm: 'off' });
+  assert.deepEqual([r.mcpServers, r.slashCommands, r.skills, r.toolCount], [[], ['compact'], [], 2]);
+  assert.deepEqual(r.result, { subtype: 'success', isError: false });
+});
+
+test('a limit reported as an is_error result with exit 0 still pauses', async () => {
+  const { opts, resultsDir } = setup(['--mode', 'softlimit']);
+  await assert.rejects(runOne({ ...opts, arm: 'off' }), PausedError);
+  assert.deepEqual(fs.readdirSync(resultsDir), []);
+});
+
+test('an is_error result is recorded as a run error', async () => {
+  const r = await runOne({ ...setup(['--mode', 'error']).opts, arm: 'off' });
+  assert.equal(r.error, 'agent error (error_during_execution): API Error: 529 overloaded');
+  assert.deepEqual(r.result, { subtype: 'error_during_execution', isError: true });
+});
+
+test('hitting max turns is a valid run, flagged by its result subtype', async () => {
+  const r = await runOne({ ...setup(['--mode', 'maxturns']).opts, arm: 'off' });
+  assert.equal(r.error, null);
+  assert.deepEqual(r.result, { subtype: 'error_max_turns', isError: true });
+});
+
+test('the agent does not inherit the Claude Code session it was started from', async () => {
+  const keys = { CLAUDECODE: '1', CLAUDE_CODE_SESSION_ID: 's', CLAUDE_CODE_ENTRYPOINT: 'cli', CLAUDE_EFFORT: 'high', CLAUDE_PID: '1' };
+  assert.deepEqual(agentEnv({ ...keys, claude_code_x: '1', CLAUDE_CONFIG_DIR: 'c', PATH: 'p' }), { CLAUDE_CONFIG_DIR: 'c', PATH: 'p' });
+  const envfile = path.join(tmpdir(), 'env.json');
+  Object.assign(process.env, keys);
+  try {
+    await runOne({ ...setup(['--envfile', envfile]).opts, arm: 'off' });
+  } finally {
+    for (const k of Object.keys(keys)) delete process.env[k];
+  }
+  const seen = JSON.parse(fs.readFileSync(envfile, 'utf8')).map((k) => k.toUpperCase());
+  assert.deepEqual(Object.keys(keys).filter((k) => seen.includes(k)), []);
+  assert.ok(seen.includes('PATH'));
 });
 
 test('overlay is part of the baseline; added protected files are reported', async () => {

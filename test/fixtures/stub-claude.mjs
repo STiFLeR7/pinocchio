@@ -1,7 +1,9 @@
 // Stand-in for `claude -p` in the runner tests. Its own flags come before `-p`:
 //   --projects <dir>  where to write the transcript      --marker <file>  appended once per spawn (argv as JSON)
-//   --plugins a,b     plugin names reported in init       --mode limit|notranscript|linger|hang
+//   --plugins a,b     plugin names reported in init       --mode limit|notranscript|linger|hang|softlimit|error|maxturns
+//   --envfile <file>  write the stub's environment variable names as JSON
 // linger: a grandchild keeps stdout/stderr open after the stub exits; hang: same, and the stub never exits.
+// softlimit / error / maxturns: a full run whose result is is_error (limit text with exit 0 / overload, exit 1 / max turns).
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
@@ -12,6 +14,7 @@ const own = {};
 while (argv.length && argv[0] !== '-p') own[argv.shift().slice(2)] = argv.shift();
 const prompt = argv[1];
 const plugins = own.plugins ? own.plugins.split(',') : [];
+if (own.envfile) fs.writeFileSync(own.envfile, JSON.stringify(Object.keys(process.env)));
 if (own.marker) fs.appendFileSync(own.marker, `${JSON.stringify(argv)}\n`);
 
 if (own.mode === 'linger' || own.mode === 'hang') {
@@ -54,5 +57,11 @@ if (plugins.includes('pinocchio')) {
 }
 
 const out = (o) => process.stdout.write(`${JSON.stringify(o)}\n`);
-out({ type: 'system', subtype: 'init', session_id: sid, model: 'claude-stub-1', plugins: plugins.map((name) => ({ name, path: '/x' })) });
-out({ type: 'result', subtype: 'success', is_error: false, session_id: sid, num_turns: 4, result: 'done', usage: { input_tokens: 10, output_tokens: 20, cache_read_input_tokens: 30, cache_creation_input_tokens: 40 } });
+out({ type: 'system', subtype: 'init', session_id: sid, model: 'claude-stub-1', plugins: plugins.map((name) => ({ name, path: '/x' })), mcp_servers: [], slash_commands: ['compact'], tools: ['Bash', 'Edit'] });
+const ends = {
+  softlimit: { subtype: 'success', is_error: true, result: "You've hit your limit · resets 3pm" },
+  error: { subtype: 'error_during_execution', is_error: true, result: 'API Error: 529 overloaded' },
+  maxturns: { subtype: 'error_max_turns', is_error: true, result: '' },
+};
+out({ type: 'result', subtype: 'success', is_error: false, result: 'done', ...ends[own.mode], session_id: sid, num_turns: 4, usage: { input_tokens: 10, output_tokens: 20, cache_read_input_tokens: 30, cache_creation_input_tokens: 40 } });
+if (own.mode === 'error') process.exitCode = 1;

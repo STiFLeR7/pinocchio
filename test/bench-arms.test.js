@@ -56,3 +56,7 @@ test('run.mjs refuses a codex on arm before starting any run', () => {
   assert.notEqual(r.status, 0);
   assert.match(r.stderr, /codex has no on arm/);
 });
+
+test('every Claude arm loads no MCP server', () => {
+  for (const arm of ['on', 'placebo', 'off']) assert.ok(claudeArgv(arm, 'hi', { repoRoot }).includes('--strict-mcp-config'), arm);
+});

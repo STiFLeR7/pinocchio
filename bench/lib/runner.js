@@ -16,7 +16,9 @@ export class SetupError extends Error {}
 
 const TIMEOUT_MS = 15 * 60_000;
 const DRAIN_MS = 2000;
-const LIMIT = /usage limit|rate limit|quota/i;
+const LIMIT = /usage limit|rate limit|quota|hit your limit|limit reached/i;
+// Plugins each arm must load and nothing else; anything more means the owner's own setup leaked in.
+const ARM_PLUGINS = { off: [], placebo: ['verify-first'], on: ['pinocchio'] };
 const AUTHOR = ['-c', 'core.autocrlf=false', '-c', 'user.name=pinocchio-bench', '-c', 'user.email=bench@pinocchio.invalid', '-c', 'commit.gpgsign=false'];
 
 const jsonLines = (text) => String(text).split('\n').flatMap((l) => {
@@ -48,10 +50,18 @@ export function resolveCli(cli, env = process.env) {
   return m ? { cmd: process.execPath, prefixArgs: [path.join(path.dirname(first), m[1])] } : { cmd: cli, prefixArgs: [] };
 }
 
+// The bench is often started from inside Claude Code; its session variables would make the agent a child of that session.
+export function agentEnv(env = process.env) {
+  return Object.fromEntries(Object.entries(env).filter(([k]) => {
+    const K = k.toUpperCase();
+    return K !== 'CLAUDECODE' && K !== 'CLAUDE_EFFORT' && K !== 'CLAUDE_PID' && !K.startsWith('CLAUDE_CODE_');
+  }));
+}
+
 function runAgent({ cmd, prefixArgs = [] }, args, cwd, timeoutMs) {
   return new Promise((resolve, reject) => {
     // ponytail: the timeout kills the CLI only, not tools it spawned; use a job object / process group if strays pile up
-    const child = spawn(cmd, [...prefixArgs, ...args], { cwd, env: process.env, stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true });
+    const child = spawn(cmd, [...prefixArgs, ...args], { cwd, env: agentEnv(), stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true });
     let stdout = '';
     let stderr = '';
     let exit = null;
@@ -121,6 +131,11 @@ function claudeOutcome(stdout, projectsDir) {
   return {
     model: init.model ?? null,
     plugins: (init.plugins ?? []).map((p) => (typeof p === 'string' ? p : p?.name)).filter(Boolean),
+    mcpServers: (init.mcp_servers ?? []).map((m) => (typeof m === 'string' ? m : m?.name)).filter(Boolean),
+    slashCommands: init.slash_commands ?? [],
+    skills: init.skills ?? [],
+    toolCount: Array.isArray(init.tools) ? init.tools.length : null,
+    result: { subtype: result.subtype ?? null, isError: result.is_error === true },
     usage: u ? { input: u.input_tokens ?? 0, output: u.output_tokens ?? 0, cacheRead: u.cache_read_input_tokens ?? 0, cacheWrite: u.cache_creation_input_tokens ?? 0 } : null,
     numTurns: result.num_turns ?? null,
     errorText: result.is_error ? String(result.result ?? '') : '',
@@ -151,13 +166,21 @@ function findRollout(codexDir, dir, startedMs) {
 }
 
 function codexOutcome(stdout, codexDir, dir, startedMs) {
-  const errorText = jsonLines(stdout).filter((o) => o.type === 'error' || o.type === 'turn.failed').map((o) => o.message ?? o.error?.message ?? '').join('\n');
+  const errs = jsonLines(stdout).filter((o) => o.type === 'error' || o.type === 'turn.failed');
+  const errorText = errs.map((o) => o.message ?? o.error?.message ?? '').join('\n');
+  // Bare `error` events can be retried stream hiccups; only a failed turn makes the run an error.
+  const isError = errs.some((o) => o.type === 'turn.failed');
   const transcript = findRollout(codexDir, dir, startedMs);
   const lines = transcript ? jsonLines(fs.readFileSync(transcript, 'utf8')) : [];
   const t = lines.filter((o) => o.type === 'token_usage_record').at(-1)?.payload?.thread_token_usage;
   return {
     model: lines.find((o) => typeof o.payload?.model === 'string')?.payload.model ?? null,
     plugins: [],
+    mcpServers: [],
+    slashCommands: [],
+    skills: [],
+    toolCount: null,
+    result: { subtype: null, isError },
     // OpenAI counts cached tokens inside input_tokens; split them out to match Claude's usage fields.
     usage: t ? { input: (t.input_tokens ?? 0) - (t.cached_input_tokens ?? 0), output: t.output_tokens ?? 0, cacheRead: t.cached_input_tokens ?? 0, cacheWrite: t.cache_write_input_tokens ?? 0 } : null,
     numTurns: null,
@@ -196,6 +219,7 @@ export async function runOne({
 
   const rec = {
     id, case: caseObj.id, agent, arm, rep, startedAt: new Date().toISOString(), wallMs: 0, model: null, plugins: [], contaminated: false,
+    mcpServers: [], slashCommands: [], skills: [], toolCount: null, result: null,
     usage: null, numTurns: null, stops: [], posthoc: null, facts: null, oraclePass: null, error: null,
   };
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'pino-bench-'));
@@ -214,9 +238,11 @@ export async function runOne({
     rec.wallMs = Date.now() - t0;
 
     const o = agent === 'claude' ? claudeOutcome(res.stdout, projectsDir) : codexOutcome(res.stdout, codexDir, dir, t0);
-    if (res.code !== 0 && LIMIT.test(`${res.stderr}\n${o.errorText}`)) throw new PausedError(`usage limit: ${id}`);
-    Object.assign(rec, { model: o.model, plugins: o.plugins, usage: o.usage, numTurns: o.numTurns });
-    if (agent === 'claude') rec.contaminated = (arm === 'on') !== o.plugins.includes('pinocchio');
+    // A limit can end a run with exit 0 and an is_error result: pause either way, so resume retries it.
+    if ((res.code !== 0 || o.result.isError) && LIMIT.test(`${res.stderr}\n${o.errorText}`)) throw new PausedError(`usage limit: ${id}`);
+    const { model, plugins, mcpServers, slashCommands, skills, toolCount, result, usage, numTurns } = o;
+    Object.assign(rec, { model, plugins, mcpServers, slashCommands, skills, toolCount, result, usage, numTurns });
+    if (agent === 'claude') rec.contaminated = JSON.stringify([...plugins].sort()) !== JSON.stringify(ARM_PLUGINS[arm]);
     if (!o.transcript) throw new Error(`transcript not found (exit ${res.code}${res.signal ? `, ${res.signal}` : ''}): ${res.stderr.trim().slice(-300)}`);
 
     const text = fs.readFileSync(o.transcript, 'utf8');
@@ -234,6 +260,8 @@ export async function runOne({
     rec.facts = facts({ events: parseTranscript(text).events, dir, base, caseObj, feedbackLine: stops[0].feedbackLine });
     rec.oraclePass = shellOk(caseObj.oracle, dir);
     if (res.signal) rec.error = `agent killed (${res.signal}) after ${rec.wallMs} ms`;
+    // error_max_turns is a valid run (excluding it would bias against the arm that keeps working); result.subtype flags it.
+    else if (o.result.isError && o.result.subtype !== 'error_max_turns') rec.error = `agent error (${o.result.subtype ?? 'unknown'}): ${o.errorText.trim().slice(-300)}`;
   } catch (e) {
     if (e instanceof PausedError || e instanceof SetupError) throw e;
     rec.error = String(e?.message ?? e);

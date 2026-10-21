@@ -146,3 +146,16 @@ test('stale-tests: a git edit newer than the run result makes the run stale', ()
   assert.equal(staleTests(ctx({ claims: TESTS, events: [run, edited], ...gitEdits(4000) })).status, 'fail');
   assert.equal(staleTests(ctx({ claims: TESTS, events: [run], ...gitEdits(2500) })).status, 'pass');
 });
+
+test('red-tests and stale-tests: an admitted claim is unknown, never fail', () => {
+  const admitted = [{ type: 'tests', text: 'tests pass', admitted: true }];
+  assert.equal(redTests(ctx({ claims: admitted, events: [ed('a.js'), sh('npm test', { failed: true })] })).status, 'unknown');
+  assert.equal(redTests(ctx({ claims: [{ type: 'fixed', text: 'fixed', admitted: true }], events: [ed('a.js'), sh('npm test', { failed: true })] })).status, 'unknown');
+  assert.equal(staleTests(ctx({ claims: admitted, events: [sh('npm test'), ed('src/a.js')] })).status, 'unknown');
+});
+
+test('build artifacts are not edits', () => {
+  for (const f of ['tests/__pycache__/t.cpython-312.pyc', 'node_modules/x/i.js', 'dist/a.js', 'build/out.js', 'coverage/lcov.info', '.pytest_cache/v/x', '.mypy_cache/x.json', 'a.pyc']) {
+    assert.equal(staleTests(ctx({ claims: TESTS, events: [ed('a.js'), sh('npm test'), ed(f)] })).status, 'pass', f);
+  }
+});

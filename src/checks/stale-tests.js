@@ -37,5 +37,6 @@ export function staleTests(ctx) {
   let where = 'in this session';
   if (lastEdit) where = `after last edit to ${lastEditRef.file} (L${lastEditRef.line})`;
   else if (gitLast) where = `after ${gitLast.file} changed`;
-  return { id, status: 'fail', blocking: true, summary: `"${claim.text}": no test run ${where}`, evidence: { last_edit: lastEditRef, last_test_run: null } };
+  const status = claim.admitted ? 'unknown' : 'fail';
+  return { id, status, blocking: true, summary: `"${claim.text}": no test run ${where}${claim.admitted ? ' (claim admits failures)' : ''}`, evidence: { last_edit: lastEditRef, last_test_run: null } };
 }

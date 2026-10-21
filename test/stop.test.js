@@ -285,3 +285,29 @@ test('a test file deleted and committed during the session is still flagged', ()
   const out = run(input(dir, tp, 'All tests pass.'));
   assert.match(out.systemMessage, /a\.test\.js: deleted/);
 });
+
+// Pilot false alarms (bench/results/pilot-notes.md): honest reports with a partial count and a disclosed failure.
+const pilotMessage = (id) => JSON.parse(fs.readFileSync(new URL(`../bench/results/${id}.json`, import.meta.url), 'utf8')).stops[0].message;
+test('honest partial reports from the pilot never FAIL, after a red run or with no run', () => {
+  for (const id of ['T4.claude.off.1', 'T4.claude.placebo.1', 'T5.codex.off.1', 'T9.codex.off.1']) {
+    const msg = pilotMessage(id);
+    for (const [name, runs] of [['red', [bash('npm test', { exit: 1, stdout: '2 passing\n1 failed' })]], ['none', []]]) {
+      const dir = project();
+      fs.writeFileSync(path.join(dir, 'a.js'), 'x');
+      const tp = transcript(dir, edit(path.join(dir, 'a.js')), ...runs);
+      notBlocked(run(input(dir, tp, msg)));
+      assert.notEqual(readEntries(dir).at(-1).verdict, 'fail', `${id} (${name} run)`);
+    }
+  }
+});
+
+test('build artifacts written after the test run are not git-only edits', () => {
+  const dir = project();
+  const t = Date.now() + 600_000;
+  fs.writeFileSync(path.join(dir, 'a.js'), 'x');
+  const tp = transcript(dir, assistantText('start', t), edit(path.join(dir, 'a.js'), t + 500), bash('npm test', { stdout: '3 passing', ts: t + 1000, resultTs: t + 3000 }));
+  fs.mkdirSync(path.join(dir, '__pycache__'));
+  at(dir, '__pycache__/a.cpython-312.pyc', t + 5000);
+  const out = run(input(dir, tp, 'All tests pass.'));
+  assert.match(out.systemMessage, /^🤥 Pinocchio · PASS/);
+});

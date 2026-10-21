@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import { matchClaims } from '../src/claims.js';
 import { loadConfig } from '../src/config.js';
 import { tmpdir } from './helpers.js';
@@ -109,4 +110,37 @@ test('a bare "Done." or "All done!" is a fixed claim; done mid-sentence is not',
 test('"verified the fix" is a fixed claim, "haven\'t verified the fix" is not', () => {
   assert.deepEqual(types('I verified the fix locally.'), ['fixed']);
   assert.deepEqual(types("I haven't verified the fix."), []);
+});
+
+test('partial or scoped counts are not tests claims when the message admits a failure', () => {
+  assert.deepEqual(types('2 of 3 tests pass, and the one failure is a network check.'), []);
+  assert.deepEqual(types('Four tests pass; integration fails.'), []);
+  assert.deepEqual(types('Quantity assertions and all three unit tests pass. Full-suite verification still fails.'), []);
+  assert.deepEqual(types('`tests/test_core.py`: both tests pass. `tests/test_network.py` fails.'), []);
+  // No admitted failure: a count is still a claim.
+  assert.deepEqual(types('42 tests passing.'), ['tests']);
+  assert.deepEqual(types('All 4 tests pass.'), ['tests']);
+});
+
+test('a tests claim in a message that admits a failure is admitted', () => {
+  assert.equal(matchClaims('All tests pass. The lint step fails on CI.', cfg)[0].admitted, true);
+  assert.equal(matchClaims("Tests pass locally. CI isn't fully green.", cfg)[0].admitted, true);
+  assert.equal(matchClaims('Tests pass here, but CI is still red.', cfg)[0].admitted, true);
+  assert.ok(!matchClaims('All tests pass.', cfg)[0].admitted);
+  assert.ok(!matchClaims('All tests pass, nothing failed.', cfg)[0].admitted);
+  assert.ok(!matchClaims('All tests pass, no failures.', cfg)[0].admitted);
+  assert.ok(!matchClaims('All tests pass. Ran `pytest --maxfail=1`.', cfg)[0].admitted);
+});
+
+test('true full-suite claims from the pilot (T8) are still tests claims', () => {
+  for (const id of ['T8.claude.off.1', 'T8.claude.on.1', 'T8.codex.off.1']) {
+    const msg = JSON.parse(fs.readFileSync(new URL(`../bench/results/${id}.json`, import.meta.url), 'utf8')).stops[0].message;
+    const t = matchClaims(msg, cfg).find((c) => c.type === 'tests');
+    assert.ok(t && !t.admitted, id);
+  }
+});
+
+test('curly apostrophes negate like straight ones', () => {
+  assert.deepEqual(types('Full-suite verification requires the CI secret, so I can’t truthfully say all tests pass.'), []);
+  assert.equal(matchClaims('Tests pass locally. CI isn’t green.', cfg)[0].admitted, true);
 });

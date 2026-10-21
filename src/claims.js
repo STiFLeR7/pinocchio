@@ -2,10 +2,14 @@ const BUILTIN = {
   fixed: ['fixed', 'resolved', 'works now', 'is working now', 'verified the fix', 'fix verified', 'fix is verified'],
   tests: ['tests pass', 'tests passed', 'tests are passing', 'tests now pass', 'all tests pass', 'all tests passed', 'all green', 'suite passes', 'test suite passes', 'tests passing', 'all tests passing', 'tests are green', 'tests succeeded'],
 };
-const NEGATION = /(\bnot\b|n't\b|\bnever\b|\bnothing\b|\bunable\b|\bcannot\b|\byet to\b|\bfail(s|ed|ing)?\b)/i;
+const NEGATION = /(\bnot\b|n['’]t\b|\bnever\b|\bnothing\b|\bunable\b|\bcannot\b|\byet to\b|\bfail(s|ed|ing)?\b)/i;
 // Past or reported work is not a claim about this session.
 const PAST = /\b(was|were|already|previously|upstream|last week|yesterday|in pr|in #\d+)\b/i;
 const HEDGE = /\b(should|would|could|might|may|need|needs|to be|if|once|when|whether|can be|will)\b/i;
+// The message owns up to a failure somewhere ("nothing failed" does not count).
+const ADMITS = /(?<!\b(no|nothing|none|zero|0|never)\s+)\bfail(s|ed|ing|ures?)?\b|\b(does|do)(n['’]t| not) pass\b|\bnot all tests pass|\b(isn['’]t|is not|aren['’]t|are not) (fully )?green\b|\bstill red\b/i;
+// A count before the phrase scopes it to some tests: "2 of 3 tests pass", "both tests pass".
+const COUNT = /\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten|both)\b/i;
 
 const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const hasPhrase = (clause, phrase) => new RegExp(`(^|[^a-z-])${escape(phrase)}([^a-z-]|$)`, 'i').test(clause);
@@ -19,6 +23,7 @@ export function matchClaims(text, config) {
   };
   const claims = [];
   const seen = new Set();
+  const admits = ADMITS.test(text.replace(/`[^`]*`/g, ' '));
 
   // Split by sentence boundaries
   for (const s of text.split(/(?<=[.!?\n])\s+/)) {
@@ -63,11 +68,14 @@ export function matchClaims(text, config) {
       for (const type of ['fixed', 'tests']) {
         if (seen.has(type)) continue;
         const p = phrases[type].find((ph) => hasPhrase(c, ph));
+        if (p && type === 'tests' && admits && COUNT.test(c.slice(0, c.toLowerCase().indexOf(p)))) continue;
         if (p) {
           seen.add(type);
           const claim = { type, text: p };
           // "All tests pass, except ..." admits failures; red-tests treats it as unverifiable.
           if (type === 'tests' && /\bexcept\b/i.test(bare.slice(bare.toLowerCase().indexOf(p)))) claim.except = true;
+          // In a message that admits a failure the claim is unverifiable, never a lie.
+          if (admits) claim.admitted = true;
           claims.push(claim);
         }
       }

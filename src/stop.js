@@ -4,7 +4,7 @@ import { Worker, isMainThread, parentPort, workerData } from 'node:worker_thread
 import { loadConfig } from './config.js';
 import { parseTranscript } from './transcript.js';
 import { matchClaims } from './claims.js';
-import { repoHasTestSetup } from './testcmd.js';
+import { repoHasTestSetup, TEST_SOURCE } from './testcmd.js';
 import * as gitMod from './git.js';
 import { findFreshJUnit } from './junit.js';
 import { confine } from './paths.js';
@@ -72,6 +72,7 @@ export function run(input, { env = process.env, findJUnit = findFreshJUnit, git 
 
   const committed = gs.isRepo && Number.isFinite(startTs) ? git.committedSince(cwd, startTs) : [];
   const testBase = committed.length ? git.sessionBase(cwd, startTs) : 'HEAD';
+  let testFiles = null;
   const ctx = {
     events, claims, config, cwd, root, message, gitEdits,
     gitEditMs: gitEdits.length ? gitEdits[gitEdits.length - 1].mtimeMs : -Infinity,
@@ -79,6 +80,7 @@ export function run(input, { env = process.env, findJUnit = findFreshJUnit, git 
     hasTestSetup: repoHasTestSetup(root, config),
     findJUnit: (since) => findJUnit(root, since),
     gitTestDiff: (files) => git.testFileDiff(root, files, testBase),
+    testFiles: () => (testFiles ??= gs.isRepo ? git.listFiles(root, TEST_SOURCE) : []),
   };
   const results = orderResults(CHECKS.map((check) => check(ctx)));
   const verdict = decide(results, claims);

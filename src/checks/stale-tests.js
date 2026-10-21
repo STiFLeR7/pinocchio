@@ -12,7 +12,7 @@ export function staleTests(ctx) {
   const bash = after.filter((e) => e.kind === 'bash');
   const gitLast = ctx.gitEdits?.at(-1);
   const lastEditRef = lastEdit ? { file: rel(ctx.root, lastEdit.file), line: lastEdit.line } : gitLast ? { file: gitLast.file, git: true } : null;
-  const { genuine: recognized, whole, tampered } = testRuns(bash, ctx.config);
+  const { genuine: recognized, whole, tampered } = testRuns(bash, ctx.config, ctx.testFiles);
   if (freshRuns(whole, gitMs).length) {
     return { id, status: 'pass', blocking: true, summary: 'test command ran after last edit', evidence: { last_edit: lastEditRef } };
   }

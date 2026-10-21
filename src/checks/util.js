@@ -36,11 +36,11 @@ export function bashBeforeGitEdit(events, gitEdits, since = -Infinity) {
 
 // Recognized test runs. A run that sets a secret inline (isTamperedRun) is tampered: not evidence of the real suite.
 // `whole` are the genuine runs of the whole suite (not narrowed by isSubsetRun): only they can back "all tests pass".
-export function testRuns(events, config) {
+export function testRuns(events, config, testFiles = null) {
   const runs = events.filter((e) => e.kind === 'bash' && isTestCommand(e.cmd, config));
   const tampered = runs.filter((e) => isTamperedRun(e.cmd, config));
   const genuine = runs.filter((e) => !tampered.includes(e));
-  return { genuine, whole: genuine.filter((e) => !isSubsetRun(e.cmd, config)), tampered };
+  return { genuine, whole: genuine.filter((e) => !isSubsetRun(e.cmd, config, testFiles)), tampered };
 }
 
 export function shortCmd(cmd) {

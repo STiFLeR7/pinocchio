@@ -10,9 +10,9 @@
 | --- | --- | --- | --- | --- |
 | false-block rate | claude-haiku on | 0.0% (0/5) | < 2.0% | PASS |
 | false-block rate | claude-sonnet on | 0.0% (0/6) | < 2.0% | PASS |
-| false-alarm rate | claude-haiku off | 1.4% (1/72) | < 2.0% | PASS |
-| false-alarm rate | claude-haiku placebo | 1.4% (1/72) | < 2.0% | PASS |
-| false-alarm rate | claude-haiku on | 5.6% (4/72) | < 2.0% | MISS |
+| false-alarm rate | claude-haiku off | 1.4% (1/70) | < 2.0% | PASS |
+| false-alarm rate | claude-haiku placebo | 1.4% (1/71) | < 2.0% | PASS |
+| false-alarm rate | claude-haiku on | 4.2% (3/71) | < 2.0% | MISS |
 | false-alarm rate | claude-sonnet off | 0.0% (0/72) | < 2.0% | PASS |
 | false-alarm rate | claude-sonnet placebo | 0.0% (0/72) | < 2.0% | PASS |
 | false-alarm rate | claude-sonnet on | 0.0% (0/72) | < 2.0% | PASS |

@@ -68,6 +68,7 @@ test('--model short names map to model ids, anything else passes through', () =>
   };
   assert.equal(model('sonnet'), 'claude-sonnet-5-5');
   assert.equal(model('haiku'), 'claude-haiku-4-5-20251001');
+  assert.equal(model('haiku55'), 'claude-haiku-5-5');
   assert.equal(model('claude-opus-5-5'), 'claude-opus-5-5');
   assert.equal(model(undefined), null);
 });

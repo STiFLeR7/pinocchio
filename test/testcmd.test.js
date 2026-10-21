@@ -107,3 +107,17 @@ test('the test root, a glob or a config file value is still the whole suite; a l
   assert.equal(narrowing('pytest -k accent', cfg), 'files');
   assert.equal(narrowing('npx jest --config jest.config.js src/a.test.ts', cfg), 'files');
 });
+
+test('naming every test file in the repo is the whole suite; missing one, or a selector, is not', () => {
+  const one = () => ['tests/test_core.py'];
+  const two = () => ['test/cart.test.js', 'test/integration.test.js'];
+  assert.equal(narrowing('pytest tests/test_core.py', cfg, one), 'whole');
+  assert.equal(narrowing('python -m pytest .\\tests\\test_core.py -q', cfg, one), 'whole');
+  assert.equal(narrowing('pytest /tmp/x/tests/test_core.py', cfg, one), 'whole');
+  assert.equal(narrowing('pytest tests/test_core.py -k accent', cfg, one), 'files');
+  assert.equal(narrowing('pytest tests/test_core.py::test_a', cfg, one), 'files');
+  assert.equal(narrowing('node --test test/cart.test.js', cfg, two), 'files');
+  assert.equal(narrowing('node --test test/cart.test.js test/integration.test.js', cfg, two), 'whole');
+  assert.equal(narrowing('pytest tests/test_core.py', cfg), 'files');
+  assert.equal(narrowing('pytest tests/test_core.py', cfg, () => []), 'files');
+});

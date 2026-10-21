@@ -80,20 +80,33 @@ function rank(arg) {
   return /[/\\]/.test(arg) ? 1 : 0;
 }
 
+// Test source files by name (not fixtures or conftest): what a file-list run must cover to be the whole suite.
+export const TEST_SOURCE = /\.(test|spec)\.[cm]?[jt]sx?$|_test\.(go|py)$|(^|\/)test_[^/]*\.py$/;
+const norm = (a) => a.replace(/\\/g, '/').replace(/^\.\//, '');
+// File arguments that name every test file in the repo (testFiles(), repo-relative) run the whole suite.
+function coversAll(args, testFiles) {
+  if (args.some((a) => SELECTOR.test(a) || a.includes('::'))) return false;
+  const all = testFiles?.() ?? [];
+  const named = args.filter((a) => !a.startsWith('-')).map(norm);
+  return all.length > 0 && all.every((f) => named.some((a) => a === f || a.endsWith(`/${f}`)));
+}
+
 // A run is as narrow as its least narrowed test segment: 'whole', 'dir' (a directory below the test root) or 'files'
 // (a file path, selector or node id). Redirections (`> out/log.txt`, `2>&1`) are not arguments.
-export function narrowing(cmd, config) {
+// testFiles: optional () => repo-relative test files, read only when a run names files.
+export function narrowing(cmd, config, testFiles = null) {
   const runners = [...BUILTIN, ...config.testCommands];
   const ranks = segments(cmd).flatMap((s) => {
     const m = runners.map((r) => r.exec(s)).find(Boolean);
     if (!m) return [];
     const args = s.slice(m[0].length).replace(/\d*[<>]+&?\s*\S+/g, ' ').split(/\s+/).map((a) => a.replace(/^["']|["']$/g, '')).filter(Boolean);
-    return [Math.max(0, ...args.map((a, i) => (TAKES_VALUE.has(args[i - 1]) ? 0 : rank(a))))];
+    const r = Math.max(0, ...args.map((a, i) => (TAKES_VALUE.has(args[i - 1]) ? 0 : rank(a))));
+    return [r === 2 && coversAll(args.filter((a, i) => !TAKES_VALUE.has(args[i - 1]) && !TAKES_VALUE.has(a)), testFiles) ? 0 : r];
   });
   return ['whole', 'dir', 'files'][ranks.length ? Math.min(...ranks) : 0];
 }
 
-export const isSubsetRun = (cmd, config) => narrowing(cmd, config) !== 'whole';
+export const isSubsetRun = (cmd, config, testFiles = null) => narrowing(cmd, config, testFiles) !== 'whole';
 
 export function looksLikeTest(cmd) {
   return LOOKS_LIKE_TEST.test(String(cmd));

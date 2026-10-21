@@ -12,7 +12,7 @@ export function redTests(ctx) {
   const claim = tests ?? fixed;
   const { lastEdit, after } = afterLastEdit(ctx.events, ctx.root);
   const gitMs = ctx.gitEditMs ?? -Infinity;
-  const { genuine, whole } = testRuns(after, ctx.config);
+  const { genuine, whole } = testRuns(after, ctx.config, ctx.testFiles);
   const runs = freshRuns(genuine, gitMs);
   const last = runs[runs.length - 1] ?? null;
   const since = Math.max(lastEdit && Number.isFinite(lastEdit.ts) ? lastEdit.ts : 0, last && Number.isFinite(last.ts) ? last.ts : 0, Number.isFinite(gitMs) ? gitMs : 0);
@@ -44,7 +44,7 @@ export function redTests(ctx) {
       const how = ok.failed ? `exited ${ok.exitCode}` : 'reported failures';
       const evidence = { test_run: { cmd: shortCmd(ok.cmd), line: ok.line, exit: ok.exitCode } };
       // A later green run of a directory may be most of the suite: not proof the claim is false.
-      if (narrowing(last.cmd, ctx.config) === 'dir') {
+      if (narrowing(last.cmd, ctx.config, ctx.testFiles) === 'dir') {
         return { id, status: 'unknown', blocking: true, summary: `"${claim.text}": ${shortCmd(ok.cmd)} ${how} (L${ok.line}); a later run of one directory passed; run the whole suite`, evidence };
       }
       return { id, status, blocking: true, summary: `"${claim.text}": full suite still red: ${shortCmd(ok.cmd)} ${how} (L${ok.line}); later runs covered only part of the suite${note}`, evidence };

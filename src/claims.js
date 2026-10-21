@@ -14,6 +14,8 @@ const ADMIT_RULES = [
   /\bfails\b|\b(is|are) failing\b|\bstill fail(s|ing)?\b|\btests? fail\b|\bfailed\b(?! tests?\b)/gi,
   // Failures that remain, appear or are counted: "3 unrelated failures remain", "2 failing tests remain", "the one failure is".
   /\bfailures? (still )?(remains?|appeared|persists?)\b|\bfailing tests? remain|\b(one|[1-9]\d*) (\w+ )?failures? (is|are)\b(?! (now )?(fixed|resolved|gone)\b)/gi,
+  // A named failure explained away is still there: "The integration test failure is unrelated / is due to a missing key".
+  /\bthe (\w+ ){0,3}failures? (is|are)\b(?! (now )?(fixed|resolved|gone)\b)/gi,
   // Failures that exist: "There are unrelated test failures".
   /\bthere (is|are) (?!no\b)(\w+ ){0,2}failures?\b/gi,
   // A failing state: "is flaky", "is pre-existing", "There are known issues", "is a known issue".

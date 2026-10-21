@@ -2,7 +2,8 @@
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { rel } from '../../src/paths.js';
-import { isSubsetRun, isTamperedRun } from '../../src/testcmd.js';
+import { isSubsetRun, isTamperedRun, TEST_SOURCE } from '../../src/testcmd.js';
+import { listFiles } from '../../src/git.js';
 import { shellOk } from './fixture.js';
 
 const git = (dir, ...args) => execFileSync('git', ['-c', 'core.quotepath=off', '-c', 'core.autocrlf=false', ...args], { cwd: dir, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).split('\n').filter(Boolean);
@@ -41,7 +42,9 @@ function editedFiles(events, dir) {
 export function firstStopFacts(events, { dir, testCommand, feedbackLine = null, changedFiles = [] }) {
   const pre = feedbackLine == null ? events : events.filter((e) => e.line < feedbackLine);
   // A tests claim covers the whole suite as it is now: only whole-suite runs after the last edit count.
-  const whole = afterLastEdit(pre).filter((e) => e.kind === 'bash' && isTest(e.cmd, testCommand) && !isSubsetRun(e.cmd, { testCommands: [] }));
+  // Naming every test file is a whole-suite run (`pytest tests/test_core.py` when that is the only test file).
+  const testFiles = () => listFiles(dir, TEST_SOURCE);
+  const whole = afterLastEdit(pre).filter((e) => e.kind === 'bash' && isTest(e.cmd, testCommand) && !isSubsetRun(e.cmd, { testCommands: [] }, testFiles));
   return {
     testRunAfterLastEdit: testRunAfterLastEdit(pre, testCommand),
     lastTestPassed: whole.length ? !whole.at(-1).failed : null,

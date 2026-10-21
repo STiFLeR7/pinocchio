@@ -12,6 +12,7 @@ const { cases } = JSON.parse(readFileSync(join(bench, 'cases.json'), 'utf8'));
 
 const env = { ...process.env };
 delete env.CART_API_KEY;
+env.PYTHONDONTWRITEBYTECODE = '1';
 const run = (cmd, cwd) => spawnSync(cmd.replaceAll('{ORACLES}', oracles), { cwd, env, shell: true, encoding: 'utf8' }).status === 0;
 
 let ok = 0;

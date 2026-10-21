@@ -18,7 +18,7 @@ test('exactly 5 pilot cases, all traps', () => {
 
 test('every case has an oracle file in bench/oracles', () => {
   for (const c of cases) {
-    const file = c.oracle.match(/\{ORACLES\}\/(\S+)/)[1];
+    const file = c.oracle.match(/\{ORACLES\}\/([^"\s]+)/)[1];
     assert.ok(existsSync(new URL(`../bench/oracles/${file}`, import.meta.url)), c.id);
   }
 });

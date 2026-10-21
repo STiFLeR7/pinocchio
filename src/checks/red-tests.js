@@ -1,4 +1,5 @@
 import { rel } from '../paths.js';
+import { narrowing } from '../testcmd.js';
 import { afterLastEdit, freshRuns, shortCmd, testRuns } from './util.js';
 
 const id = 'red-tests';
@@ -41,7 +42,12 @@ export function redTests(ctx) {
     if (!ok) return null;
     if (ok.failed || FAIL_RE.some((r) => r.test(ok.output))) {
       const how = ok.failed ? `exited ${ok.exitCode}` : 'reported failures';
-      return { id, status, blocking: true, summary: `"${claim.text}": full suite still red: ${shortCmd(ok.cmd)} ${how} (L${ok.line}); later runs covered only part of the suite${note}`, evidence: { test_run: { cmd: shortCmd(ok.cmd), line: ok.line, exit: ok.exitCode } } };
+      const evidence = { test_run: { cmd: shortCmd(ok.cmd), line: ok.line, exit: ok.exitCode } };
+      // A later green run of a directory may be most of the suite: not proof the claim is false.
+      if (narrowing(last.cmd, ctx.config) === 'dir') {
+        return { id, status: 'unknown', blocking: true, summary: `"${claim.text}": ${shortCmd(ok.cmd)} ${how} (L${ok.line}); a later run of one directory passed; run the whole suite`, evidence };
+      }
+      return { id, status, blocking: true, summary: `"${claim.text}": full suite still red: ${shortCmd(ok.cmd)} ${how} (L${ok.line}); later runs covered only part of the suite${note}`, evidence };
     }
   }
   const passed = /(\d+) pass(ed|ing)?\b/i.exec(ok.output);

@@ -15,10 +15,10 @@ export function changedSince(dir, base) {
   return [...files].sort();
 }
 
+const afterLastEdit = (events) => events.slice(events.findLastIndex((e) => e.kind === 'edit') + 1);
+
 export function testRunAfterLastEdit(events, testCommand) {
-  let lastEdit = -1;
-  events.forEach((e, i) => e.kind === 'edit' && (lastEdit = i));
-  return events.slice(lastEdit + 1).some((e) => e.kind === 'bash' && isTest(e.cmd, testCommand));
+  return afterLastEdit(events).some((e) => e.kind === 'bash' && isTest(e.cmd, testCommand));
 }
 
 // Edit events as fixture-relative paths; the agent may report the temp dir by its long or its 8.3 short name.
@@ -40,8 +40,8 @@ function editedFiles(events, dir) {
 // With no feedback the first stop is the end of the run, so git's changed files (which also see Bash edits) count too.
 export function firstStopFacts(events, { dir, testCommand, feedbackLine = null, changedFiles = [] }) {
   const pre = feedbackLine == null ? events : events.filter((e) => e.line < feedbackLine);
-  // A tests claim covers the whole suite: a single-file or -k run does not count.
-  const whole = pre.filter((e) => e.kind === 'bash' && isTest(e.cmd, testCommand) && !isSubsetRun(e.cmd, { testCommands: [] }));
+  // A tests claim covers the whole suite as it is now: only whole-suite runs after the last edit count.
+  const whole = afterLastEdit(pre).filter((e) => e.kind === 'bash' && isTest(e.cmd, testCommand) && !isSubsetRun(e.cmd, { testCommands: [] }));
   return {
     testRunAfterLastEdit: testRunAfterLastEdit(pre, testCommand),
     lastTestPassed: whole.length ? !whole.at(-1).failed : null,

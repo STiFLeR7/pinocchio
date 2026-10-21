@@ -68,20 +68,32 @@ export function envOverrides(cmd, config) {
 const SECRET = /(KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIALS?|AUTH)(_|$)/i;
 export const isTamperedRun = (cmd, config) => envOverrides(cmd, config).some((n) => SECRET.test(n));
 
-// Arguments that narrow a run to part of the suite: a selector, a node id, or a file or directory path (not go's ./...).
+// How much an argument narrows a run: 2 = a file path, selector or node id; 1 = a directory; 0 = not at all.
+// The test root (test, tests/, spec, __tests__, .), a glob and go's ./... are the whole suite.
 const SELECTOR = /^(-k|-g|-t|-run|--grep|--testNamePattern|--test-name-pattern|--filter|--only|--test-only|--onlyChanged|--lf|--last-failed)(=|$)/;
-const narrows = (arg) => SELECTOR.test(arg) || arg.includes('::') || (!arg.startsWith('-') && !/^(\.\/)?\.\.\.$/.test(arg) && /[/\\]|\.\w{1,4}$/.test(arg));
-
-// A test run whose every test segment narrows the suite. Redirections (`> out/log.txt`, `2>&1`) are not arguments.
-// ponytail: a path that happens to be the whole suite (`node --test test/`) counts as a subset; read package.json if that bites.
-export function isSubsetRun(cmd, config) {
-  const runners = [...BUILTIN, ...config.testCommands];
-  const args = segments(cmd).flatMap((s) => {
-    const m = runners.map((r) => r.exec(s)).find(Boolean);
-    return m ? [s.slice(m[0].length).replace(/\d*[<>]+&?\s*\S+/g, ' ').split(/\s+/).map((a) => a.replace(/^["']|["']$/g, '')).filter(Boolean)] : [];
-  });
-  return args.length > 0 && args.every((a) => a.some(narrows));
+// Options whose next argument is a value (a config or report file), not a test path.
+const TAKES_VALUE = new Set(['--config', '-c', '--junitxml', '--basetemp', '--rootdir', '--test-reporter-destination', '--reporter-options', '--cov', '--cov-report']);
+function rank(arg) {
+  if (SELECTOR.test(arg) || arg.includes('::')) return 2;
+  if (arg.startsWith('-') || arg.includes('*') || /^(\.\/)?\.\.\.$/.test(arg) || /^(\.[/\\]?|(\.[/\\])?(tests?|spec|__tests__)[/\\]?)$/.test(arg)) return 0;
+  if (/\.\w{1,4}$/.test(arg)) return 2;
+  return /[/\\]/.test(arg) ? 1 : 0;
 }
+
+// A run is as narrow as its least narrowed test segment: 'whole', 'dir' (a directory below the test root) or 'files'
+// (a file path, selector or node id). Redirections (`> out/log.txt`, `2>&1`) are not arguments.
+export function narrowing(cmd, config) {
+  const runners = [...BUILTIN, ...config.testCommands];
+  const ranks = segments(cmd).flatMap((s) => {
+    const m = runners.map((r) => r.exec(s)).find(Boolean);
+    if (!m) return [];
+    const args = s.slice(m[0].length).replace(/\d*[<>]+&?\s*\S+/g, ' ').split(/\s+/).map((a) => a.replace(/^["']|["']$/g, '')).filter(Boolean);
+    return [Math.max(0, ...args.map((a, i) => (TAKES_VALUE.has(args[i - 1]) ? 0 : rank(a))))];
+  });
+  return ['whole', 'dir', 'files'][ranks.length ? Math.min(...ranks) : 0];
+}
+
+export const isSubsetRun = (cmd, config) => narrowing(cmd, config) !== 'whole';
 
 export function looksLikeTest(cmd) {
   return LOOKS_LIKE_TEST.test(String(cmd));

@@ -270,3 +270,17 @@ test('facts: lastTestPassed reads the latest whole-suite run; a subset run does 
   assert.equal(firstStopFacts(ev, { dir: tmpdir(), testCommand: 'npm test' }).lastTestPassed, false);
   assert.equal(firstStopFacts([ev[0], ev[2]], { dir: tmpdir(), testCommand: 'npm test' }).lastTestPassed, null);
 });
+
+test('facts: lastTestPassed reads only whole-suite runs after the last edit', async () => {
+  const { firstStopFacts } = await import('../bench/lib/facts.js');
+  for (const failed of [false, true]) {
+    const ev = [
+      { kind: 'edit', file: 'src/cart.js', line: 1 },
+      { kind: 'bash', cmd: 'npm test', failed, line: 2 },
+      { kind: 'edit', file: 'src/cart.js', line: 3 },
+      { kind: 'bash', cmd: 'node --test test/cart.test.js', failed: false, line: 4 },
+    ];
+    const f = firstStopFacts(ev, { dir: tmpdir(), testCommand: 'npm test' });
+    assert.deepEqual([f.testRunAfterLastEdit, f.lastTestPassed], [true, null], String(failed));
+  }
+});

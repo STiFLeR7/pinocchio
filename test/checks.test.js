@@ -247,3 +247,26 @@ test('fixed and scoped claims still read the latest run, subset or not', () => {
   assert.equal(redTests(ctx({ claims: [{ type: 'fixed', text: 'fixed', scoped: true }], events: [ed('a.js'), sh('node --test test/cart.test.js')] })).status, 'pass');
   assert.equal(redTests(ctx({ claims: [{ type: 'tests', text: 'tests pass', admitted: true }], events })).status, 'unknown');
 });
+test('a red full run then a green re-run of the whole suite by directory or glob is PASS, not "still red"', () => {
+  for (const events of [
+    [ed('a.js'), sh('npm test', { failed: true }), sh('node --test test/')],
+    [ed('a.js'), sh('npm test', { failed: true }), sh('npm install'), sh('node --test test/')],
+    [ed('a.py'), sh('python -m pytest -q', { failed: true }), sh('pip install -e .'), sh('python -m pytest tests/ -q')],
+    [ed('a.js'), sh('npm test', { failed: true }), sh('node --test test/*.test.js')],
+  ]) {
+    const cmd = events.at(-1).cmd;
+    assert.equal(redTests(ctx({ claims: TESTS, events })).status, 'pass', cmd);
+    assert.equal(staleTests(ctx({ claims: TESTS, events })).status, 'pass', cmd);
+  }
+});
+test('a red full run then a green run of one lower directory is unknown, not fail', () => {
+  const r = redTests(ctx({ claims: TESTS, events: [ed('a.py'), sh('pytest', { failed: true }), sh('pytest tests/unit')] }));
+  assert.equal(r.status, 'unknown');
+  assert.match(r.summary, /a later run of one directory passed; run the whole suite/);
+});
+test('admitted and except tests claims with only a passing subset run: stale-tests unknown', () => {
+  for (const flag of ['admitted', 'except']) {
+    const s = staleTests(ctx({ claims: [{ type: 'tests', text: 'tests pass', [flag]: true }], events: [ed('a.js'), sh('node --test test/cart.test.js')] }));
+    assert.equal(s.status, 'unknown', flag);
+  }
+});

@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { envOverrides, isSubsetRun, isTamperedRun, isTestCommand, looksLikeTest, repoHasTestSetup } from '../src/testcmd.js';
+import { envOverrides, isSubsetRun, isTamperedRun, isTestCommand, looksLikeTest, narrowing, repoHasTestSetup } from '../src/testcmd.js';
 import { loadConfig } from '../src/config.js';
 import { tmpdir } from './helpers.js';
 
@@ -95,4 +95,15 @@ test('a run narrowed by paths or selectors is a subset run; a bare runner is the
     'pytest -x --maxfail=1 -v', 'npx jest --reporter=dot --color', 'npm test 2>&1 | tail -20', 'npm test > out/log.txt', 'cd "C:/tmp/pino" && npm test', 'npm test && node --test test/a.test.js', 'ls src/a.js'];
   for (const c of subset) assert.ok(isSubsetRun(c, cfg), c);
   for (const c of whole) assert.equal(isSubsetRun(c, cfg), false, c);
+});
+
+test('the test root, a glob or a config file value is still the whole suite; a lower directory narrows less than a file', () => {
+  for (const c of ['node --test test/', 'node --test test', 'pytest tests/ -q', 'pytest tests', 'npx jest ./', 'npx jest .', 'node --test test/*.test.js', 'npx jest spec __tests__/',
+    'npx jest --config jest.config.js', 'pytest --junitxml reports/x.xml -c pytest.ini', 'node --test --test-reporter-destination out/r.txt']) {
+    assert.equal(narrowing(c, cfg), 'whole', c);
+  }
+  assert.equal(narrowing('pytest tests/unit', cfg), 'dir');
+  assert.equal(narrowing('pytest tests/unit tests/test_core.py', cfg), 'files');
+  assert.equal(narrowing('pytest -k accent', cfg), 'files');
+  assert.equal(narrowing('npx jest --config jest.config.js src/a.test.ts', cfg), 'files');
 });

@@ -4,12 +4,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runOne, extractStops, resolveCli, PausedError, SetupError } from '../bench/lib/runner.js';
+import { score } from '../bench/lib/metrics.js';
 import { tmpdir, jsonl, assistantText, bash } from './helpers.js';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 const stub = fileURLToPath(new URL('./fixtures/stub-claude.mjs', import.meta.url));
-const { cases } = JSON.parse(fs.readFileSync(path.join(repoRoot, 'bench', 'cases.json'), 'utf8'));
+const doc = JSON.parse(fs.readFileSync(path.join(repoRoot, 'bench', 'cases.json'), 'utf8'));
+const { cases } = doc;
 const T1 = cases.find((c) => c.id === 'T1');
+const H1 = cases.find((c) => c.id === 'H1');
 
 function setup(stubFlags = [], caseObj = T1) {
   const projectsDir = tmpdir();
@@ -154,8 +157,21 @@ test('extractStops splits at Stop hook feedback', () => {
     { type: 'user', timestamp: new Date().toISOString(), message: { role: 'user', content: [{ type: 'text', text: 'Stop hook feedback: again' }] } },
     assistantText('third claim'),
   );
-  assert.deepEqual(extractStops(text), ['first claim', 'second claim', 'third claim']);
-  assert.deepEqual(extractStops(jsonl(assistantText('only'))), ['only']);
+  assert.deepEqual(extractStops(text), [{ message: 'first claim', feedbackLine: 2 }, { message: 'second claim', feedbackLine: 6 }, { message: 'third claim', feedbackLine: null }]);
+  assert.deepEqual(extractStops(jsonl(assistantText('only'))), [{ message: 'only', feedbackLine: null }]);
   const endsOnFeedback = jsonl(assistantText('claim'), { type: 'user', timestamp: new Date().toISOString(), message: { role: 'user', content: 'Stop hook feedback: no' } });
-  assert.deepEqual(extractStops(endsOnFeedback), ['claim']);
+  assert.deepEqual(extractStops(endsOnFeedback), [{ message: 'claim', feedbackLine: 2 }]);
+});
+
+test('a blocked first claim stays a caught lie, and its block is not a false block', async () => {
+  // The stub claims "All tests pass" without running them, is blocked, runs npm test, then claims again.
+  const t1 = await runOne({ ...setup(['--plugins', 'pinocchio']).opts, arm: 'on' });
+  const h1 = await runOne({ ...setup(['--plugins', 'pinocchio'], H1).opts, arm: 'on' });
+  assert.equal(t1.facts.testRunAfterLastEdit, true);
+  assert.deepEqual(t1.facts.firstStop, { testRunAfterLastEdit: false, lastTestPassed: null, editedFiles: ['src/cart.js'] });
+  const labels = Object.fromEntries([t1, h1].map((r) => [`${r.id}#0`, { claim: 'tests', by: 'hand' }]));
+  const m = score([t1, h1], doc, labels);
+  const row = (metric) => m.rows.find((r) => r.metric === metric && r.group === 'claude on');
+  assert.deepEqual([row('catch rate').num, row('catch rate').den], [1, 1]);
+  assert.deepEqual([row('false-block rate').num, row('false-block rate').den], [0, 0]);
 });

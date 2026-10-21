@@ -78,23 +78,30 @@ function runAgent({ cmd, prefixArgs = [] }, args, cwd, timeoutMs) {
   });
 }
 
-// Assistant text at each Stop: the last one before every "Stop hook feedback" user entry, plus the final one.
+// Each Stop: the last assistant text before every "Stop hook feedback" user entry, plus the final one, with the
+// 1-based transcript line of the feedback that followed it (null for the final stop).
 export function extractStops(transcriptText) {
   const stops = [];
   let last = null;
   let repliedSinceStop = false;
-  for (const o of jsonLines(transcriptText)) {
+  String(transcriptText).split('\n').forEach((l, i) => {
+    let o;
+    try {
+      o = l.trim() ? JSON.parse(l) : null;
+    } catch {
+      return;
+    }
     const t = textOf(o?.message?.content);
-    if (o.type === 'assistant' && t) {
+    if (o?.type === 'assistant' && t) {
       last = t;
       repliedSinceStop = true;
-    } else if (o.type === 'user' && t.trimStart().startsWith('Stop hook feedback')) {
-      stops.push(last);
+    } else if (o?.type === 'user' && t.trimStart().startsWith('Stop hook feedback')) {
+      stops.push({ message: last, feedbackLine: i + 1 });
       repliedSinceStop = false;
     }
-  }
+  });
   // Ending on feedback with no reply after it means the last stop is already counted.
-  if (repliedSinceStop || !stops.length) stops.push(parseTranscript(transcriptText).lastAssistantText);
+  if (repliedSinceStop || !stops.length) stops.push({ message: parseTranscript(transcriptText).lastAssistantText, feedbackLine: null });
   return stops;
 }
 
@@ -214,7 +221,8 @@ export async function runOne({
 
     const text = fs.readFileSync(o.transcript, 'utf8');
     const ledger = arm === 'on' ? readEntries(dir) : [];
-    rec.stops = extractStops(text).map((message, i) => {
+    const stops = extractStops(text);
+    rec.stops = stops.map(({ message }, i) => {
       const e = ledger[i];
       return { message, ledger: e ? { verdict: e.verdict, blocked: e.blocked, elapsed_ms: e.elapsed_ms, checks: e.checks } : null };
     });
@@ -223,7 +231,7 @@ export async function runOne({
     } catch (e) {
       rec.posthoc = { verdict: 'error', checks: [], error: String(e?.message ?? e) };
     }
-    rec.facts = facts({ events: parseTranscript(text).events, dir, base, caseObj });
+    rec.facts = facts({ events: parseTranscript(text).events, dir, base, caseObj, feedbackLine: stops[0].feedbackLine });
     rec.oraclePass = shellOk(caseObj.oracle, dir);
     if (res.signal) rec.error = `agent killed (${res.signal}) after ${rec.wallMs} ms`;
   } catch (e) {

@@ -1,9 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { runOne, extractStops, resolveCli, agentEnv, PausedError, SetupError } from '../bench/lib/runner.js';
+import { runOne, extractStops, resolveCli, agentEnv, redactHome, PausedError, SetupError } from '../bench/lib/runner.js';
 import { score } from '../bench/lib/metrics.js';
 import { tmpdir, jsonl, assistantText, bash } from './helpers.js';
 
@@ -214,4 +215,23 @@ test('a blocked first claim stays a caught lie, and its block is not a false blo
   const row = (metric) => m.rows.find((r) => r.metric === metric && r.group === 'claude on');
   assert.deepEqual([row('catch rate').num, row('catch rate').den], [1, 1]);
   assert.deepEqual([row('false-block rate').num, row('false-block rate').den], [0, 0]);
+});
+
+test('redactHome replaces the home dir in every JSON form, only at a path boundary', () => {
+  const home = process.platform === 'win32' ? 'C:\\Users\\me' : '/home/me';
+  const fwd = home.replaceAll('\\', '/');
+  const rec = { a: `${home}${path.sep}AppData${path.sep}x`, b: `${fwd}/y`, c: home, d: `${fwd}2/z` };
+  const out = JSON.parse(redactHome(JSON.stringify(rec), home));
+  assert.deepEqual(out, { a: `~${path.sep}AppData${path.sep}x`, b: '~/y', c: '~', d: `${fwd}2/z` });
+});
+
+test('the written record carries no home dir', async () => {
+  // Wrapper agent: prints its run dir (a temp dir, under the home dir on Windows) to stderr and leaves no transcript.
+  const { opts, resultsDir } = setup();
+  const script = path.join(tmpdir(), 'agent.mjs');
+  fs.writeFileSync(script, 'process.stderr.write(process.cwd());\nprocess.exitCode = 1;\n');
+  const r = await runOne({ ...opts, arm: 'off', cli: { claude: { cmd: process.execPath, prefixArgs: [script] } } });
+  assert.match(r.error, /transcript not found/);
+  const text = fs.readFileSync(path.join(resultsDir, `${r.id}.json`), 'utf8').toLowerCase();
+  for (const h of [os.homedir(), os.homedir().replaceAll('\\', '/')]) assert.ok(!text.includes(JSON.stringify(h).slice(1, -1).toLowerCase()), text);
 });

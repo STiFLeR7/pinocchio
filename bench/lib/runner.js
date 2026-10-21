@@ -189,6 +189,13 @@ function codexOutcome(stdout, codexDir, dir, startedMs) {
   };
 }
 
+// Records are committed: the owner's home dir (and username) in temp paths and stderr tails becomes ~.
+export function redactHome(json, home = os.homedir()) {
+  const esc = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const forms = [...new Set([home, home.replaceAll('\\', '/'), JSON.stringify(home).slice(1, -1)])].map(esc);
+  return json.replace(new RegExp(`(?:${forms.join('|')})(?=[\\\\/"]|$)`, process.platform === 'win32' ? 'gi' : 'g'), '~');
+}
+
 // Verdict Pinocchio would give on the final transcript, written to a throwaway ledger so it never mixes with the live one.
 function posthoc(transcriptPath, dir, stop) {
   const ledgerDir = fs.mkdtempSync(path.join(os.tmpdir(), 'pino-posthoc-'));
@@ -273,7 +280,8 @@ export async function runOne({
     }
   }
   fs.mkdirSync(resultsDir, { recursive: true });
-  fs.writeFileSync(`${file}.tmp`, `${JSON.stringify(rec, null, 2)}\n`);
+  const json = redactHome(JSON.stringify(rec, null, 2));
+  fs.writeFileSync(`${file}.tmp`, `${json}\n`);
   fs.renameSync(`${file}.tmp`, file);
-  return rec;
+  return JSON.parse(json);
 }

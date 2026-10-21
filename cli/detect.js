@@ -5,12 +5,12 @@ import { join } from 'node:path';
 const NPM_DEFAULT_TEST = 'echo "Error: no test specified" && exit 1';
 
 // Fixed argv, no user input: a shell on win32 is only there so npm .cmd shims (codex) resolve.
-function spawnVersion(cmd) {
-  const r = spawnSync(cmd, ['--version'], {
-    encoding: 'utf8',
-    timeout: 3000,
-    shell: process.platform === 'win32',
-  });
+// shell + args array triggers DEP0190 on Node 24, so the shell form takes one string.
+export function spawnVersion(cmd) {
+  const opts = { encoding: 'utf8', timeout: 3000 };
+  const r = process.platform === 'win32'
+    ? spawnSync(`${cmd} --version`, { ...opts, shell: true })
+    : spawnSync(cmd, ['--version'], opts);
   if (r.error || r.status !== 0) return null;
   return (r.stdout || '').trim().split('\n')[0] || null;
 }
@@ -51,7 +51,7 @@ export function detectTests(dir) {
     found.push({ file: 'Cargo.toml', command: 'cargo test', regex: String.raw`^cargo test\b` });
   }
   const mk = read(dir, 'Makefile');
-  if (mk !== null && /^test\s*:/m.test(mk)) {
+  if (mk !== null && /^test[ \t]*:(?!=)/m.test(mk)) {
     found.push({ file: 'Makefile', command: 'make test', regex: String.raw`^make test\b` });
   }
   return found;

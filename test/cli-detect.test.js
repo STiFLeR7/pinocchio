@@ -1,4 +1,5 @@
 import { test } from 'node:test';
+import { spawnSync } from 'node:child_process';
 import assert from 'node:assert/strict';
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -45,4 +46,25 @@ test('default npm test script is ignored', () => {
 
 test('empty dir gives []', () => {
   assert.deepEqual(detectTests(tmp()), []);
+});
+
+test('real spawnVersion prints no DEP0190 warning', () => {
+  const url = new URL('../cli/detect.js', import.meta.url).href;
+  const r = spawnSync(process.execPath, ['-e', `import(${JSON.stringify(url)}).then(m => console.log(m.spawnVersion('node')))`], { encoding: 'utf8' });
+  assert.match(r.stdout, /^v\d+/);
+  assert.ok(!r.stderr.includes('DEP0190'), r.stderr);
+});
+
+test('Makefile test-unit and test := are not a test target', () => {
+  const d = tmp();
+  writeFileSync(join(d, 'Makefile'), 'test-unit:\n\tx\n');
+  assert.deepEqual(detectTests(d), []);
+  writeFileSync(join(d, 'Makefile'), 'test := foo\n');
+  assert.deepEqual(detectTests(d), []);
+});
+
+test('pyproject containing only pytest is detected', () => {
+  const d = tmp();
+  writeFileSync(join(d, 'pyproject.toml'), 'dependencies = ["pytest"]\n');
+  assert.equal(detectTests(d)[0].command, 'pytest');
 });

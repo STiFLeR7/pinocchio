@@ -76,3 +76,24 @@ test('summary has no strings: every leaf is a number or boolean', () => {
   walk(s);
   assert.ok(!JSON.stringify(s).includes('secret'));
 });
+
+test('turns per file are capped and the skipped ones counted', () => {
+  const items = Array.from({ length: 30 }, (_, i) => [prompt(`q${i}`), assistantText('ok')]);
+  const s = replay({ projectsDir: project(tmpdir(), ...items), maxTurnsPerFile: 25 });
+  assert.deepEqual([s.turns, s.turnsSampledOut], [25, 5]);
+});
+
+test('the maxTurns cut-off follows a fixed-seed file order, not path order', () => {
+  // Files a..h: one turn each; only file "a" has a stale claim. Path order would reach it first every time.
+  const projectsDir = tmpdir();
+  const cwd = tmpProject();
+  for (const name of 'abcdefgh') {
+    fs.mkdirSync(path.join(projectsDir, name));
+    const last = name === 'a' ? [edit(path.join(cwd, 'a.js')), assistantText('All tests pass.')] : [assistantText('ok')];
+    fs.writeFileSync(path.join(projectsDir, name, 's.jsonl'), [prompt('x'), ...last].flat().map((o) => JSON.stringify({ cwd, ...o })).join('\n') + '\n');
+  }
+  const runs = [1, 2].map(() => replay({ projectsDir, maxTurns: 4 }));
+  assert.deepEqual(runs[0], runs[1]);
+  assert.equal(replay({ projectsDir }).verdicts.fail, 1);
+  assert.deepEqual([runs[0].turns, runs[0].verdicts.fail], [4, 0]); // seed order is d g f b h c a e
+});

@@ -21,8 +21,9 @@ const noGit = {
 const textOf = (c) => (Array.isArray(c) ? c.filter((b) => b?.type === 'text' && typeof b.text === 'string').map((b) => b.text).join('\n') : '');
 const isPrompt = (o) => o.type === 'user' && !o.isMeta && (typeof o.message?.content === 'string' ? o.message.content !== '' : Array.isArray(o.message?.content) && o.message.content.some((b) => b?.type !== 'tool_result'));
 
-// Each turn: the transcript prefix up to the last assistant line before a real prompt (and at end of file).
-function* turnsOf(lines) {
+// Each turn: the transcript prefix up to the last assistant line before a real prompt (and at end of file),
+// as its end index into lines.
+function turnsOf(lines) {
   const parsed = lines.map((l) => {
     try {
       return JSON.parse(l);
@@ -30,14 +31,38 @@ function* turnsOf(lines) {
       return null;
     }
   });
+  const turns = [];
   let lastA = -1;
   for (let i = 0; i <= parsed.length; i++) {
     const o = parsed[i];
     if (i === parsed.length || (o && isPrompt(o))) {
-      if (lastA >= 0) yield { prefix: lines.slice(0, lastA + 1), message: textOf(parsed[lastA].message?.content) };
+      if (lastA >= 0) turns.push({ end: lastA + 1, message: textOf(parsed[lastA].message?.content) });
       lastA = -1;
     } else if (o?.type === 'assistant') lastA = i;
   }
+  return turns;
+}
+
+// At most n turns, evenly spread over the session.
+const sample = (turns, n) => (turns.length <= n ? turns : Array.from({ length: n }, (_, i) => turns[Math.floor((i * turns.length) / n)]));
+
+// Fixed-seed shuffle (mulberry32, seed SEED): the maxTurns cut-off then takes a reproducible sample across
+// projects instead of whichever project directories sort first.
+const SEED = 20261021;
+function shuffled(items) {
+  let a = SEED;
+  const rand = () => {
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  const out = [...items];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
 }
 
 function sessionCwd(lines) {
@@ -52,9 +77,10 @@ function sessionCwd(lines) {
   return null;
 }
 
-export function replay({ projectsDir, maxFileBytes = 20 * 1024 * 1024, maxTurns = 5000 }) {
+// Each evaluated turn re-reads its whole prefix, so maxTurnsPerFile bounds the work per file (turnsSampledOut counts the rest).
+export function replay({ projectsDir, maxFileBytes = 20 * 1024 * 1024, maxTurns = 5000, maxTurnsPerFile = 25 }) {
   assertSubscriptionOnly();
-  const s = { files: 0, filesSkipped: 0, turns: 0, turnsWithClaims: 0, verdicts: { pass: 0, fail: 0, cantTell: 0, error: 0 }, failByCheck: Object.fromEntries(FAIL_CHECKS.map((k) => [k, 0])), unsupportedClaimShare: 0, truncated: false };
+  const s = { files: 0, filesSkipped: 0, turns: 0, turnsSampledOut: 0, turnsWithClaims: 0, verdicts: { pass: 0, fail: 0, cantTell: 0, error: 0 }, failByCheck: Object.fromEntries(FAIL_CHECKS.map((k) => [k, 0])), unsupportedClaimShare: 0, truncated: false };
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pino-replay-'));
   const prefixFile = path.join(tmp, 'prefix.jsonl');
   try {
@@ -62,7 +88,7 @@ export function replay({ projectsDir, maxFileBytes = 20 * 1024 * 1024, maxTurns 
     for (const d of fs.readdirSync(projectsDir, { withFileTypes: true })) {
       if (d.isDirectory()) for (const f of fs.readdirSync(path.join(projectsDir, d.name))) if (f.endsWith('.jsonl')) files.push(path.join(projectsDir, d.name, f));
     }
-    for (const file of files.sort()) {
+    for (const file of shuffled(files.sort())) {
       if (s.turns >= maxTurns) {
         s.truncated = true;
         break;
@@ -79,14 +105,21 @@ export function replay({ projectsDir, maxFileBytes = 20 * 1024 * 1024, maxTurns 
           continue;
         }
         s.files++;
-        for (const turn of turnsOf(lines)) {
+        const turns = turnsOf(lines);
+        const picked = sample(turns, maxTurnsPerFile);
+        s.turnsSampledOut += turns.length - picked.length;
+        // Turns come in order, so the prefix file only ever grows: append the new lines instead of rewriting it.
+        fs.writeFileSync(prefixFile, '');
+        let written = 0;
+        for (const turn of picked) {
           if (s.turns >= maxTurns) {
             s.truncated = true;
             break;
           }
           s.turns++;
           try {
-            fs.writeFileSync(prefixFile, turn.prefix.join('\n') + '\n');
+            fs.appendFileSync(prefixFile, lines.slice(written, turn.end).map((l) => `${l}\n`).join(''));
+            written = turn.end;
             run({ session_id: 'replay', transcript_path: prefixFile, cwd, last_assistant_message: turn.message }, { env: { CLAUDE_PROJECT_DIR: tmp }, git: noGit, findJUnit: () => [] });
             const e = readEntries(tmp).pop();
             if (!e) continue;

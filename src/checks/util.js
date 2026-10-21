@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { confine } from '../paths.js';
-import { envOverrides, isTestCommand } from '../testcmd.js';
+import { isTamperedRun, isTestCommand } from '../testcmd.js';
 
 const DOC = /\.(md|mdx|txt|rst)$/i;
 export const isDoc = (file) => DOC.test(file);
@@ -34,10 +34,10 @@ export function bashBeforeGitEdit(events, gitEdits, since = -Infinity) {
   });
 }
 
-// Recognized test runs. A run that overrides the environment inline (envOverrides) is tampered: not evidence of the real suite.
+// Recognized test runs. A run that sets a secret inline (isTamperedRun) is tampered: not evidence of the real suite.
 export function testRuns(events, config) {
   const runs = events.filter((e) => e.kind === 'bash' && isTestCommand(e.cmd, config));
-  const tampered = runs.filter((e) => envOverrides(e.cmd, config).length);
+  const tampered = runs.filter((e) => isTamperedRun(e.cmd, config));
   return { genuine: runs.filter((e) => !tampered.includes(e)), tampered };
 }
 

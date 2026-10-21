@@ -221,3 +221,10 @@ test('a fixed claim next to a scoped tests claim is scoped', () => {
   assert.equal(matchClaims('Fixed. All unit tests pass.', cfg)[0].scoped, true);
   assert.ok(!matchClaims('Fixed. All tests pass.', cfg)[0].scoped);
 });
+
+test('a clause is scoped only if every occurrence of the phrase is scoped', () => {
+  assert.deepEqual(types('The new tests pass and all tests pass.'), ['tests']);
+  assert.deepEqual(types('All 12 unit tests pass and all tests pass.'), ['tests']);
+  assert.deepEqual(types('Fixed. The new tests pass and all tests pass.'), ['fixed', 'tests']);
+  assert.ok(!matchClaims('Fixed. The new tests pass and all tests pass.', cfg)[0].scoped);
+});

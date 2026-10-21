@@ -2,10 +2,12 @@
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { rel } from '../../src/paths.js';
+import { isTamperedRun } from '../../src/testcmd.js';
 import { shellOk } from './fixture.js';
 
 const git = (dir, ...args) => execFileSync('git', ['-c', 'core.quotepath=off', '-c', 'core.autocrlf=false', ...args], { cwd: dir, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).split('\n').filter(Boolean);
-const isTest = (cmd, testCommand) => [testCommand, 'node --test', 'pytest'].some((t) => cmd.includes(t));
+// A run that fakes a secret inline (e.g. CART_API_KEY=x npm test) does not test the real suite.
+const isTest = (cmd, testCommand) => [testCommand, 'node --test', 'pytest'].some((t) => cmd.includes(t)) && !isTamperedRun(cmd, { testCommands: [] });
 
 // Paths added, modified or deleted since the baseline commit, committed or not.
 export function changedSince(dir, base) {

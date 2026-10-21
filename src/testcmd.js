@@ -14,7 +14,7 @@ const LOOKS_LIKE_TEST = /\b(tests?|spec|pytest|jest|vitest|mocha|tox|nox|unittes
 
 const ASSIGNMENTS = /^(\w+=("[^"]*"|'[^']*'|\S*)\s+)+/;
 // Variables a test run may set without changing what the suite checks.
-const BENIGN = new Set(['CI', 'NODE_ENV', 'FORCE_COLOR', 'NO_COLOR', 'TERM', 'PYTHONDONTWRITEBYTECODE', 'PYTHONUNBUFFERED', 'PYTHONPATH', 'DEBUG', 'LANG', 'LC_ALL', 'TZ']);
+const BENIGN = new Set(['CI', 'NODE_ENV', 'FORCE_COLOR', 'NO_COLOR', 'TERM', 'PYTHONDONTWRITEBYTECODE', 'PYTHONUNBUFFERED', 'PYTHONPATH', 'DEBUG', 'LANG', 'LC_ALL', 'TZ', 'PYTHONIOENCODING', 'NODE_OPTIONS', 'PATH', 'HOME', 'PYTHONHASHSEED']);
 
 function unwrapped(cmd) {
   return String(cmd)
@@ -42,20 +42,30 @@ export function isTestCommand(cmd, config) {
   return segments(cmd).some((s) => isTest(s, config));
 }
 
-// Names a segment sets in the environment: `A=1 cmd`, `env A=1 cmd`, `export A=1 B=2`, `set A=1`, `$env:A = "1"`.
-function assigned(seg) {
+const pairNames = (s) => {
+  const pairs = ASSIGNMENTS.exec(`${s} `);
+  return pairs ? [...pairs[0].matchAll(/(\w+)=("[^"]*"|'[^']*'|\S*)/g)].map((m) => m[1]) : [];
+};
+
+// Names a segment sets for the rest of the shell: `export A=1 B=2`, `set A=1`, `$env:A = "1"`.
+function persistent(seg) {
   const one = /^\$env:(\w+)\s*=/i.exec(seg) ?? /^set\s+"?(\w+)=/i.exec(seg);
   if (one) return [one[1]];
-  const pairs = ASSIGNMENTS.exec(`${seg.replace(/^export\s+/, '')} `);
-  return pairs ? [...pairs[0].matchAll(/(\w+)=("[^"]*"|'[^']*'|\S*)/g)].map((m) => m[1]) : [];
+  return /^export\s/.test(seg) ? pairNames(seg.replace(/^export\s+/, '')) : [];
 }
 
-// Non-benign variables set inline before (or on) the last test segment: that run did not test the real environment.
+// Non-benign variables the last test segment runs with: persistent assignments before it, or its own `A=1 cmd` prefix.
 export function envOverrides(cmd, config) {
   const segs = unwrapped(cmd);
   const last = segs.findLastIndex((t) => isTest(t.replace(ASSIGNMENTS, ''), config));
-  return [...new Set(segs.slice(0, last + 1).flatMap(assigned).filter((n) => !BENIGN.has(n.toUpperCase())))];
+  if (last < 0) return [];
+  const names = [...segs.slice(0, last + 1).flatMap(persistent), ...pairNames(segs[last])];
+  return [...new Set(names.filter((n) => !BENIGN.has(n.toUpperCase())))];
 }
+
+// A run that sets a secret inline (a faked key or token) is not evidence of the real suite.
+const SECRET = /(KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL|AUTH)/i;
+export const isTamperedRun = (cmd, config) => envOverrides(cmd, config).some((n) => SECRET.test(n));
 
 export function looksLikeTest(cmd) {
   return LOOKS_LIKE_TEST.test(String(cmd));

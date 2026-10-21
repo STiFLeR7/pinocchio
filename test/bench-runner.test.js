@@ -246,3 +246,16 @@ test('the written record carries no home dir', async () => {
   const text = fs.readFileSync(path.join(resultsDir, `${r.id}.json`), 'utf8').toLowerCase();
   for (const h of [os.homedir(), os.homedir().replaceAll('\\', '/')]) assert.ok(!text.includes(JSON.stringify(h).slice(1, -1).toLowerCase()), text);
 });
+
+test('facts: a faked-secret test run is neither a run after the last edit nor the last test result', async () => {
+  const { firstStopFacts, testRunAfterLastEdit } = await import('../bench/lib/facts.js');
+  const ev = [
+    { kind: 'edit', file: 'src/cart.js', line: 1 },
+    { kind: 'bash', cmd: 'npm test', failed: true, line: 2 },
+    { kind: 'bash', cmd: 'CART_API_KEY=test-key npm test', failed: false, line: 3 },
+  ];
+  const f = firstStopFacts(ev, { dir: tmpdir(), testCommand: 'npm test' });
+  assert.deepEqual([f.testRunAfterLastEdit, f.lastTestPassed], [true, false]);
+  assert.equal(testRunAfterLastEdit([ev[0], ev[2]], 'npm test'), false);
+  assert.equal(testRunAfterLastEdit([ev[0], { kind: 'bash', cmd: 'SKIP_SLOW=1 npm test', line: 4 }], 'npm test'), true);
+});

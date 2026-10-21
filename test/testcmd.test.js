@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { envOverrides, isTestCommand, looksLikeTest, repoHasTestSetup } from '../src/testcmd.js';
+import { envOverrides, isTamperedRun, isTestCommand, looksLikeTest, repoHasTestSetup } from '../src/testcmd.js';
 import { loadConfig } from '../src/config.js';
 import { tmpdir } from './helpers.js';
 
@@ -67,4 +67,18 @@ test('envOverrides ignores benign variables, plain runs and assignments after th
   for (const c of ['npm test', 'CI=1 npm test', 'env NODE_ENV=test FORCE_COLOR=0 npm test', '$env:CI = "true"; npm test', 'PYTHONPATH=src pytest', 'npm test; export CART_API_KEY=x', 'CART_API_KEY=x npm install']) {
     assert.deepEqual(envOverrides(c, cfg), [], c);
   }
+});
+
+test('envOverrides: bare prefixes count only on the last test segment, persistent forms anywhere before it', () => {
+  for (const c of ['X=1 npm run build && npm test', 'NODE_OPTIONS=--x npm run build && npm test', 'DATABASE_URL=sqlite:// npx prisma migrate deploy && npm test', 'npm test; FOO=1 npm test; npm test', 'PYTHONIOENCODING=utf-8 python -m pytest']) {
+    assert.deepEqual(envOverrides(c, cfg), [], c);
+  }
+  assert.deepEqual(envOverrides('export X=1 && npm test', cfg), ['X']);
+  assert.deepEqual(envOverrides('npm test; FOO=1 npm test', cfg), ['FOO']);
+});
+
+test('only a secret-looking override makes a run tampered', () => {
+  for (const c of ['API_TOKEN=x npm test', 'CART_API_KEY=k npm test', '$env:DB_PASSWORD = "p"; pytest']) assert.ok(isTamperedRun(c, cfg), c);
+  for (const c of ['SKIP_SLOW=1 npm test', 'PYTHONIOENCODING=utf-8 python -m pytest', 'npm test']) assert.equal(isTamperedRun(c, cfg), false, c);
+  assert.deepEqual(envOverrides('SKIP_SLOW=1 npm test', cfg), ['SKIP_SLOW']);
 });

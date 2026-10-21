@@ -211,3 +211,16 @@ test('red-tests: a fixed claim scoped to some tests is unknown on a red suite, n
   assert.equal(r.status, 'unknown');
   assert.match(r.summary, /covers only some tests/);
 });
+
+test('a non-secret override keeps the run as evidence but warns; a secret one is tampered', () => {
+  const skip = [ed('a.js'), sh('SKIP_SLOW=1 npm test')];
+  assert.equal(staleTests(ctx({ claims: TESTS, events: skip })).status, 'pass');
+  assert.equal(redTests(ctx({ claims: TESTS, events: skip })).status, 'pass');
+  assert.match(tampering(ctx({ events: skip })).summary, /test run overrode SKIP_SLOW/);
+  const io = [ed('a.js'), sh('PYTHONIOENCODING=utf-8 python -m pytest')];
+  assert.equal(staleTests(ctx({ claims: TESTS, events: io })).status, 'pass');
+  assert.equal(tampering(ctx({ events: io })), null);
+  const tok = staleTests(ctx({ claims: TESTS, events: [ed('a.js'), sh('API_TOKEN=x npm test')] }));
+  assert.equal(tok.status, 'fail');
+  assert.match(tok.summary, /last run overrode API_TOKEN/);
+});

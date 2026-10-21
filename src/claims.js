@@ -50,7 +50,8 @@ const SUBSET = /\b(unit|core|cart|focused|relevant|related|targeted|affected|new
 const COUNT = /\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten|both)\b/i;
 
 const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-const hasPhrase = (clause, phrase) => new RegExp(`(^|[^a-z-])${escape(phrase)}([^a-z-]|$)`, 'i').test(clause);
+// Start index of every whole-word occurrence of phrase in clause.
+const phraseStarts = (clause, phrase) => [...clause.matchAll(new RegExp(`(^|[^a-z-])${escape(phrase)}(?=[^a-z-]|$)`, 'gi'))].map((m) => m.index + m[1].length);
 const isPathLike = (token) => /[/\\]/.test(token) || /\.\w{1,6}$/.test(token);
 
 export function matchClaims(text, config) {
@@ -106,11 +107,14 @@ export function matchClaims(text, config) {
 
       for (const type of ['fixed', 'tests']) {
         if (seen.has(type)) continue;
-        const p = phrases[type].find((ph) => hasPhrase(c, ph));
-        const before = p ? c.slice(0, c.toLowerCase().indexOf(p)) : '';
-        if (p && type === 'tests' && SUBSET.test(before)) {
-          scoped = true;
-          continue;
+        // The first occurrence a subset word does not scope: "The new tests pass and all tests pass" is a claim.
+        let p = null;
+        let before = '';
+        for (const ph of phrases[type]) {
+          for (const i of phraseStarts(c, ph)) {
+            if (type === 'tests' && SUBSET.test(c.slice(0, i))) scoped = true;
+            else if (!p) [p, before] = [ph, c.slice(0, i)];
+          }
         }
         if (p && type === 'tests' && admits && COUNT.test(before)) continue;
         if (p) {
@@ -126,6 +130,6 @@ export function matchClaims(text, config) {
     }
   }
   // "Fixed. All unit tests pass.": the fix is vouched for by some tests only, so a red suite cannot refute it.
-  if (scoped) for (const c of claims) if (c.type === 'fixed') c.scoped = true;
+  if (scoped && !seen.has('tests')) for (const c of claims) if (c.type === 'fixed') c.scoped = true;
   return claims;
 }

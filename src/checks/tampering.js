@@ -10,8 +10,8 @@ const ASSERT = /(\bassert\w*|\bexpect\(|\.should\b|\bt\.(Error|Fatal)|assert!|as
 
 export function tampering(ctx) {
   // A test run that set a secret or switch inline after the last edit tested a different environment.
-  const { tampered } = testRuns(afterLastEdit(ctx.events, ctx.root).after, ctx.config);
-  const overrode = [...new Set(tampered.flatMap((e) => envOverrides(e.cmd, ctx.config)))];
+  const { genuine, tampered } = testRuns(afterLastEdit(ctx.events, ctx.root).after, ctx.config);
+  const overrode = [...new Set([...genuine, ...tampered].flatMap((e) => envOverrides(e.cmd, ctx.config)))];
   const findings = overrode.length ? [`test run overrode ${overrode.join(', ')}`] : [];
   if (ctx.git.isRepo) findings.push(...testFileFindings(ctx));
   if (!findings.length) return null;

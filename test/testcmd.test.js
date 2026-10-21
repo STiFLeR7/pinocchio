@@ -82,3 +82,8 @@ test('only a secret-looking override makes a run tampered', () => {
   for (const c of ['SKIP_SLOW=1 npm test', 'PYTHONIOENCODING=utf-8 python -m pytest', 'npm test']) assert.equal(isTamperedRun(c, cfg), false, c);
   assert.deepEqual(envOverrides('SKIP_SLOW=1 npm test', cfg), ['SKIP_SLOW']);
 });
+
+test('a secret word must end a name part', () => {
+  for (const n of ['CART_API_KEY', 'API_TOKEN', 'OPENAI_APIKEY', 'SECRETKEY', 'AUTH_HEADER', 'AWS_SECRET_ACCESS_KEY']) assert.ok(isTamperedRun(`${n}=x npm test`, cfg), n);
+  for (const n of ['AUTHOR', 'TOKENIZER', 'KEYBOARD']) assert.equal(isTamperedRun(`${n}=x npm test`, cfg), false, n);
+});

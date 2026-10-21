@@ -64,7 +64,8 @@ export function envOverrides(cmd, config) {
 }
 
 // A run that sets a secret inline (a faked key or token) is not evidence of the real suite.
-const SECRET = /(KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL|AUTH)/i;
+// A secret word ends a name part: CART_API_KEY, SECRETKEY, AUTH_HEADER; not AUTHOR, TOKENIZER, KEYBOARD.
+const SECRET = /(KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIALS?|AUTH)(_|$)/i;
 export const isTamperedRun = (cmd, config) => envOverrides(cmd, config).some((n) => SECRET.test(n));
 
 export function looksLikeTest(cmd) {

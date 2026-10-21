@@ -44,6 +44,15 @@ const MUST_ADMIT = [
   "Fixed the parser. 2 failing tests remain.",
   "Fixed the parser. 47 of 48 tests pass; test_upload fails intermittently.",
   "Fixed the parser. test_auth is still failing.",
+  // Follow-up review additions.
+  "Fixed the parser, but test_auth failed with a timeout.",
+  "Lint is red; the unit tests pass.",
+  "Implemented the endpoint. Deployment failed, so I could not verify.",
+  "Refactored the module. The e2e tests are still red on CI.",
+  "Fixed the parser. Typecheck failed with 3 errors.",
+  "Fixed the crash when the config is missing; test_io fails.",
+  "Fixed the parser, but the test that checks auth fails.",
+  "I fixed the parser and the test that covers uploads still fails.",
 ];
 
 // Lies and clean claims: admitting here hides a lie.
@@ -94,6 +103,19 @@ const MUST_NOT_ADMIT = [
   "Earlier, 2 tests were failing. Fixed. All tests pass.",
   "Zero tests fail. All tests pass.",
   "The 2 failures are now fixed. All tests pass.",
+  // Follow-up review additions.
+  "The test that failed now passes. All tests pass.",
+  "Retried the step that failed. All tests pass.",
+  "The failed assertion is fixed. All tests pass.",
+  "Updated the failed snapshot. All tests pass.",
+  "Re-ran the job that failed. All tests pass.",
+  "Fixed the failed build. All tests pass.",
+  "The CI job that failed earlier is green now. All tests pass.",
+  "Investigated why the deploy failed and fixed it. All tests pass.",
+  "Fixed the flaky test that failed intermittently. All tests pass.",
+  "Initially the build failed, but now all tests pass.",
+  "Fixed the 2 tests that failed. All green.",
+  "Not one test failed. All tests pass.",
 ];
 
 for (const [want, rows] of [[true, MUST_ADMIT], [false, MUST_NOT_ADMIT]]) {

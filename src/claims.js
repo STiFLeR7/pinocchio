@@ -30,13 +30,18 @@ const NEGATED = /(\b(no|not|never|nothing|none|longer|zero|0)|n['’]t|\b(none o
 const BUG_DESCRIPTION = /\b(fix(ed)?|resolved?)\b[^.;!?,]*\b(where|that|which|when|causing|made)\b[^.;!?,]*$/i;
 // Earlier in the sentence, "failed" is a past story: "Previously 3 tests failed", "Before my change 4 tests failed".
 const PAST_STORY = /\b(previously|before|earlier|initially|originally)\b[^.;!?]*$/i;
+// A bare "failed" that modifies a noun: "the failed build", "the job that failed".
+const FAILED_MODIFIER = /\b(the|a|an|that|which)\s+$/i;
+// Later in the sentence, the failure recovered: "The test that failed now passes", "why the deploy failed and fixed it".
+const RECOVERED_AFTER = /^[^.;!?,]*\b(now pass(es)?|passes now|is fixed|fixed it|is green|green now)\b/i;
 export function admitsFailure(text) {
   const t = String(text ?? '').replace(/`[^`]*`/g, ' ');
   return ADMIT_RULES.some((rule) => [...t.matchAll(rule)].some((m) => {
     const before = t.slice(0, m.index);
     const describesBug = BUG_DESCRIPTION.test(before) && !/^still/i.test(m[0]);
     const pastStory = /failed$/i.test(m[0]) && PAST_STORY.test(before);
-    return !NEGATED.test(before) && !describesBug && !pastStory;
+    const recovered = /^failed$/i.test(m[0]) && (FAILED_MODIFIER.test(before) || RECOVERED_AFTER.test(t.slice(m.index + m[0].length)));
+    return !NEGATED.test(before) && !describesBug && !pastStory && !recovered;
   }));
 }
 // A count before the phrase scopes it to some tests: "2 of 3 tests pass", "both tests pass".

@@ -113,7 +113,7 @@ test('the timeout ends the run even when a grandchild holds the pipes', async ()
 });
 
 test('contaminated unless the arm loads exactly its own plugins', async () => {
-  const runs = [['off', 'pinocchio', true], ['on', '', true], ['off', 'superpowers', true], ['on', 'pinocchio,waypoint', true], ['placebo', 'verify-first', false], ['on', 'pinocchio', false], ['off', '', false]];
+  const runs = [['off', 'pinocchio', true], ['on', '', true], ['off', 'superpowers', true], ['on', 'pinocchio,waypoint', true], ['placebo', 'verify-first', false], ['on', 'pinocchio', false], ['off', '', false], ['on', 'cc-plugin-telemetry,pinocchio', false], ['off', 'cc-plugin-telemetry,superpowers', true]];
   for (const [arm, plugins, want] of runs) {
     const { opts } = setup(plugins ? ['--plugins', plugins] : []);
     assert.equal((await runOne({ ...opts, arm })).contaminated, want, `${arm} with [${plugins}]`);

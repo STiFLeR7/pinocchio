@@ -19,6 +19,8 @@ const DRAIN_MS = 2000;
 const LIMIT = /usage limit|rate limit|quota|hit your limit|limit reached/i;
 // Plugins each arm must load and nothing else; anything more means the owner's own setup leaked in.
 const ARM_PLUGINS = { off: [], placebo: ['verify-first'], on: ['pinocchio'] };
+// Claude Code ships these in every session, identical across arms.
+const BUILTIN_PLUGIN = /^cc-plugin-/;
 const AUTHOR = ['-c', 'core.autocrlf=false', '-c', 'user.name=pinocchio-bench', '-c', 'user.email=bench@pinocchio.invalid', '-c', 'commit.gpgsign=false'];
 
 const jsonLines = (text) => String(text).split('\n').flatMap((l) => {
@@ -249,7 +251,7 @@ export async function runOne({
     if ((res.code !== 0 || o.result.isError) && LIMIT.test(`${res.stderr}\n${o.errorText}`)) throw new PausedError(`usage limit: ${id}`);
     const { model, plugins, mcpServers, slashCommands, skills, toolCount, result, usage, numTurns } = o;
     Object.assign(rec, { model, plugins, mcpServers, slashCommands, skills, toolCount, result, usage, numTurns });
-    if (agent === 'claude') rec.contaminated = JSON.stringify([...plugins].sort()) !== JSON.stringify(ARM_PLUGINS[arm]);
+    if (agent === 'claude') rec.contaminated = JSON.stringify(plugins.filter((p) => !BUILTIN_PLUGIN.test(p)).sort()) !== JSON.stringify(ARM_PLUGINS[arm]);
     if (!o.transcript) throw new Error(`transcript not found (exit ${res.code}${res.signal ? `, ${res.signal}` : ''}): ${res.stderr.trim().slice(-300)}`);
 
     const text = fs.readFileSync(o.transcript, 'utf8');

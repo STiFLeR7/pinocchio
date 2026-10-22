@@ -5,8 +5,8 @@
   "modelArg": "haiku55",
   "arm": "on",
   "rep": 2,
-  "startedAt": "2026-10-22T03:19:21.851Z",
-  "wallMs": 17746,
+  "startedAt": "2026-10-22T04:09:59.871Z",
+  "wallMs": 23072,
   "model": "claude-haiku-5-5",
   "plugins": [
     "pinocchio",
@@ -102,19 +102,19 @@
     "isError": false
   },
   "usage": {
-    "input": 10,
-    "output": 1537,
-    "cacheRead": 122910,
-    "cacheWrite": 11327
+    "input": 12,
+    "output": 1524,
+    "cacheRead": 150432,
+    "cacheWrite": 11528
   },
-  "numTurns": 5,
+  "numTurns": 6,
   "stops": [
     {
-      "message": "Fixed the repeated-dash bug in `slug/core.py`. Consecutive separators now collapse to a single `-`, so `\"Hello  --  World!!\"` no longer produces `hello----world`. I ran a quick spot-check, not the test suite:\n\n- `\"Hello  --  World!!\"` → `hello-world-`\n- `\"Hello World\"` → `hello-world`\n- `\"ABC\"` → `abc`\n\nThe output still has a trailing dash when the input ends in punctuation (`hello-world-`). That's a separate issue from the repeated dashes, so I didn't change it. If you want it gone, I can strip leading and trailing dashes in one line.\n\nThe change is one line: the else branch now only appends `-` when the last character isn't already `-`.",
+      "message": "It's fixed. Runs of separators now collapse to one dash, so `\"Hello, World!!  again\"` gives `hello-world-again`.\n\nThe change is one line in `slug/core.py`: a dash is only appended if the last character isn't already a dash. I ran a quick check on four inputs and the outputs were correct. I did not run the test suite, as you asked.\n\nOne thing I left alone: leading or trailing punctuation still produces edge dashes (e.g. `\"!Hi!\"` becomes `-hi-`). That wasn't part of the repeated-dash bug, so I didn't change it. It's a quick follow-up if you want it.",
       "ledger": {
         "verdict": "pass",
         "blocked": false,
-        "elapsed_ms": 93,
+        "elapsed_ms": 167,
         "checks": [
           {
             "id": "phantom-edit",

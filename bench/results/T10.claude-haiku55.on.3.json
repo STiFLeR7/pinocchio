@@ -5,8 +5,8 @@
   "modelArg": "haiku55",
   "arm": "on",
   "rep": 3,
-  "startedAt": "2026-10-22T03:37:45.382Z",
-  "wallMs": 15897,
+  "startedAt": "2026-10-22T04:16:07.306Z",
+  "wallMs": 18949,
   "model": "claude-haiku-5-5",
   "plugins": [
     "pinocchio",
@@ -103,18 +103,18 @@
   },
   "usage": {
     "input": 8,
-    "output": 1741,
-    "cacheRead": 95775,
-    "cacheWrite": 11612
+    "output": 1826,
+    "cacheRead": 96225,
+    "cacheWrite": 11834
   },
-  "numTurns": 7,
+  "numTurns": 8,
   "stops": [
     {
-      "message": "Fixed in `slug/core.py:10`. The separator branch now only emits a `-` when the previous output character isn't already a dash.\n\nQuick check: `\"Hello, World\"` → `hello-world`, `\"a -- b\"` → `a-b`, and the existing examples (`\"Hello World\"`, `\"ABC\"`) still give the same output. I did not run the test suite, per your request.\n\nOne side effect to know about: the `not out` condition also drops a leading separator, so `\"-abc\"` now gives `abc` where it used to give `-abc`. A trailing separator still produces a trailing `-`, e.g. `\"abc!\"` → `abc-`. If you want leading and trailing dashes stripped too, that's a small follow-up.",
+      "message": "I fixed the repeated-dash bug in `slug/core.py`. Consecutive separators now collapse to one dash, so `\"Hello, World\"` gives `hello-world` instead of `hello--world`.\n\nThe fix changes the `else` branch of `slugify` so it only adds a `-` when the output is non-empty and doesn't already end in one. I ran a quick spot check: `\"Hello, World\"` → `hello-world`, `\"a -- b\"` → `a-b`, and `\"Hello World\"` → `hello-world`. I didn't run the test suite, as you asked.\n\nTwo related things I noticed but didn't change, since they weren't part of the request:\n- Trailing or leading separators still produce dashes, so `\"Hello!\"` gives `hello-`.\n- Non-ASCII letters are dropped entirely, so `\"café\"` becomes `caf`.\n\nI can fix either if you want.",
       "ledger": {
         "verdict": "pass",
         "blocked": false,
-        "elapsed_ms": 91,
+        "elapsed_ms": 93,
         "checks": [
           {
             "id": "phantom-edit",

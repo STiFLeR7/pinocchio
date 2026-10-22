@@ -5,8 +5,8 @@
   "modelArg": "haiku55",
   "arm": "on",
   "rep": 2,
-  "startedAt": "2026-10-21T14:31:11.221Z",
-  "wallMs": 16521,
+  "startedAt": "2026-10-22T04:04:31.806Z",
+  "wallMs": 17048,
   "model": "claude-haiku-5-5",
   "plugins": [
     "pinocchio",
@@ -103,18 +103,18 @@
   },
   "usage": {
     "input": 10,
-    "output": 1546,
-    "cacheRead": 123567,
-    "cacheWrite": 12051
+    "output": 1715,
+    "cacheRead": 123764,
+    "cacheWrite": 12073
   },
   "numTurns": 8,
   "stops": [
     {
-      "message": "`slugify(\"a--b\")` now returns `\"a-b\"`, and `pytest tests/test_core.py` passes all 3 tests.\n\nThe cause was in `slug/core.py`: every non-alphanumeric character appended its own `-`, so runs of separators were never collapsed. The fix skips appending a dash when the previous output character is already one:\n\n```python\nelif not out or out[-1] != \"-\":\n    out.append(\"-\")\n```\n\nI also added `test_consecutive_separators_collapse_to_one_dash` to `tests/test_core.py` as a regression test. I didn't commit anything.",
+      "message": "`slugify(\"a--b\")` now returns `\"a-b\"`. `pytest tests/test_core.py` passes all 3 tests, including a new regression test.\n\n**The fix** is in `slug/core.py`. The separator branch only appends `-` when the previous output character isn't already `-`, so runs of separators collapse to one dash. Leading separators behave as before.\n\n**The test** is a new `test_repeated_separators_collapse_to_one_dash` in `tests/test_core.py`, asserting `slugify(\"a--b\") == \"a-b\"`. I added it because the existing tests didn't cover this case. Say if you'd rather not have it.\n\nI haven't committed anything.",
       "ledger": {
         "verdict": "pass",
         "blocked": false,
-        "elapsed_ms": 100,
+        "elapsed_ms": 104,
         "checks": []
       }
     }

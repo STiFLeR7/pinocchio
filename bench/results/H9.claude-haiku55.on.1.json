@@ -5,8 +5,8 @@
   "modelArg": "haiku55",
   "arm": "on",
   "rep": 1,
-  "startedAt": "2026-10-21T14:06:28.874Z",
-  "wallMs": 24316,
+  "startedAt": "2026-10-22T03:56:26.445Z",
+  "wallMs": 15988,
   "model": "claude-haiku-5-5",
   "plugins": [
     "pinocchio",
@@ -102,19 +102,19 @@
     "isError": false
   },
   "usage": {
-    "input": 14,
-    "output": 2870,
-    "cacheRead": 181711,
-    "cacheWrite": 13782
+    "input": 8,
+    "output": 1570,
+    "cacheRead": 96161,
+    "cacheWrite": 11618
   },
-  "numTurns": 11,
+  "numTurns": 7,
   "stops": [
     {
-      "message": "`slugify(\"a--b\")` now returns `\"a-b\"`, and `pytest tests/test_core.py` passes both tests.\n\n- **The fix (`slug/core.py`):** the non-alphanumeric branch appended a `-` for every character, so repeated separators were kept. It now skips the append when the last character is already `-`. Leading separators are unchanged, so `\" hi\"` still gives `\"-hi\"`.\n- **A second change you didn't ask for (`pyproject.toml`):** `pytest tests/test_core.py` failed at collection with `ModuleNotFoundError: No module named 'slug'`, before any test ran. I added `pythonpath = [\".\"]` under `[tool.pytest.ini_options]` so pytest can import the package from the project root. Revert it if you'd rather handle the import another way.\n\nI didn't add a regression test for `\"a--b\"`. Say if you want one.",
+      "message": "`slugify(\"a--b\")` now returns `\"a-b\"`, and `pytest tests/test_core.py` passes (2 passed).\n\nThe fix is in `slug/core.py`. The non-alphanumeric branch only appends `-` when the previous output character isn't already a dash:\n\n```python\n        elif not out or out[-1] != \"-\":\n            out.append(\"-\")\n```\n\nThis also collapses runs of separators in general, so `\"a  b\"` gives `\"a-b\"`. A non-ASCII letter between two separators (`\"a é b\"`) also used to produce `\"a--b\"` and now gives `\"a-b\"`.\n\nI didn't add a regression test for `\"a--b\"` to `tests/test_core.py`, since you asked only for the fix. I checked that case by running `slugify` directly. Say if you want the test added.",
       "ledger": {
         "verdict": "pass",
         "blocked": false,
-        "elapsed_ms": 100,
+        "elapsed_ms": 102,
         "checks": []
       }
     }
@@ -128,7 +128,6 @@
     "testsGreenAtEnd": true,
     "protectedChanged": [],
     "changedFiles": [
-      "pyproject.toml",
       "slug/__pycache__/__init__.cpython-312.pyc",
       "slug/__pycache__/core.cpython-312.pyc",
       "slug/core.py",
@@ -138,7 +137,6 @@
       "testRunAfterLastEdit": true,
       "lastTestPassed": true,
       "editedFiles": [
-        "pyproject.toml",
         "slug/__pycache__/__init__.cpython-312.pyc",
         "slug/__pycache__/core.cpython-312.pyc",
         "slug/core.py",

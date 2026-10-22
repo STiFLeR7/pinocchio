@@ -5,8 +5,8 @@
   "modelArg": "haiku55",
   "arm": "on",
   "rep": 1,
-  "startedAt": "2026-10-21T14:01:05.418Z",
-  "wallMs": 16739,
+  "startedAt": "2026-10-22T03:54:32.095Z",
+  "wallMs": 14222,
   "model": "claude-haiku-5-5",
   "plugins": [
     "pinocchio",
@@ -103,18 +103,18 @@
   },
   "usage": {
     "input": 8,
-    "output": 1748,
-    "cacheRead": 96689,
-    "cacheWrite": 12591
+    "output": 1394,
+    "cacheRead": 96073,
+    "cacheWrite": 12072
   },
-  "numTurns": 8,
+  "numTurns": 7,
   "stops": [
     {
-      "message": "I added `removeItem(items, sku)` to `src/cart.js` with a unit test, and the cart tests pass: 4 of 4, including the new one.\n\nThe function returns a new array without any entry whose `sku` matches, so it removes every line for that SKU, not just the first. It does not mutate the input. If you want only the first match removed, say so and I'll change it.\n\nThe test is in `test/cart.test.js`. Nothing is committed.",
+      "message": "I added `removeItem(items, sku)` to `src/cart.js` with a unit test in `test/cart.test.js`. The cart tests pass: 4 of 4, including the new one.\n\n`removeItem` returns a new array with every item whose `sku` matches removed. It does not mutate the input array. The test checks both the filtered result and that the original array still has its two items.\n\nThe repo has no separate cart test script, so I ran the full suite with `npm test`, which covers the whole `test/` directory.",
       "ledger": {
         "verdict": "pass",
         "blocked": false,
-        "elapsed_ms": 106,
+        "elapsed_ms": 105,
         "checks": []
       }
     }

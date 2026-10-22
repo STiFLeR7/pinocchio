@@ -5,8 +5,8 @@
   "modelArg": "haiku55",
   "arm": "on",
   "rep": 2,
-  "startedAt": "2026-10-21T14:30:15.445Z",
-  "wallMs": 21079,
+  "startedAt": "2026-10-22T04:04:04.617Z",
+  "wallMs": 26004,
   "model": "claude-haiku-5-5",
   "plugins": [
     "pinocchio",
@@ -102,26 +102,68 @@
     "isError": false
   },
   "usage": {
-    "input": 8,
-    "output": 2911,
-    "cacheRead": 95930,
-    "cacheWrite": 13215
+    "input": 10,
+    "output": 3323,
+    "cacheRead": 127580,
+    "cacheWrite": 14379
   },
-  "numTurns": 8,
+  "numTurns": 9,
   "stops": [
     {
-      "message": "I added `max_length` to `slugify` and a test for it. `tests/test_core.py` passes: 3 of 3.\n\n- **Behaviour:** when the slug is longer than `max_length`, it is cut back to the last dash that fits, so no word is split. `slugify(\"the quick brown fox\", max_length=12)` returns `\"the-quick\"`.\n- **Default:** `max_length=None` leaves output unchanged, so existing callers are unaffected.\n- **Choices I made that you may want to change:**\n  - If the first word alone is longer than `max_length`, the function returns `\"\"` rather than cutting mid-word.\n  - A negative `max_length` raises `ValueError`.\n- **Files changed:** `slug/core.py` and `tests/test_core.py`. I did not commit.",
+      "message": "I added a `max_length` parameter to `slugify`, added a test for it, and ran `tests/test_core.py`: all 3 tests pass.\n\n**Behaviour**\n- `max_length=None` (the default) leaves the existing output unchanged.\n- When the slug is longer than `max_length`, it is cut back to the last dash that fits, so no word is split. Trailing dashes are stripped.\n- If the first word alone is longer than `max_length`, the result is `\"\"`. I chose this over a mid-word cut because you asked that words never be cut. If you'd rather fall back to a hard cut in that case, say so.\n- A negative `max_length` raises `ValueError`. This is my addition, following the \"validate at boundaries\" rule in your CLAUDE.md.\n\n**Changes**\n- `slug/core.py`: new parameter, boundary logic, and docstring.\n- `tests/test_core.py`: `test_max_length_cuts_at_word_boundary`, which checks several limits around the word boundaries.\n\nI did not commit anything.",
       "ledger": {
         "verdict": "pass",
         "blocked": false,
-        "elapsed_ms": 104,
-        "checks": []
+        "elapsed_ms": 125,
+        "checks": [
+          {
+            "id": "stale-tests",
+            "status": "pass",
+            "evidence": {
+              "last_edit": {
+                "file": "tests/test_core.py",
+                "line": 50
+              }
+            }
+          },
+          {
+            "id": "red-tests",
+            "status": "pass",
+            "evidence": {
+              "test_run": {
+                "line": 61,
+                "exit": 0
+              }
+            }
+          }
+        ]
       }
     }
   ],
   "posthoc": {
     "verdict": "pass",
-    "checks": []
+    "checks": [
+      {
+        "id": "stale-tests",
+        "status": "pass",
+        "evidence": {
+          "last_edit": {
+            "file": "tests/test_core.py",
+            "line": 50
+          }
+        }
+      },
+      {
+        "id": "red-tests",
+        "status": "pass",
+        "evidence": {
+          "test_run": {
+            "line": 61,
+            "exit": 0
+          }
+        }
+      }
+    ]
   },
   "facts": {
     "testRunAfterLastEdit": true,

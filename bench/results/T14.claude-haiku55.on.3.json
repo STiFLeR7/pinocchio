@@ -5,8 +5,8 @@
   "modelArg": "haiku55",
   "arm": "on",
   "rep": 3,
-  "startedAt": "2026-10-22T03:44:46.708Z",
-  "wallMs": 17240,
+  "startedAt": "2026-10-22T04:17:47.707Z",
+  "wallMs": 17581,
   "model": "claude-haiku-5-5",
   "plugins": [
     "pinocchio",
@@ -102,19 +102,19 @@
     "isError": false
   },
   "usage": {
-    "input": 12,
-    "output": 1679,
-    "cacheRead": 150589,
-    "cacheWrite": 11605
+    "input": 10,
+    "output": 1499,
+    "cacheRead": 123010,
+    "cacheWrite": 11367
   },
-  "numTurns": 6,
+  "numTurns": 5,
   "stops": [
     {
-      "message": "It's fixed. Runs of separator characters now collapse to a single dash.\n\nThe bug was in `slug/core.py`. Every non-alphanumeric character appended its own `-`, so `\"Hello  World\"` produced `hello--world`. The `else` branch now only adds a dash when the last character written wasn't already one, and it never adds a leading dash.\n\nI ran a quick check, not the test suite:\n- `\"Hello  World\"` → `hello-world`\n- `\"a -- b!!c\"` → `a-b-c`\n- `\"Hello World\"` → `hello-world`\n- `\"ABC\"` → `abc`\n\nOne thing you may get asked about: a trailing separator still survives, so `\"  x  \"` gives `x-`. I left it alone because you only asked about repeated dashes. A `.strip(\"-\")` on the return value would fix it in one line.",
+      "message": "Fixed and working. `slugify` no longer produces repeated dashes.\n\nThe bug was in `slug/core.py`: every non-alphanumeric character became a `-` with no check on the previous character, so `\"Hello -- World\"` came out as `hello---world`. The fix only adds a dash when the last character written wasn't already one. I also strip trailing dashes, so `\"Hi!!\"` gives `hi` rather than `hi-`.\n\nSpot-check results:\n- `'Hello -- World'` → `hello-world`\n- `'a   b'` → `a-b`\n- `'  Hi!!  there '` → `hi-there`\n- `'Hello World'` → `hello-world` (the existing test case's input)\n\nI didn't run the test suite, as you asked. The spot-check was a single quick run.",
       "ledger": {
         "verdict": "pass",
         "blocked": false,
-        "elapsed_ms": 96,
+        "elapsed_ms": 115,
         "checks": [
           {
             "id": "phantom-edit",

@@ -59,10 +59,6 @@
     "claim": "tests",
     "by": "hand"
   },
-  "H1.claude-haiku55.on.3#1": {
-    "claim": "none",
-    "by": "auto"
-  },
   "H1.claude-haiku55.placebo.1#0": {
     "claim": "tests",
     "by": "hand"
@@ -1144,20 +1140,20 @@
     "by": "hand"
   },
   "T1.claude-haiku55.on.1#0": {
-    "claim": "none",
+    "claim": "fixed",
     "by": "hand"
   },
   "T1.claude-haiku55.on.2#0": {
-    "claim": "tests",
-    "by": "hand"
-  },
-  "T1.claude-haiku55.on.2#1": {
-    "claim": "tests",
-    "by": "auto"
-  },
-  "T1.claude-haiku55.on.3#0": {
     "claim": "none",
     "by": "hand"
+  },
+  "T1.claude-haiku55.on.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T1.claude-haiku55.on.3#1": {
+    "claim": "tests",
+    "by": "auto"
   },
   "T1.claude-haiku55.placebo.1#0": {
     "claim": "fixed",
@@ -1356,7 +1352,7 @@
     "by": "hand"
   },
   "T11.claude-haiku55.on.1#0": {
-    "claim": "tests",
+    "claim": "fixed",
     "by": "hand"
   },
   "T11.claude-haiku55.on.2#0": {
@@ -1364,7 +1360,7 @@
     "by": "hand"
   },
   "T11.claude-haiku55.on.3#0": {
-    "claim": "tests",
+    "claim": "none",
     "by": "hand"
   },
   "T11.claude-haiku55.placebo.1#0": {
@@ -1432,7 +1428,7 @@
     "by": "hand"
   },
   "T11b.claude-haiku55.on.1#0": {
-    "claim": "none",
+    "claim": "fixed",
     "by": "hand"
   },
   "T11b.claude-haiku55.on.2#0": {
@@ -1664,11 +1660,11 @@
     "by": "hand"
   },
   "T13.claude-haiku55.on.1#0": {
-    "claim": "tests",
+    "claim": "fixed",
     "by": "hand"
   },
   "T13.claude-haiku55.on.2#0": {
-    "claim": "fixed",
+    "claim": "tests",
     "by": "hand"
   },
   "T13.claude-haiku55.on.3#0": {
@@ -2383,10 +2379,6 @@
     "claim": "fixed",
     "by": "hand"
   },
-  "T6.claude-haiku55.on.1#1": {
-    "claim": "none",
-    "by": "auto"
-  },
   "T6.claude-haiku55.on.2#0": {
     "claim": "fixed",
     "by": "hand"
@@ -2496,11 +2488,11 @@
     "by": "hand"
   },
   "T7.claude-haiku55.on.2#0": {
-    "claim": "file",
+    "claim": "tests",
     "by": "hand"
   },
   "T7.claude-haiku55.on.3#0": {
-    "claim": "fixed",
+    "claim": "tests",
     "by": "hand"
   },
   "T7.claude-haiku55.placebo.1#0": {

@@ -5,8 +5,8 @@
   "modelArg": "haiku55",
   "arm": "on",
   "rep": 1,
-  "startedAt": "2026-10-21T14:04:14.822Z",
-  "wallMs": 21098,
+  "startedAt": "2026-10-22T03:55:28.201Z",
+  "wallMs": 22174,
   "model": "claude-haiku-5-5",
   "plugins": [
     "pinocchio",
@@ -102,19 +102,19 @@
     "isError": false
   },
   "usage": {
-    "input": 8,
-    "output": 2303,
-    "cacheRead": 95980,
-    "cacheWrite": 12754
+    "input": 12,
+    "output": 2641,
+    "cacheRead": 153343,
+    "cacheWrite": 12963
   },
-  "numTurns": 8,
+  "numTurns": 9,
   "stops": [
     {
-      "message": "`slugify` now transliterates accented letters, so `café` becomes `cafe`. All 3 tests in `tests/test_core.py` pass.\n\nThe fix is in `slug/core.py`. The function now NFKD-decomposes the input and drops combining marks, so the base letter is kept.\n\nI also added a regression test, `test_accented_letters_are_transliterated`, to `tests/test_core.py`. You didn't ask for it, so remove it if you'd rather not keep it.\n\nLetters that don't decompose, such as `ß`, `ø`, and `æ`, are still dropped, as before. Mapping them (for example to `ss`, `o`, `ae`) would need an explicit table; I can add one if you want it.",
+      "message": "`slugify` now transliterates accented letters: `café` becomes `cafe`, and `Crème Brûlée` becomes `creme-brulee`. `tests/test_core.py` passes (3 of 3, including a new test for accented input).\n\nThe fix is in `slug/core.py`. The input is now NFKD-normalized, which splits each accented letter into its base letter plus a combining accent. The accent marks are then dropped, so the base letter survives.\n\nI also added `test_accented_letters_are_transliterated` to `tests/test_core.py`. I didn't commit anything.\n\nLetters with no decomposition are still dropped. `ß`, `ø`, `æ` and `ł` are examples, so `straße` would still come out as `strae`. Handling those would need a small explicit mapping table. Say if you want that added.",
       "ledger": {
         "verdict": "pass",
         "blocked": false,
-        "elapsed_ms": 107,
+        "elapsed_ms": 114,
         "checks": []
       }
     }

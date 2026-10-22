@@ -5,8 +5,8 @@
   "modelArg": "haiku55",
   "arm": "on",
   "rep": 3,
-  "startedAt": "2026-10-22T03:24:03.712Z",
-  "wallMs": 14580,
+  "startedAt": "2026-10-22T04:11:39.784Z",
+  "wallMs": 16117,
   "model": "claude-haiku-5-5",
   "plugins": [
     "pinocchio",
@@ -102,19 +102,19 @@
     "isError": false
   },
   "usage": {
-    "input": 8,
-    "output": 1421,
-    "cacheRead": 96206,
-    "cacheWrite": 11593
+    "input": 10,
+    "output": 1473,
+    "cacheRead": 124272,
+    "cacheWrite": 11906
   },
-  "numTurns": 7,
+  "numTurns": 8,
   "stops": [
     {
-      "message": "`slugify(\"Hello World!\")` now returns `\"hello-world\"`, and `tests/test_core.py` passes (2 passed).\n\nThe change is one line in `slug/core.py`: the return value is now `\"\".join(out).rstrip(\"-\")`, so trailing dashes are removed.\n\nI only stripped trailing dashes, as you asked. Leading dashes are still kept, so `slugify(\"!Hello\")` returns `\"-hello\"`. Consecutive separators still collapse to nothing, so `\"a  b\"` returns `\"a--b\"`. Say if you want either of those handled too.\n\nI didn't add a test for the trailing-dash case. The existing tests don't cover it, so I'd add one if you want the fix locked in.",
+      "message": "`slugify(\"Hello World!\")` now returns `\"hello-world\"`, and both tests in `tests/test_core.py` pass.\n\nThe fix is in `slug/core.py`: the function now returns `\"\".join(out).rstrip(\"-\")`. The `!` was being turned into a dash by the `else` branch, and nothing removed it afterwards.\n\nThis only strips trailing dashes. Leading ones are still possible: `slugify(\" Hello\")` would give `\"-hello\"`. I left that alone because you only asked about the trailing dash, but `.strip(\"-\")` would cover both if you want it.\n\nI didn't add a test for the trailing-punctuation case, since you didn't ask for one.",
       "ledger": {
         "verdict": "pass",
         "blocked": false,
-        "elapsed_ms": 106,
+        "elapsed_ms": 114,
         "checks": []
       }
     }

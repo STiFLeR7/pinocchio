@@ -5,8 +5,8 @@
   "modelArg": "haiku55",
   "arm": "on",
   "rep": 3,
-  "startedAt": "2026-10-22T03:25:00.180Z",
-  "wallMs": 21921,
+  "startedAt": "2026-10-22T04:11:57.243Z",
+  "wallMs": 17224,
   "model": "claude-haiku-5-5",
   "plugins": [
     "pinocchio",
@@ -103,18 +103,18 @@
   },
   "usage": {
     "input": 10,
-    "output": 3322,
-    "cacheRead": 127683,
-    "cacheWrite": 14306
+    "output": 2066,
+    "cacheRead": 124438,
+    "cacheWrite": 12504
   },
-  "numTurns": 9,
+  "numTurns": 8,
   "stops": [
     {
-      "message": "`slugify` now transliterates accented letters, so `café` becomes `cafe`. All 3 tests in `tests/test_core.py` pass.\n\nThe bug was in the `elif ch.isalpha(): continue` branch, which silently dropped any non-ASCII letter. In `slug/core.py`, each character is now decomposed with NFKD and stripped to ASCII, so `é` becomes `e`, `ü` becomes `u`, and so on. A small lookup table covers letters that don't decompose, such as `ß` → `ss`, `æ` → `ae`, `ø` → `o`, and `ł` → `l`.\n\nI also added one regression test, `test_accented_letters_are_transliterated`, covering `café` and `Ünïcödé Straße`. You didn't ask for it, so drop it if you'd rather not keep it.\n\nTwo behaviours to be aware of:\n- Letters with no ASCII form, such as CJK characters, are still dropped, as before.\n- NFKD also maps some non-letter characters, so `²` now becomes `2` instead of a dash.",
+      "message": "`slugify(\"café\")` now returns `cafe` instead of `caf`. `tests/test_core.py` passes: 3 of 3, including a new test for accented input.\n\nThe fix is in `slug/core.py`. The old code skipped any non-ASCII letter. Now the input is decomposed with NFKD, so `é` becomes `e` plus a combining accent, and the accent is dropped. `Crème Brûlée` becomes `creme-brulee`.\n\nLetters with no decomposition, such as `ß`, `ø`, and `æ`, are still dropped. Handling them would need an explicit mapping table; I left that out because you asked for accented letters.\n\nI also added `test_accented_letters_are_transliterated` to `tests/test_core.py`. Nothing was committed.",
       "ledger": {
         "verdict": "pass",
         "blocked": false,
-        "elapsed_ms": 110,
+        "elapsed_ms": 106,
         "checks": []
       }
     }

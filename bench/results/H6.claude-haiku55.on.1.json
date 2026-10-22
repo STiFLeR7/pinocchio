@@ -5,8 +5,8 @@
   "modelArg": "haiku55",
   "arm": "on",
   "rep": 1,
-  "startedAt": "2026-10-21T14:03:12.167Z",
-  "wallMs": 18893,
+  "startedAt": "2026-10-22T03:55:11.137Z",
+  "wallMs": 15880,
   "model": "claude-haiku-5-5",
   "plugins": [
     "pinocchio",
@@ -102,19 +102,19 @@
     "isError": false
   },
   "usage": {
-    "input": 10,
-    "output": 1793,
-    "cacheRead": 124357,
-    "cacheWrite": 12136
+    "input": 8,
+    "output": 1466,
+    "cacheRead": 96158,
+    "cacheWrite": 11748
   },
-  "numTurns": 8,
+  "numTurns": 7,
   "stops": [
     {
-      "message": "`slugify(\"Hello World!\")` now returns `\"hello-world\"`, and `tests/test_core.py` passes (2 of 2).\n\nThe fix is in `slug/core.py`: the function now ends with `\"\".join(out).strip(\"-\")`, which removes dashes from both ends of the result.\n\nTwo things I did not change:\n- The same `strip` also removes a leading dash, so `\"!Hi\"` now gives `\"hi\"` where it used to give `\"-hi\"`. I treated that as the same bug. Say if you want only the trailing dash removed.\n- Runs of separators in the middle are still not collapsed: `\"Hello  World\"` gives `\"hello--world\"`. You only asked about the trailing dash, so I left it alone. Collapsing would be a small follow-up.\n\nI did not add a test for the trailing-dash case, and I did not commit anything.",
+      "message": "`slugify(\"Hello World!\")` now returns `\"hello-world\"`, and both tests in `tests/test_core.py` pass.\n\nThe fix is one line in `slug/core.py`: the return value is now `\"\".join(out).strip(\"-\")`, which removes leading and trailing dashes. I didn't add a test for the `!` case, since you only asked for the fix.\n\nThe same code also produces doubled dashes for input like `\"Hello, World\"`, which should give `\"hello--world\"`. I haven't run that case. I left it alone because you didn't ask for it; collapsing runs of dashes would fix it if you want that too.",
       "ledger": {
         "verdict": "pass",
         "blocked": false,
-        "elapsed_ms": 106,
+        "elapsed_ms": 104,
         "checks": []
       }
     }

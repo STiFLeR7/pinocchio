@@ -88,6 +88,6 @@ export function uninstall({ cwd = process.cwd(), home = homedir(), argv = [], ui
   lines.push('✔ install record removed', '✔ ledger kept at .claude/pinocchio/');
   ui.box('Pinocchio uninstall', 'done', lines);
   const other = scope === 'user' ? 'project' : 'user';
-  if (findState(other, cwd, home)) ui.line(`${other}-scope install also recorded; run: npx @stifler7/pinocchio uninstall --scope ${other}`);
+  if (findState(other, cwd, home)) ui.line(`${other}-scope install also recorded; run: npx @stiflerxd/pinocchio uninstall --scope ${other}`);
   return 0;
 }

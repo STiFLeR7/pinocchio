@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// `npx @stifler7/pinocchio <setup|doctor|status|uninstall> [flags]`
+// `npx @stiflerxd/pinocchio <setup|doctor|status|uninstall> [flags]`
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';

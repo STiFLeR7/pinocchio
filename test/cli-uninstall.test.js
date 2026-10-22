@@ -262,7 +262,7 @@ test('other scope also recorded: prints the hint', () => {
   writeState(statePath('user', p.cwd, p.home), { version: 1, scope: 'user', method: 'plugin', addedMarketplace: false, addedPlugin: false, files: [], settings: null, runtime: null, at: 't' });
   const o = capture();
   assert.equal(uninstall({ cwd: p.cwd, home: p.home, ui: o.ui, cli: fakeCli() }), 0);
-  assert.match(o.out, /user-scope install also recorded; run: npx @stifler7[/]pinocchio uninstall --scope user/);
+  assert.match(o.out, /user-scope install also recorded; run: npx @stiflerxd[/]pinocchio uninstall --scope user/);
 });
 
 test('user-scope uninstall works from another project and removes the recorded config', () => {

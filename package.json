@@ -1,5 +1,5 @@
 {
-  "name": "@stifler7/pinocchio",
+  "name": "@stiflerxd/pinocchio",
   "version": "0.1.0",
   "description": "Your agent's nose grows when it lies. Checks AI coding agent completion claims against evidence.",
   "type": "module",

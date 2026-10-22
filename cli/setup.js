@@ -239,7 +239,7 @@ export async function setup({
   if (earlier?.legacy) rmSync(earlier.file, { force: true });
   box(5, manual ? 'failed' : 'done', done);
   if (manual) {
-    ui.line(`Add this to ${show(settingsFile)} by hand (merge with any "hooks" already there), then run: npx @stifler7/pinocchio doctor`);
+    ui.line(`Add this to ${show(settingsFile)} by hand (merge with any "hooks" already there), then run: npx @stiflerxd/pinocchio doctor`);
     for (const l of JSON.stringify({ hooks: { Stop: [hookGroup(hookCommand)] } }, null, 2).split('\n')) ui.line(`  ${l}`);
     return 1;
   }
@@ -249,13 +249,13 @@ export async function setup({
   box(6, smoke.ok ? 'done' : 'failed', [
     'Replaying a sample session where the agent lied...',
     ...smoke.receipt.split('\n').filter((l) => !/^\s*ledger /.test(l)).map((l) => ` ${l}`), // the sample's ledger is a temp dir
-    smoke.ok ? '→ agent was sent back to run the tests' : '✖ expected a FAIL receipt — run: npx @stifler7/pinocchio doctor',
+    smoke.ok ? '→ agent was sent back to run the tests' : '✖ expected a FAIL receipt — run: npx @stiflerxd/pinocchio doctor',
   ]);
   if (!smoke.ok) return 1;
 
   ui.line(' 🎉  Pinocchio is watching.  Restart Claude Code to begin.');
-  ui.line(" npx @stifler7/pinocchio status     see your agent's nose count");
-  ui.line(' npx @stifler7/pinocchio doctor     check everything is working');
-  ui.line(' npx @stifler7/pinocchio uninstall  remove exactly what was added');
+  ui.line(" npx @stiflerxd/pinocchio status     see your agent's nose count");
+  ui.line(' npx @stiflerxd/pinocchio doctor     check everything is working');
+  ui.line(' npx @stiflerxd/pinocchio uninstall  remove exactly what was added');
   return 0;
 }

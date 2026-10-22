@@ -466,3 +466,17 @@ test('setup: a settings file that cannot be written takes the manual-snippet pat
   assert.match(r.out, /by hand/);
   assert.equal(stateIn(cwd).method, 'settings');
 });
+
+test('a project-scope plugin does not satisfy --scope user: setup installs at user scope', async () => {
+  const r = await runSetup({ argv: ['--yes', '--scope', 'user'], plugins: PLUGIN });
+  assert.equal(r.code, 0, r.out);
+  assert.ok(r.calls.some((c) => c[1] === 'install' && c.includes('user')), JSON.stringify(r.calls));
+  assert.doesNotMatch(r.out, /already installed/);
+});
+
+test('a user-scope plugin covers a project-scope request: nothing is added', async () => {
+  const r = await runSetup({ plugins: '[{"id":"pinocchio@pinocchio","scope":"user","enabled":true}]' });
+  assert.equal(r.code, 0, r.out);
+  assert.ok(!r.calls.some((c) => c[1] === 'install'), JSON.stringify(r.calls));
+  assert.match(r.out, /already installed/);
+});

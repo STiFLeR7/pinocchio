@@ -32,9 +32,12 @@ const firstLine = (r) => (r.stderr || '').trim().split('\n')[0] || 'no details';
 const labelOf = (list, v) => list.find((o) => o.value === v).label;
 const inside = (base, p) => { const r = relative(base, p); return r && !r.startsWith('..') && !isAbsolute(r) ? r.replace(/\\/g, '/') : null; };
 
-const pluginEntry = (cli) => {
+// A user-scope install covers every project; a project-scope one covers only that project, never a user-scope request.
+// Entries without a scope (older Claude Code) are taken as matching.
+const covers = (p, scope) => p.scope === undefined || p.scope === 'user' || p.scope === scope;
+const pluginEntry = (cli, scope) => {
   const r = cli.listPlugins();
-  return (r.ok && Array.isArray(r.json) && r.json.find((p) => p?.id === 'pinocchio@pinocchio')) || null;
+  return (r.ok && Array.isArray(r.json) && r.json.find((p) => p?.id === 'pinocchio@pinocchio' && covers(p, scope))) || null;
 };
 const hasMarketplace = (cli) => {
   const r = cli.listMarketplaces();
@@ -55,7 +58,7 @@ function installed(scopes, cwd, home, cli) {
     const st = findState(scope, cwd, home)?.st;
     if (!st) continue;
     if (st.method === 'plugin') {
-      const p = pluginEntry(cli);
+      const p = pluginEntry(cli, scope);
       if (p && p.enabled !== false) return st;
     } else if (hookLive(st)) return st;
   }
@@ -136,7 +139,7 @@ export async function setup({
   // The npx cache is temporary, so the hook runs a copy of the runtime; forward slashes work in bash and PowerShell.
   const hookCommand = hookCommandFor(`${runtimeDir.replace(/\\/g, '/')}/src/stop.js`, platform);
   // Read-only probes: Pinocchio may already be installed (natively, or by an earlier run whose state is gone).
-  const plugin = claude.ok ? pluginEntry(cli) : null;
+  const plugin = claude.ok ? pluginEntry(cli, scope) : null;
   const marketplace = Boolean(claude.ok && !plugin && hasMarketplace(cli));
   const hookLines = [`+ hook     Stop hook in ${show(settingsFile)}`, `+ folder   ${show(runtimeDir)}/   (runtime copy)`];
   box(4, 'running', [

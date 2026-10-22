@@ -159,7 +159,7 @@ changed by `git status` (covers edits made through Bash).
 2. Detect test runner from `package.json`, `pyproject.toml`, `go.mod`, `Cargo.toml`, `Makefile`; propose `testCommands`.
 3. Ask: scope (project / user), mode, commit ledger.
 4. Review: list every file to be created/changed; nothing written before confirm.
-5. Apply: prefer `claude plugin marketplace add` + `claude plugin install`; fallback registers the hook in `.claude/settings.json` (project) or `~/.claude/settings.json` (user) inside a marked block, preserving all other content.
+5. Apply: prefer `claude plugin marketplace add` + `claude plugin install`; fallback registers the hook in `.claude/settings.local.json` (project; personal and git-ignored, because the hook path is machine-specific) or `~/.claude/settings.json` (user), matched by its exact command string (JSON has no comment markers), preserving all other content. Setup records live in `.claude/pinocchio-install/` with their own `*` .gitignore.
 6. Smoke test: run the hook against a bundled fixture transcript and print a sample receipt.
 
 `pinocchio doctor` (registration, Node, git, config, ledger chain; prints fixes), `pinocchio status`

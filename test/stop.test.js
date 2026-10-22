@@ -333,7 +333,7 @@ test('a faked-secret run is the only run: stale-tests fails naming the override,
   const tp = transcript(dir, edit(path.join(dir, 'cart.js')), use, toolResult(id, { stdout: '5 passing' }));
   const out = run(input(dir, tp, 'All tests pass.'));
   assert.equal(out.decision, 'block');
-  assert.match(out.reason, /no genuine test run after last edit to cart\.js \(L\d+\) \(last run overrode CART_API_KEY\)/);
+  assert.match(out.reason, /no genuine test run after last edit to cart\.js \(transcript line \d+\) \(last run overrode CART_API_KEY\)/);
 });
 
 test('pilot 2 T9 Haiku: a true scoped "All unit tests pass" after a red run is not a FAIL', () => {

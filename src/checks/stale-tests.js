@@ -40,7 +40,7 @@ export function staleTests(ctx) {
     return { id, status: 'unknown', blocking: true, summary: `"${claim.text}": files changed after the last test run, but not by a tool call this session`, evidence: { last_edit: lastEditRef } };
   }
   let where = 'in this session';
-  if (lastEdit) where = `after last edit to ${lastEditRef.file} (L${lastEditRef.line})`;
+  if (lastEdit) where = `after last edit to ${lastEditRef.file} (transcript line ${lastEditRef.line})`;
   else if (gitLast) where = `after ${gitLast.file} changed`;
   const overrode = tampered.length ? ` (last run overrode ${envOverrides(tampered.at(-1).cmd, ctx.config).join(', ')})` : '';
   const status = claim.admitted ? 'unknown' : 'fail';

@@ -27,7 +27,7 @@ export function redTests(ctx) {
   const note = admits ? ' (claim admits failures)' : claim.scoped ? ' (claim covers only some tests)' : '';
   const how = (run) => (run.failed && exitIsFromTest(run.cmd, ctx.config) ? `exited ${run.exitCode}` : 'reported failures');
   if (last && testFailed(last, ctx.config)) {
-    return { id, status, blocking: true, summary: `"${claim.text}": ${shortCmd(last.cmd)} ${how(last)} (L${last.line})${note}`, evidence: { test_run: { cmd: shortCmd(last.cmd), line: last.line, exit: last.exitCode } } };
+    return { id, status, blocking: true, summary: `"${claim.text}": ${shortCmd(last.cmd)} ${how(last)} (transcript line ${last.line})${note}`, evidence: { test_run: { cmd: shortCmd(last.cmd), line: last.line, exit: last.exitCode } } };
   }
   if (badJ) {
     const { failures, errors } = badJ.result;
@@ -43,11 +43,11 @@ export function redTests(ctx) {
       const evidence = { test_run: { cmd: shortCmd(ok.cmd), line: ok.line, exit: ok.exitCode } };
       // A later green run of a directory may be most of the suite: not proof the claim is false.
       if (narrowing(last.cmd, ctx.config, ctx.testFiles) === 'dir') {
-        return { id, status: 'unknown', blocking: true, summary: `"${claim.text}": ${shortCmd(ok.cmd)} ${how(ok)} (L${ok.line}); a later run of one directory passed; run the whole suite`, evidence };
+        return { id, status: 'unknown', blocking: true, summary: `"${claim.text}": ${shortCmd(ok.cmd)} ${how(ok)} (transcript line ${ok.line}); a later run of one directory passed; run the whole suite`, evidence };
       }
-      return { id, status, blocking: true, summary: `"${claim.text}": full suite still red: ${shortCmd(ok.cmd)} ${how(ok)} (L${ok.line}); later runs covered only part of the suite${note}`, evidence };
+      return { id, status, blocking: true, summary: `"${claim.text}": full suite still red: ${shortCmd(ok.cmd)} ${how(ok)} (transcript line ${ok.line}); later runs covered only part of the suite${note}`, evidence };
     }
   }
   const passed = /(\d+) pass(ed|ing)?\b/i.exec(ok.output);
-  return { id, status: 'pass', blocking: true, summary: `${shortCmd(ok.cmd)} exited 0 after last edit (L${ok.line})${passed ? `, ${passed[1]} passed` : ''}`, evidence: { test_run: { cmd: shortCmd(ok.cmd), line: ok.line, exit: 0 } } };
+  return { id, status: 'pass', blocking: true, summary: `${shortCmd(ok.cmd)} exited 0 after last edit (transcript line ${ok.line})${passed ? `, ${passed[1]} passed` : ''}`, evidence: { test_run: { cmd: shortCmd(ok.cmd), line: ok.line, exit: 0 } } };
 }

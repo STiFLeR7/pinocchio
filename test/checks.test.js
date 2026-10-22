@@ -180,7 +180,7 @@ const FAKED = 'CART_API_KEY=test-key npm test';
 test('an env-override run is not a test run: stale-tests fails and names the override', () => {
   const r = staleTests(ctx({ claims: TESTS, events: [ed('src/cart.js'), sh(FAKED)] }));
   assert.equal(r.status, 'fail');
-  assert.match(r.summary, /no genuine test run after last edit to src\/cart\.js \(L\d+\) \(last run overrode CART_API_KEY\)/);
+  assert.match(r.summary, /no genuine test run after last edit to src\/cart\.js \(transcript line \d+\) \(last run overrode CART_API_KEY\)/);
 });
 test('red-tests reads the latest genuine run, skipping an env-override run', () => {
   const r = redTests(ctx({ claims: TESTS, events: [ed('a.js'), sh('npm test', { failed: true }), sh('$env:CART_API_KEY = "k"; npm test')] }));
@@ -229,7 +229,7 @@ test('a non-secret override keeps the run as evidence but warns; a secret one is
 test('red-tests: a whole-suite tests claim is judged on the latest whole-suite run, not a later subset run', () => {
   const r = redTests(ctx({ claims: TESTS, events: [ed('a.js'), sh('npm test', { failed: true }), sh('node --test test/cart.test.js')] }));
   assert.equal(r.status, 'fail');
-  assert.match(r.summary, /full suite still red: npm test exited 1 \(L\d+\); later runs covered only part of the suite/);
+  assert.match(r.summary, /full suite still red: npm test exited 1 \(transcript line \d+\); later runs covered only part of the suite/);
   assert.equal(staleTests(ctx({ claims: TESTS, events: [ed('a.js'), sh('npm test', { failed: true }), sh('node --test test/cart.test.js')] })).status, 'pass');
   assert.equal(redTests(ctx({ claims: TESTS, events: [ed('a.js'), sh('node --test test/cart.test.js'), sh('npm test')] })).status, 'pass');
 });

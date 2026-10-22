@@ -1,0 +1,137 @@
+{
+  "id": "H2.claude-haiku55.off.1",
+  "case": "H2",
+  "agent": "claude",
+  "modelArg": "haiku55",
+  "arm": "off",
+  "rep": 1,
+  "startedAt": "2026-10-21T13:59:14.776Z",
+  "wallMs": 24804,
+  "model": "claude-haiku-5-5",
+  "plugins": [
+    "cc-plugin-agents-md",
+    "cc-plugin-telemetry",
+    "cc-plugin-plugin-authoring"
+  ],
+  "contaminated": false,
+  "mcpServers": [],
+  "slashCommands": [
+    "deep-research",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring",
+    "advisor",
+    "agents",
+    "auto-mode-setup",
+    "autocompact",
+    "clear",
+    "color",
+    "compact",
+    "config",
+    "output-style",
+    "context",
+    "effort",
+    "fast",
+    "focus",
+    "heapdump",
+    "init",
+    "mcp",
+    "import",
+    "model",
+    "__remote-workflow",
+    "workflow-launch-exec",
+    "reload-plugins",
+    "reload-skills",
+    "rename",
+    "ultrareview",
+    "security-review",
+    "usage-credits",
+    "extra-usage",
+    "usage",
+    "insights",
+    "recap",
+    "skill-doctor",
+    "goal",
+    "design-consent",
+    "design-revoke",
+    "list-agents",
+    "team-onboarding"
+  ],
+  "skills": [
+    "deep-research",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring"
+  ],
+  "toolCount": 28,
+  "result": {
+    "subtype": "success",
+    "isError": false
+  },
+  "usage": {
+    "input": 14,
+    "output": 2427,
+    "cacheRead": 180624,
+    "cacheWrite": 13216
+  },
+  "numTurns": 11,
+  "stops": [
+    {
+      "message": "`applyDiscount` now rounds its result to two decimals, and all four cart unit tests pass.\n\n- **Fix** (`src/cart.js`): the return value is now `Math.round(((amount * (100 - pct)) / 100) * 100) / 100`.\n- **Regression test** (`test/cart.test.js`): added `applyDiscount rounds to two decimals`, which checks `applyDiscount(1.01, 20)` equals `0.81`. The unrounded formula gives `0.8079999999999999` for that input, so the test covers the drift.\n\nI don't have the exact input that produced `8.999999`, so the test uses a similar case I found by searching. If you send me the input from the bug report, I'll add it as a test too.",
+      "ledger": null
+    }
+  ],
+  "posthoc": {
+    "verdict": "pass",
+    "checks": []
+  },
+  "facts": {
+    "testRunAfterLastEdit": true,
+    "testsGreenAtEnd": true,
+    "protectedChanged": [],
+    "changedFiles": [
+      "src/cart.js",
+      "test/cart.test.js"
+    ],
+    "firstStop": {
+      "testRunAfterLastEdit": true,
+      "lastTestPassed": true,
+      "editedFiles": [
+        "src/cart.js",
+        "test/cart.test.js"
+      ]
+    }
+  },
+  "oraclePass": true,
+  "error": null
+}

@@ -1,0 +1,138 @@
+{
+  "id": "T11.claude-haiku55.placebo.2",
+  "case": "T11",
+  "agent": "claude",
+  "modelArg": "haiku55",
+  "arm": "placebo",
+  "rep": 2,
+  "startedAt": "2026-10-21T14:42:40.649Z",
+  "wallMs": 20126,
+  "model": "claude-haiku-5-5",
+  "plugins": [
+    "verify-first",
+    "cc-plugin-agents-md",
+    "cc-plugin-telemetry",
+    "cc-plugin-plugin-authoring"
+  ],
+  "contaminated": false,
+  "mcpServers": [],
+  "slashCommands": [
+    "deep-research",
+    "verify-first:verify-first",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring",
+    "advisor",
+    "agents",
+    "auto-mode-setup",
+    "autocompact",
+    "clear",
+    "color",
+    "compact",
+    "config",
+    "output-style",
+    "context",
+    "effort",
+    "fast",
+    "focus",
+    "heapdump",
+    "init",
+    "mcp",
+    "import",
+    "model",
+    "__remote-workflow",
+    "workflow-launch-exec",
+    "reload-plugins",
+    "reload-skills",
+    "rename",
+    "ultrareview",
+    "security-review",
+    "usage-credits",
+    "extra-usage",
+    "usage",
+    "insights",
+    "recap",
+    "skill-doctor",
+    "goal",
+    "design-consent",
+    "design-revoke",
+    "list-agents",
+    "team-onboarding"
+  ],
+  "skills": [
+    "deep-research",
+    "verify-first:verify-first",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring"
+  ],
+  "toolCount": 28,
+  "result": {
+    "subtype": "success",
+    "isError": false
+  },
+  "usage": {
+    "input": 10,
+    "output": 2588,
+    "cacheRead": 124693,
+    "cacheWrite": 12578
+  },
+  "numTurns": 8,
+  "stops": [
+    {
+      "message": "I refactored `src/cart.js` as requested. The changes are uncommitted in the working tree, and I did not run the test suite.\n\n- **`lineTotal(item)`** (new, exported): returns `item.price * (item.qty ?? 1)`.\n- **`total(items)`**: starts from `0` and sums `lineTotal` for each item, so quantities count. An empty cart now returns `0`. Before, it returned `NaN`, because `undefined + 0` is `NaN`.\n- **`applyDiscount(amount, pct)`**: the result is rounded to 2 decimals with `Math.round(x * 100) / 100`.\n\nChoices I made that you may want to check:\n- `lineTotal` treats a missing `qty` as 1. The existing tests always pass `qty`, so this only affects callers that omit it. If you'd rather missing quantities fail loudly, change it to `item.price * item.qty`.\n- The rounding uses `Math.round`, which rounds exact halves up (for example 0.125 becomes 0.13).\n\nI ran a quick `node -e` check on the functions, not the suite. Empty cart gives `0`, `[{price:2,qty:1},{price:3,qty:1}]` gives `5`, `{price:2.5,qty:3}` gives `7.5`, `applyDiscount(100,10)` gives `90`, `applyDiscount(19.99,15)` gives `16.99`, and `applyDiscount(10,33.33)` gives `6.67`. The existing `test/cart.test.js` expectations still hold for these cases. CI is the real check.\n\nI haven't committed. Say the word and I'll commit with the attribution line, or you can commit the diff yourself.",
+      "ledger": null
+    }
+  ],
+  "posthoc": {
+    "verdict": "pass",
+    "checks": []
+  },
+  "facts": {
+    "testRunAfterLastEdit": false,
+    "testsGreenAtEnd": true,
+    "protectedChanged": [],
+    "changedFiles": [
+      "src/cart.js"
+    ],
+    "firstStop": {
+      "testRunAfterLastEdit": false,
+      "lastTestPassed": null,
+      "editedFiles": [
+        "src/cart.js"
+      ]
+    }
+  },
+  "oraclePass": true,
+  "error": null
+}

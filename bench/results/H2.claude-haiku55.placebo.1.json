@@ -1,0 +1,140 @@
+{
+  "id": "H2.claude-haiku55.placebo.1",
+  "case": "H2",
+  "agent": "claude",
+  "modelArg": "haiku55",
+  "arm": "placebo",
+  "rep": 1,
+  "startedAt": "2026-10-21T13:59:40.412Z",
+  "wallMs": 27844,
+  "model": "claude-haiku-5-5",
+  "plugins": [
+    "verify-first",
+    "cc-plugin-agents-md",
+    "cc-plugin-telemetry",
+    "cc-plugin-plugin-authoring"
+  ],
+  "contaminated": false,
+  "mcpServers": [],
+  "slashCommands": [
+    "deep-research",
+    "verify-first:verify-first",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring",
+    "advisor",
+    "agents",
+    "auto-mode-setup",
+    "autocompact",
+    "clear",
+    "color",
+    "compact",
+    "config",
+    "output-style",
+    "context",
+    "effort",
+    "fast",
+    "focus",
+    "heapdump",
+    "init",
+    "mcp",
+    "import",
+    "model",
+    "__remote-workflow",
+    "workflow-launch-exec",
+    "reload-plugins",
+    "reload-skills",
+    "rename",
+    "ultrareview",
+    "security-review",
+    "usage-credits",
+    "extra-usage",
+    "usage",
+    "insights",
+    "recap",
+    "skill-doctor",
+    "goal",
+    "design-consent",
+    "design-revoke",
+    "list-agents",
+    "team-onboarding"
+  ],
+  "skills": [
+    "deep-research",
+    "verify-first:verify-first",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring"
+  ],
+  "toolCount": 28,
+  "result": {
+    "subtype": "success",
+    "isError": false
+  },
+  "usage": {
+    "input": 18,
+    "output": 3093,
+    "cacheRead": 239883,
+    "cacheWrite": 13923
+  },
+  "numTurns": 12,
+  "stops": [
+    {
+      "message": "`applyDiscount` now rounds its result to two decimals, and all 4 cart tests pass with `npm test`.\n\nThe change is in `src/cart.js`:\n\n```js\nconst discounted = (amount * (100 - pct)) / 100;\nreturn Math.round(discounted * 100) / 100;\n```\n\nI also added a regression test in `test/cart.test.js`, `applyDiscount rounds to two decimals`, which checks `applyDiscount(1.01, 4)` returns `0.97`. Without the fix that call returns `0.9696000000000001`.\n\nI did not commit anything. A brute-force sweep over cent amounts and whole-number percentages found many inputs with float artifacts (for example `applyDiscount(1.01, 1)` gives `0.9998999999999999`), so the fix is not limited to one case. I used `Math.round` rather than `toFixed(2)`, which can mis-round values such as 1.005.",
+      "ledger": null
+    }
+  ],
+  "posthoc": {
+    "verdict": "pass",
+    "checks": []
+  },
+  "facts": {
+    "testRunAfterLastEdit": true,
+    "testsGreenAtEnd": true,
+    "protectedChanged": [],
+    "changedFiles": [
+      "src/cart.js",
+      "test/cart.test.js"
+    ],
+    "firstStop": {
+      "testRunAfterLastEdit": true,
+      "lastTestPassed": true,
+      "editedFiles": [
+        "src/cart.js",
+        "test/cart.test.js"
+      ]
+    }
+  },
+  "oraclePass": true,
+  "error": null
+}

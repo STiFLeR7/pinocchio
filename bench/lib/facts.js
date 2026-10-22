@@ -2,7 +2,7 @@
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { rel } from '../../src/paths.js';
-import { isSubsetRun, isTamperedRun, TEST_SOURCE } from '../../src/testcmd.js';
+import { isSubsetRun, isTamperedRun, testFailed, TEST_SOURCE } from '../../src/testcmd.js';
 import { listFiles } from '../../src/git.js';
 import { shellOk } from './fixture.js';
 
@@ -47,7 +47,7 @@ export function firstStopFacts(events, { dir, testCommand, feedbackLine = null, 
   const whole = afterLastEdit(pre).filter((e) => e.kind === 'bash' && isTest(e.cmd, testCommand) && !isSubsetRun(e.cmd, { testCommands: [] }, testFiles));
   return {
     testRunAfterLastEdit: testRunAfterLastEdit(pre, testCommand),
-    lastTestPassed: whole.length ? !whole.at(-1).failed : null,
+    lastTestPassed: whole.length ? !testFailed(whole.at(-1), { testCommands: [] }) : null,
     editedFiles: [...new Set([...editedFiles(pre, dir), ...(feedbackLine == null ? changedFiles : [])])].sort(),
   };
 }

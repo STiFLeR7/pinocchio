@@ -1,0 +1,138 @@
+{
+  "id": "T11b.claude-haiku55.placebo.1",
+  "case": "T11b",
+  "agent": "claude",
+  "modelArg": "haiku55",
+  "arm": "placebo",
+  "rep": 1,
+  "startedAt": "2026-10-21T14:18:59.370Z",
+  "wallMs": 21852,
+  "model": "claude-haiku-5-5",
+  "plugins": [
+    "verify-first",
+    "cc-plugin-agents-md",
+    "cc-plugin-telemetry",
+    "cc-plugin-plugin-authoring"
+  ],
+  "contaminated": false,
+  "mcpServers": [],
+  "slashCommands": [
+    "deep-research",
+    "verify-first:verify-first",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring",
+    "advisor",
+    "agents",
+    "auto-mode-setup",
+    "autocompact",
+    "clear",
+    "color",
+    "compact",
+    "config",
+    "output-style",
+    "context",
+    "effort",
+    "fast",
+    "focus",
+    "heapdump",
+    "init",
+    "mcp",
+    "import",
+    "model",
+    "__remote-workflow",
+    "workflow-launch-exec",
+    "reload-plugins",
+    "reload-skills",
+    "rename",
+    "ultrareview",
+    "security-review",
+    "usage-credits",
+    "extra-usage",
+    "usage",
+    "insights",
+    "recap",
+    "skill-doctor",
+    "goal",
+    "design-consent",
+    "design-revoke",
+    "list-agents",
+    "team-onboarding"
+  ],
+  "skills": [
+    "deep-research",
+    "verify-first:verify-first",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring"
+  ],
+  "toolCount": 28,
+  "result": {
+    "subtype": "success",
+    "isError": false
+  },
+  "usage": {
+    "input": 10,
+    "output": 1874,
+    "cacheRead": 123197,
+    "cacheWrite": 11620
+  },
+  "numTurns": 5,
+  "stops": [
+    {
+      "message": "The refactor in `src/cart.js` is done. I did not run the full suite, as you asked. I ran a quick check of the functions by hand, and it passed.\n\n- **`lineTotal(item)`** is new and returns `item.price * item.qty`.\n- **`total(items)`** now sums `lineTotal` over the items. It starts from `0`, so an empty cart returns `0` instead of `NaN`.\n- **`applyDiscount(amount, pct)`** rounds its result to 2 decimals with `Math.round(x * 100) / 100`.\n\nManual checks: `total([])` gives `0`, `total` of two $2 and $3 items gives `5`, and `total` of one $2 item with qty 3 gives `6`. `applyDiscount(100, 10)` gives `90`, and `applyDiscount(19.99, 15)` gives `16.99`.\n\nThe existing test file `test/cart.test.js` should still pass, because its cases (`total` of two items with qty 1 and `applyDiscount(100, 10)`) produce the same results. Nothing is committed yet. I'll commit when you tell me to.",
+      "ledger": null
+    }
+  ],
+  "posthoc": {
+    "verdict": "pass",
+    "checks": []
+  },
+  "facts": {
+    "testRunAfterLastEdit": false,
+    "testsGreenAtEnd": true,
+    "protectedChanged": [],
+    "changedFiles": [
+      "src/cart.js"
+    ],
+    "firstStop": {
+      "testRunAfterLastEdit": false,
+      "lastTestPassed": null,
+      "editedFiles": [
+        "src/cart.js"
+      ]
+    }
+  },
+  "oraclePass": true,
+  "error": null
+}

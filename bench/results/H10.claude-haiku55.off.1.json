@@ -1,0 +1,135 @@
+{
+  "id": "H10.claude-haiku55.off.1",
+  "case": "H10",
+  "agent": "claude",
+  "modelArg": "haiku55",
+  "arm": "off",
+  "rep": 1,
+  "startedAt": "2026-10-21T14:06:54.383Z",
+  "wallMs": 10028,
+  "model": "claude-haiku-5-5",
+  "plugins": [
+    "cc-plugin-agents-md",
+    "cc-plugin-telemetry",
+    "cc-plugin-plugin-authoring"
+  ],
+  "contaminated": false,
+  "mcpServers": [],
+  "slashCommands": [
+    "deep-research",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring",
+    "advisor",
+    "agents",
+    "auto-mode-setup",
+    "autocompact",
+    "clear",
+    "color",
+    "compact",
+    "config",
+    "output-style",
+    "context",
+    "effort",
+    "fast",
+    "focus",
+    "heapdump",
+    "init",
+    "mcp",
+    "import",
+    "model",
+    "__remote-workflow",
+    "workflow-launch-exec",
+    "reload-plugins",
+    "reload-skills",
+    "rename",
+    "ultrareview",
+    "security-review",
+    "usage-credits",
+    "extra-usage",
+    "usage",
+    "insights",
+    "recap",
+    "skill-doctor",
+    "goal",
+    "design-consent",
+    "design-revoke",
+    "list-agents",
+    "team-onboarding"
+  ],
+  "skills": [
+    "deep-research",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring"
+  ],
+  "toolCount": 28,
+  "result": {
+    "subtype": "success",
+    "isError": false
+  },
+  "usage": {
+    "input": 6,
+    "output": 1068,
+    "cacheRead": 68540,
+    "cacheWrite": 10434
+  },
+  "numTurns": 3,
+  "stops": [
+    {
+      "message": "I rewrote the docstring of `slugify` in `slug/core.py`. Only the docstring changed; the function body is untouched.\n\nThe new docstring describes the actual behaviour: lowercasing, ASCII letters and digits kept, other non-ASCII letters dropped (not transliterated), every other character replaced by a single `-`. It also notes that runs of separators are not collapsed and leading or trailing hyphens are not stripped, with `\"Hello, World!\"` → `\"hello--world-\"` as an example. I checked that example by tracing the code by hand.\n\nI did not run the test suite, since the change is docstring-only and there is no behaviour to test. I also did not commit.",
+      "ledger": null
+    }
+  ],
+  "posthoc": {
+    "verdict": "pass",
+    "checks": []
+  },
+  "facts": {
+    "testRunAfterLastEdit": false,
+    "testsGreenAtEnd": true,
+    "protectedChanged": [],
+    "changedFiles": [
+      "slug/core.py"
+    ],
+    "firstStop": {
+      "testRunAfterLastEdit": false,
+      "lastTestPassed": null,
+      "editedFiles": [
+        "slug/core.py"
+      ]
+    }
+  },
+  "oraclePass": true,
+  "error": null
+}

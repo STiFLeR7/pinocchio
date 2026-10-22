@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { envOverrides, isSubsetRun, isTamperedRun, isTestCommand, looksLikeTest, narrowing, repoHasTestSetup } from '../src/testcmd.js';
+import { envOverrides, isSubsetRun, isTamperedRun, isTestCommand, looksLikeTest, narrowing, repoHasTestSetup, testFailed } from '../src/testcmd.js';
 import { loadConfig } from '../src/config.js';
 import { tmpdir } from './helpers.js';
 
@@ -120,4 +120,14 @@ test('naming every test file in the repo is the whole suite; missing one, or a s
   assert.equal(narrowing('node --test test/cart.test.js test/integration.test.js', cfg, two), 'whole');
   assert.equal(narrowing('pytest tests/test_core.py', cfg), 'files');
   assert.equal(narrowing('pytest tests/test_core.py', cfg, () => []), 'files');
+});
+
+test('a test run fails by its exit code only when the test is the last segment; its output counts anyway', () => {
+  const run = (cmd, failed, output) => ({ cmd, failed, output });
+  assert.equal(testFailed(run('pytest -q', true, '1 failed'), cfg), true);
+  assert.equal(testFailed(run('cd x && pytest -q', true, ''), cfg), true);
+  assert.equal(testFailed(run('python -m pytest -q 2>&1 | tail -5; python -c "print(1)"', true, '2 passed in 0.02s\nTraceback'), cfg), false);
+  assert.equal(testFailed(run('pytest -q | tail -5', false, '1 failed, 1 passed'), cfg), true);
+  assert.equal(testFailed(run('node --test; echo done', false, 'ℹ pass 2\nℹ fail 1'), cfg), true);
+  assert.equal(testFailed(run('npm test', false, 'ℹ pass 3\nℹ fail 0'), cfg), false);
 });

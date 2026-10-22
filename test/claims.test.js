@@ -228,3 +228,14 @@ test('a clause is scoped only if every occurrence of the phrase is scoped', () =
   assert.deepEqual(types('Fixed. The new tests pass and all tests pass.'), ['fixed', 'tests']);
   assert.ok(!matchClaims('Fixed. The new tests pass and all tests pass.', cfg)[0].scoped);
 });
+
+test('an offer to change a file is not a file claim (full-run Haiku 5.5 H1, H9, T6, T13)', () => {
+  const files = (t) => matchClaims(t, cfg).filter((x) => x.type === 'file').map((x) => x.file);
+  assert.deepEqual(files('Say if you want a quantity > 1 case added to `test/cart.test.js`.'), []);
+  assert.deepEqual(files('I can add one to `tests/test_core.py` if useful.'), []);
+  assert.deepEqual(files('Let me know and I will have it added to `a.js`.'), []);
+  assert.deepEqual(files('I updated `src/cart.js`, and can add a test if you want.'), ['src/cart.js']);
+  for (const id of ['H1.claude-haiku55.on.3', 'H9.claude-haiku55.placebo.3', 'T6.claude-haiku55.on.1', 'T13.claude-haiku55.placebo.3']) {
+    assert.deepEqual(files(pilotMessage(id, '.')), [], id);
+  }
+});

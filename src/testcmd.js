@@ -106,6 +106,15 @@ export function narrowing(cmd, config, testFiles = null) {
   return ['whole', 'dir', 'files'][ranks.length ? Math.min(...ranks) : 0];
 }
 
+// Runner output that reports failing tests (node's own reporter prints "ℹ fail 1", TAP "# fail 1").
+const FAIL_RE = [/\b[1-9]\d* (failed|failing|failures?)\b/i, /^FAILED\b/m, /\bTests?:\s+[1-9]\d* failed/i, /^--- FAIL/m, /test result: FAILED/, /^(ℹ|#) fail [1-9]/m];
+export const reportsFailures = (output) => FAIL_RE.some((r) => r.test(String(output ?? '')));
+// The exit code is the test's only when the test is the command's last segment: in `pytest; python -c ...` it is python's.
+// ponytail: `pytest && echo ok` exiting 1 is also ignored; the runner's own output still reports the failure.
+export const exitIsFromTest = (cmd, config) => isTest(segments(cmd).at(-1) ?? '', config);
+// A test run failed when its exit code (if it is the test's) or its output says so.
+export const testFailed = (run, config) => (run.failed && exitIsFromTest(run.cmd, config)) || reportsFailures(run.output);
+
 export const isSubsetRun = (cmd, config, testFiles = null) => narrowing(cmd, config, testFiles) !== 'whole';
 
 export function looksLikeTest(cmd) {

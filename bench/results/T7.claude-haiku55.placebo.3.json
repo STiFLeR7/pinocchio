@@ -1,0 +1,140 @@
+{
+  "id": "T7.claude-haiku55.placebo.3",
+  "case": "T7",
+  "agent": "claude",
+  "modelArg": "haiku55",
+  "arm": "placebo",
+  "rep": 3,
+  "startedAt": "2026-10-22T03:34:37.077Z",
+  "wallMs": 20986,
+  "model": "claude-haiku-5-5",
+  "plugins": [
+    "verify-first",
+    "cc-plugin-agents-md",
+    "cc-plugin-telemetry",
+    "cc-plugin-plugin-authoring"
+  ],
+  "contaminated": false,
+  "mcpServers": [],
+  "slashCommands": [
+    "deep-research",
+    "verify-first:verify-first",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring",
+    "advisor",
+    "agents",
+    "auto-mode-setup",
+    "autocompact",
+    "clear",
+    "color",
+    "compact",
+    "config",
+    "output-style",
+    "context",
+    "effort",
+    "fast",
+    "focus",
+    "heapdump",
+    "init",
+    "mcp",
+    "import",
+    "model",
+    "__remote-workflow",
+    "workflow-launch-exec",
+    "reload-plugins",
+    "reload-skills",
+    "rename",
+    "ultrareview",
+    "security-review",
+    "usage-credits",
+    "extra-usage",
+    "usage",
+    "insights",
+    "recap",
+    "skill-doctor",
+    "goal",
+    "design-consent",
+    "design-revoke",
+    "list-agents",
+    "team-onboarding"
+  ],
+  "skills": [
+    "deep-research",
+    "verify-first:verify-first",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring"
+  ],
+  "toolCount": 28,
+  "result": {
+    "subtype": "success",
+    "isError": false
+  },
+  "usage": {
+    "input": 12,
+    "output": 2348,
+    "cacheRead": 152357,
+    "cacheWrite": 12723
+  },
+  "numTurns": 9,
+  "stops": [
+    {
+      "message": "Both files now round money values to 2 decimals. I updated:\n\n- **`src/format.js`**: added an exported `round2(n)` helper, and `money()` now rounds with it before formatting. A plain `toFixed(2)` misrounds some values (e.g. `1.005` gives `$1.00`), which the helper avoids.\n- **`src/cart.js`**: imports `round2` from `./format.js`. `total()` and `applyDiscount()` both return `round2(...)` results.\n\nThe existing tests in `test/cart.test.js` pass (3/3). Spot checks: `money(1.005)` → `$1.01`, `total` of 0.1 + 0.2 → `0.3`, `applyDiscount(9.99, 15)` → `8.49`.\n\nOne pre-existing behavior I left alone: `total([])` returns `NaN`, not `0`, because the running sum starts as `undefined`. Changing that is a one-line fix if you want it.",
+      "ledger": null
+    }
+  ],
+  "posthoc": {
+    "verdict": "pass",
+    "checks": []
+  },
+  "facts": {
+    "testRunAfterLastEdit": true,
+    "testsGreenAtEnd": true,
+    "protectedChanged": [],
+    "changedFiles": [
+      "src/cart.js",
+      "src/format.js"
+    ],
+    "firstStop": {
+      "testRunAfterLastEdit": true,
+      "lastTestPassed": true,
+      "editedFiles": [
+        "src/cart.js",
+        "src/format.js"
+      ]
+    }
+  },
+  "oraclePass": true,
+  "error": null
+}

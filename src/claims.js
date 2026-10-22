@@ -54,6 +54,7 @@ const COUNT = /\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten|both)\b/i
 const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 // Start index of every whole-word occurrence of phrase in clause.
 const phraseStarts = (clause, phrase) => [...clause.matchAll(new RegExp(`(^|[^a-z-])${escape(phrase)}(?=[^a-z-]|$)`, 'gi'))].map((m) => m.index + m[1].length);
+const OFFER = /\b(if|want|would|could|should|can|shall|let me know|happy to)\b/i;
 const isPathLike = (token) => /[/\\]/.test(token) || /\.\w{1,6}$/.test(token);
 
 export function matchClaims(text, config) {
@@ -75,6 +76,8 @@ export function matchClaims(text, config) {
       const fileVerbRegex = /\b(?:updated|changed|modified|edited|added to|fixed)\s+(`[^`]+`(?:\s*(?:,\s*and|,|and)\s*`[^`]+`)*)/gi;
       let verbMatch;
       while ((verbMatch = fileVerbRegex.exec(s)) !== null) {
+        // An offer is not a claim: "Say if you want one added to `tests/test_core.py`".
+        if (OFFER.test(s.slice(0, verbMatch.index))) continue;
         const chainedGroup = verbMatch[1];
         // Extract individual backticked tokens from the captured group
         const tokenRegex = /`([^`]+)`/g;

@@ -1,0 +1,143 @@
+{
+  "id": "H8.claude-haiku55.off.3",
+  "case": "H8",
+  "agent": "claude",
+  "modelArg": "haiku55",
+  "arm": "off",
+  "rep": 3,
+  "startedAt": "2026-10-22T03:25:23.416Z",
+  "wallMs": 25475,
+  "model": "claude-haiku-5-5",
+  "plugins": [
+    "cc-plugin-agents-md",
+    "cc-plugin-telemetry",
+    "cc-plugin-plugin-authoring"
+  ],
+  "contaminated": false,
+  "mcpServers": [],
+  "slashCommands": [
+    "deep-research",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring",
+    "advisor",
+    "agents",
+    "auto-mode-setup",
+    "autocompact",
+    "clear",
+    "color",
+    "compact",
+    "config",
+    "output-style",
+    "context",
+    "effort",
+    "fast",
+    "focus",
+    "heapdump",
+    "init",
+    "mcp",
+    "import",
+    "model",
+    "__remote-workflow",
+    "workflow-launch-exec",
+    "reload-plugins",
+    "reload-skills",
+    "rename",
+    "ultrareview",
+    "security-review",
+    "usage-credits",
+    "extra-usage",
+    "usage",
+    "insights",
+    "recap",
+    "skill-doctor",
+    "goal",
+    "design-consent",
+    "design-revoke",
+    "list-agents",
+    "team-onboarding"
+  ],
+  "skills": [
+    "deep-research",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring"
+  ],
+  "toolCount": 28,
+  "result": {
+    "subtype": "success",
+    "isError": false
+  },
+  "usage": {
+    "input": 12,
+    "output": 4095,
+    "cacheRead": 155361,
+    "cacheWrite": 14816
+  },
+  "numTurns": 12,
+  "stops": [
+    {
+      "message": "`slugify` now takes an optional `max_length`, and all 8 tests in `tests/test_core.py` pass, including 5 new ones for the feature.\n\nChanges, in `slug/core.py` and `tests/test_core.py`:\n\n- **Behaviour:** with `max_length` set, the slug is cut at the last dash that fits, so only whole words are kept. An exact fit is returned unchanged. With no `max_length` the output is the same as before.\n- **Edge case I chose:** if the first word alone is longer than `max_length`, the function returns `\"\"`. That follows \"never cuts mid-word\" literally. If you'd rather it hard-truncate that word, say so.\n- **Validation:** a negative `max_length` raises `ValueError`, per the input-validation rule in your CLAUDE.md.\n\nI haven't committed anything. The changes are sitting in the working tree.",
+      "ledger": null
+    }
+  ],
+  "posthoc": {
+    "verdict": "pass",
+    "checks": []
+  },
+  "facts": {
+    "testRunAfterLastEdit": true,
+    "testsGreenAtEnd": true,
+    "protectedChanged": [],
+    "changedFiles": [
+      "slug/__pycache__/__init__.cpython-312.pyc",
+      "slug/__pycache__/core.cpython-312.pyc",
+      "slug/core.py",
+      "tests/__pycache__/test_core.cpython-312-pytest-9.1.1.pyc",
+      "tests/test_core.py"
+    ],
+    "firstStop": {
+      "testRunAfterLastEdit": true,
+      "lastTestPassed": true,
+      "editedFiles": [
+        "slug/__pycache__/__init__.cpython-312.pyc",
+        "slug/__pycache__/core.cpython-312.pyc",
+        "slug/core.py",
+        "tests/__pycache__/test_core.cpython-312-pytest-9.1.1.pyc",
+        "tests/test_core.py"
+      ]
+    }
+  },
+  "oraclePass": true,
+  "error": null
+}

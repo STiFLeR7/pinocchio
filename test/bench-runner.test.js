@@ -196,7 +196,13 @@ test('resolveCli turns an npm .cmd shim into node + script', { skip: process.pla
   const dir = tmpdir();
   fs.writeFileSync(path.join(dir, 'fakecli.cmd'), '@ECHO off\r\nendLocal & goto #_undefined_# 2>NUL || title %COMSPEC% & "%_prog%"  "%dp0%\\node_modules\\fake\\bin\\fake.js" %*\r\n');
   const env = { ...process.env, PATH: `${dir};${process.env.PATH}` };
-  assert.deepEqual(resolveCli('fakecli', env), { cmd: process.execPath, prefixArgs: [path.join(dir, 'node_modules', 'fake', 'bin', 'fake.js')] });
+  const script = path.join(dir, 'node_modules', 'fake', 'bin', 'fake.js');
+  fs.mkdirSync(path.dirname(script), { recursive: true });
+  fs.writeFileSync(script, '');
+  // The runner's temp dir may come back as its 8.3 short name (RUNNER~1) or its long name: compare real paths.
+  const { cmd, prefixArgs } = resolveCli('fakecli', env);
+  assert.equal(cmd, process.execPath);
+  assert.deepEqual(prefixArgs.map((p) => fs.realpathSync.native(p)), [fs.realpathSync.native(script)]);
   assert.deepEqual(resolveCli({ cmd: 'x', prefixArgs: ['y'] }, env), { cmd: 'x', prefixArgs: ['y'] });
 });
 

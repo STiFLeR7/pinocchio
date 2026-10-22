@@ -1,14 +1,20 @@
 import path from 'node:path';
 import { confine } from '../paths.js';
+import { isSubsetRun, isTamperedRun, isTestCommand } from '../testcmd.js';
 
 const DOC = /\.(md|mdx|txt|rst)$/i;
 export const isDoc = (file) => DOC.test(file);
+// Build output and caches are written by tools, not edits by the agent. `file` is relative to the project root.
+const ARTIFACT = /^(dist|build|coverage)[\\/]|(^|[\\/])(__pycache__|node_modules|\.pytest_cache|\.mypy_cache)[\\/]|\.pyc$/i;
+export const isArtifact = (file) => ARTIFACT.test(file);
 
-// Only edits to non-doc files inside root count; others stay in `after`.
+// Only edits to non-doc, non-artifact files inside root count; others stay in `after`.
 export function afterLastEdit(events, root) {
   let idx = -1;
   events.forEach((e, i) => {
-    if (e.kind === 'edit' && !isDoc(e.file) && confine(root, path.resolve(root, e.file))) idx = i;
+    if (e.kind !== 'edit' || isDoc(e.file)) return;
+    const abs = path.resolve(root, e.file);
+    if (!isArtifact(path.relative(root, abs)) && confine(root, abs)) idx = i;
   });
   return { lastEdit: idx >= 0 ? events[idx] : null, after: events.slice(idx + 1) };
 }
@@ -28,7 +34,16 @@ export function bashBeforeGitEdit(events, gitEdits, since = -Infinity) {
   });
 }
 
+// Recognized test runs. A run that sets a secret inline (isTamperedRun) is tampered: not evidence of the real suite.
+// `whole` are the genuine runs of the whole suite (not narrowed by isSubsetRun): only they can back "all tests pass".
+export function testRuns(events, config, testFiles = null) {
+  const runs = events.filter((e) => e.kind === 'bash' && isTestCommand(e.cmd, config));
+  const tampered = runs.filter((e) => isTamperedRun(e.cmd, config));
+  const genuine = runs.filter((e) => !tampered.includes(e));
+  return { genuine, whole: genuine.filter((e) => !isSubsetRun(e.cmd, config, testFiles)), tampered };
+}
+
 export function shortCmd(cmd) {
-  const one = String(cmd).split('\n')[0].trim();
+  const one = String(cmd).split('\n')[0].trim().replace(/^(cd|Set-Location)\s+("[^"]*"|'[^']*'|\S+)\s*(&&|;)\s*/i, '');
   return one.length > 60 ? `${one.slice(0, 57)}...` : one;
 }

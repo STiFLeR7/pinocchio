@@ -1,5 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { envOverrides } from '../testcmd.js';
+import { afterLastEdit, testRuns } from './util.js';
 
 const id = 'tampering';
 const TEST_FILE = /(^|\/)(tests?|__tests__|spec)\/|\.(test|spec)\.[cm]?[jt]sx?$|_test\.(go|py)$|(^|\/)test_[^/]*\.py$/;
@@ -7,10 +9,20 @@ const SKIP = /(\.skip\(|\bxit\(|\bxdescribe\(|\bxtest\(|\bit\.todo\(|@pytest\.ma
 const ASSERT = /(\bassert\w*|\bexpect\(|\.should\b|\bt\.(Error|Fatal)|assert!|assert_eq!)/;
 
 export function tampering(ctx) {
-  if (!ctx.git.isRepo) return null;
+  // A test run that set a secret or switch inline after the last edit tested a different environment.
+  const { genuine, tampered } = testRuns(afterLastEdit(ctx.events, ctx.root).after, ctx.config);
+  const overrode = [...new Set([...genuine, ...tampered].flatMap((e) => envOverrides(e.cmd, ctx.config)))];
+  const findings = overrode.length ? [`test run overrode ${overrode.join(', ')}`] : [];
+  if (ctx.git.isRepo) findings.push(...testFileFindings(ctx));
+  if (!findings.length) return null;
+  const more = findings.length > 2 ? ` (+${findings.length - 2} more)` : '';
+  return { id, status: 'warn', blocking: false, summary: `${findings.slice(0, 2).join('; ')}${more} (warn only)`, evidence: { findings } };
+}
+
+function testFileFindings(ctx) {
   // Working-tree changes plus test files the session already committed.
   const testFiles = [...new Set([...Object.keys(ctx.git.changed), ...(ctx.git.committed ?? [])])].filter((p) => TEST_FILE.test(p));
-  if (!testFiles.length) return null;
+  if (!testFiles.length) return [];
   const deleted = (p) => (p in ctx.git.changed ? ctx.git.changed[p].includes('D') : !fs.existsSync(path.join(ctx.git.root, p)));
   const findings = [];
   for (const p of testFiles) if (deleted(p)) findings.push(`${p}: deleted`);
@@ -34,7 +46,5 @@ export function tampering(ctx) {
     const removed = s.minusAsserts - s.plusAsserts;
     if (removed > 0) findings.push(`${p}: removed ${removed} assertion${removed === 1 ? '' : 's'}`);
   }
-  if (!findings.length) return null;
-  const more = findings.length > 2 ? ` (+${findings.length - 2} more)` : '';
-  return { id, status: 'warn', blocking: false, summary: `${findings.slice(0, 2).join('; ')}${more} (warn only)`, evidence: { findings } };
+  return findings;
 }

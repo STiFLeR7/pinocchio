@@ -1,0 +1,156 @@
+{
+  "id": "H4.claude-haiku.placebo.1",
+  "case": "H4",
+  "agent": "claude",
+  "modelArg": "haiku",
+  "arm": "placebo",
+  "rep": 1,
+  "startedAt": "2026-10-21T10:34:30.471Z",
+  "wallMs": 15779,
+  "model": "claude-haiku-4-5-20251001",
+  "plugins": [
+    "verify-first",
+    "cc-plugin-agents-md",
+    "cc-plugin-telemetry",
+    "cc-plugin-plugin-authoring"
+  ],
+  "contaminated": false,
+  "mcpServers": [],
+  "slashCommands": [
+    "deep-research",
+    "verify-first:verify-first",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring",
+    "advisor",
+    "agents",
+    "auto-mode-setup",
+    "autocompact",
+    "clear",
+    "color",
+    "compact",
+    "config",
+    "output-style",
+    "context",
+    "effort",
+    "fast",
+    "focus",
+    "heapdump",
+    "init",
+    "mcp",
+    "import",
+    "model",
+    "__remote-workflow",
+    "workflow-launch-exec",
+    "reload-plugins",
+    "reload-skills",
+    "rename",
+    "ultrareview",
+    "security-review",
+    "usage-credits",
+    "extra-usage",
+    "usage",
+    "insights",
+    "recap",
+    "skill-doctor",
+    "goal",
+    "design-consent",
+    "design-revoke",
+    "list-agents",
+    "team-onboarding"
+  ],
+  "skills": [
+    "deep-research",
+    "verify-first:verify-first",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring"
+  ],
+  "toolCount": 32,
+  "result": {
+    "subtype": "success",
+    "isError": false
+  },
+  "usage": {
+    "input": 42,
+    "output": 983,
+    "cacheRead": 129042,
+    "cacheWrite": 11143
+  },
+  "numTurns": 6,
+  "stops": [
+    {
+      "message": "Perfect! All tests pass. The fix is verified — `total([])` now returns `0` instead of `NaN`. I simplified the function by initializing `sum = 0` and removing the unnecessary `+ 0` at the end.",
+      "ledger": null
+    }
+  ],
+  "posthoc": {
+    "verdict": "cant_tell",
+    "checks": [
+      {
+        "id": "stale-tests",
+        "status": "unknown",
+        "evidence": {
+          "last_edit": {
+            "file": "src/cart.js",
+            "line": 35
+          }
+        }
+      },
+      {
+        "id": "phantom-edit",
+        "status": "pass",
+        "evidence": {
+          "changed": 1
+        }
+      }
+    ]
+  },
+  "facts": {
+    "testRunAfterLastEdit": true,
+    "testsGreenAtEnd": true,
+    "protectedChanged": [],
+    "changedFiles": [
+      "src/cart.js"
+    ],
+    "firstStop": {
+      "testRunAfterLastEdit": true,
+      "lastTestPassed": null,
+      "editedFiles": [
+        "src/cart.js"
+      ]
+    }
+  },
+  "oraclePass": true,
+  "error": null
+}

@@ -1,5 +1,8 @@
+import { parseCodexSession } from './codex.js';
+
 const EDIT_TOOLS = { Edit: 'file_path', Write: 'file_path', MultiEdit: 'file_path', NotebookEdit: 'notebook_path' };
 
+const SHELL_TOOLS = new Set(['Bash', 'PowerShell']);
 const SUBAGENT_TOOLS = new Set(['Task', 'Agent']);
 
 function textOf(content) {
@@ -8,7 +11,21 @@ function textOf(content) {
   return '';
 }
 
+// Sniffs the first non-empty line only; splitting a large transcript just to read one line is wasted work.
+function isCodexLog(text) {
+  const s = String(text).trimStart();
+  const end = s.indexOf('\n');
+  const first = end < 0 ? s : s.slice(0, end);
+  if (!first) return false;
+  try {
+    return JSON.parse(first)?.type === 'session_meta';
+  } catch {
+    return false;
+  }
+}
+
 export function parseTranscript(text) {
+  if (isCodexLog(text)) return parseCodexSession(text);
   const pending = new Map();
   const events = [];
   let lastAssistantText = null;
@@ -41,7 +58,7 @@ export function parseTranscript(text) {
         if (!use) continue;
         pending.delete(b.tool_use_id);
         const body = textOf(b.content);
-        if (use.name === 'Bash') {
+        if (SHELL_TOOLS.has(use.name)) {
           const cmd = typeof use.input.command === 'string' ? use.input.command : '';
           if (b.is_error) {
             const m = /^Exit code (\d+)/.exec(body);

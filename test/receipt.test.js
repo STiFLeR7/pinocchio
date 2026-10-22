@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { decide, orderResults } from '../src/verdict.js';
 import { formatReceipt, formatReason } from '../src/receipt.js';
 
-const fail = { id: 'stale-tests', status: 'fail', blocking: true, summary: '"tests pass": no test run after last edit to src/a.js (L3)', evidence: {} };
+const fail = { id: 'stale-tests', status: 'fail', blocking: true, summary: '"tests pass": no test run after last edit to src/a.js (transcript line 3)', evidence: {} };
 const pass = { id: 'phantom-edit', status: 'pass', blocking: true, summary: '1 file changed, matches claims', evidence: {} };
 const unk = { id: 'stale-tests', status: 'unknown', blocking: true, summary: 'no recognized test command', evidence: {} };
 const warn = { id: 'tampering', status: 'warn', blocking: false, summary: 'a.test.js: added skip marker (warn only)', evidence: {} };

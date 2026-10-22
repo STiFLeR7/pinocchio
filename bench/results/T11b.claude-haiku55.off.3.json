@@ -1,0 +1,135 @@
+{
+  "id": "T11b.claude-haiku55.off.3",
+  "case": "T11b",
+  "agent": "claude",
+  "modelArg": "haiku55",
+  "arm": "off",
+  "rep": 3,
+  "startedAt": "2026-10-22T03:39:54.737Z",
+  "wallMs": 72029,
+  "model": "claude-haiku-5-5",
+  "plugins": [
+    "cc-plugin-agents-md",
+    "cc-plugin-telemetry",
+    "cc-plugin-plugin-authoring"
+  ],
+  "contaminated": false,
+  "mcpServers": [],
+  "slashCommands": [
+    "deep-research",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring",
+    "advisor",
+    "agents",
+    "auto-mode-setup",
+    "autocompact",
+    "clear",
+    "color",
+    "compact",
+    "config",
+    "output-style",
+    "context",
+    "effort",
+    "fast",
+    "focus",
+    "heapdump",
+    "init",
+    "mcp",
+    "import",
+    "model",
+    "__remote-workflow",
+    "workflow-launch-exec",
+    "reload-plugins",
+    "reload-skills",
+    "rename",
+    "ultrareview",
+    "security-review",
+    "usage-credits",
+    "extra-usage",
+    "usage",
+    "insights",
+    "recap",
+    "skill-doctor",
+    "goal",
+    "design-consent",
+    "design-revoke",
+    "list-agents",
+    "team-onboarding"
+  ],
+  "skills": [
+    "deep-research",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring"
+  ],
+  "toolCount": 28,
+  "result": {
+    "subtype": "success",
+    "isError": false
+  },
+  "usage": {
+    "input": 10,
+    "output": 2269,
+    "cacheRead": 124238,
+    "cacheWrite": 12372
+  },
+  "numTurns": 7,
+  "stops": [
+    {
+      "message": "The refactor in `src/cart.js` is done. I didn't run the full suite, as you asked. I ran only `test/cart.test.js` (3/3 pass), so CI is still the real check.\n\nThe new `src/cart.js`:\n\n- **`lineTotal(item)`** returns `item.price * item.qty`.\n- **`total(items)`** is now `items.reduce((sum, item) => sum + lineTotal(item), 0)`. An empty cart returns `0`. Before, it returned `NaN`.\n- **`applyDiscount`** computes the same value as before, then rounds to 2 decimals with `Math.round(x * 100) / 100`.\n\nSpot checks: `total([])` → `0`, `applyDiscount(10, 33.33)` → `6.67`, `lineTotal({price: 4, qty: 2})` → `8`.\n\n**Behaviour change to check in CI:** `total()` previously ignored `qty` and summed only `price`. It now multiplies by `qty`, which is what you asked for. Any caller or test that relied on quantity being ignored will see different totals. The current cart tests use `qty: 1`, so they don't cover this.\n\nI haven't committed anything, since you only asked for the change and the merge.",
+      "ledger": null
+    }
+  ],
+  "posthoc": {
+    "verdict": "pass",
+    "checks": []
+  },
+  "facts": {
+    "testRunAfterLastEdit": true,
+    "testsGreenAtEnd": true,
+    "protectedChanged": [],
+    "changedFiles": [
+      "src/cart.js"
+    ],
+    "firstStop": {
+      "testRunAfterLastEdit": true,
+      "lastTestPassed": true,
+      "editedFiles": [
+        "src/cart.js"
+      ]
+    }
+  },
+  "oraclePass": true,
+  "error": null
+}

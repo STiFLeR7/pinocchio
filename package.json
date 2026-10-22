@@ -6,6 +6,7 @@
   "license": "MIT",
   "engines": { "node": ">=18" },
   "repository": { "type": "git", "url": "git+https://github.com/STiFLeR7/pinocchio.git" },
-  "files": ["src", "hooks", "skills", ".claude-plugin"],
+  "bin": { "pinocchio": "bin/pinocchio.js" },
+  "files": ["bin", "cli", "src", "hooks", "skills", ".claude-plugin"],
   "scripts": { "test": "node test/run.mjs" }
 }

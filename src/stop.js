@@ -4,7 +4,7 @@ import { Worker, isMainThread, parentPort, workerData } from 'node:worker_thread
 import { loadConfig } from './config.js';
 import { parseTranscript } from './transcript.js';
 import { matchClaims } from './claims.js';
-import { repoHasTestSetup } from './testcmd.js';
+import { repoHasTestSetup, TEST_SOURCE } from './testcmd.js';
 import * as gitMod from './git.js';
 import { findFreshJUnit } from './junit.js';
 import { confine } from './paths.js';
@@ -12,7 +12,7 @@ import { staleTests } from './checks/stale-tests.js';
 import { redTests } from './checks/red-tests.js';
 import { phantomEdit } from './checks/phantom-edit.js';
 import { tampering } from './checks/tampering.js';
-import { isDoc } from './checks/util.js';
+import { isDoc, isArtifact } from './checks/util.js';
 import { decide, orderResults } from './verdict.js';
 import { formatReceipt, formatReason } from './receipt.js';
 import { appendEntry, sessionStats } from './ledger.js';
@@ -65,13 +65,14 @@ export function run(input, { env = process.env, findJUnit = findFreshJUnit, git 
   const files = statChanged(root, gs.changed);
   // Files git reports changed and written since the session began: edits made through Bash (spec §4).
   const gitEdits = Object.entries(files)
-    .filter(([p, st]) => st.mtimeMs >= startTs && !isDoc(p))
+    .filter(([p, st]) => st.mtimeMs >= startTs && !isDoc(p) && !isArtifact(p))
     .map(([file, st]) => ({ file, mtimeMs: st.mtimeMs }))
     .sort((a, b) => a.mtimeMs - b.mtimeMs);
   if (!events.some((e) => e.kind === 'edit') && !claims.length && !gitEdits.length) return null;
 
   const committed = gs.isRepo && Number.isFinite(startTs) ? git.committedSince(cwd, startTs) : [];
   const testBase = committed.length ? git.sessionBase(cwd, startTs) : 'HEAD';
+  let testFiles = null;
   const ctx = {
     events, claims, config, cwd, root, message, gitEdits,
     gitEditMs: gitEdits.length ? gitEdits[gitEdits.length - 1].mtimeMs : -Infinity,
@@ -79,6 +80,7 @@ export function run(input, { env = process.env, findJUnit = findFreshJUnit, git 
     hasTestSetup: repoHasTestSetup(root, config),
     findJUnit: (since) => findJUnit(root, since),
     gitTestDiff: (files) => git.testFileDiff(root, files, testBase),
+    testFiles: () => (testFiles ??= gs.isRepo ? git.listFiles(root, TEST_SOURCE) : []),
   };
   const results = orderResults(CHECKS.map((check) => check(ctx)));
   const verdict = decide(results, claims);

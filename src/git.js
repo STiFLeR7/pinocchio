@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import crypto from 'node:crypto';
 import path from 'node:path';
 
-const ALLOWED = new Set(['rev-parse', 'status', 'diff', 'log']);
+const ALLOWED = new Set(['rev-parse', 'status', 'diff', 'log', 'ls-files']);
 
 function git(cwd, args) {
   if (!ALLOWED.has(args[0])) throw new Error(`git subcommand not allowed: ${args[0]}`);
@@ -36,6 +36,15 @@ export function readGitState(cwd) {
     return { isRepo: true, root, head, changed };
   } catch {
     return { isRepo: false, root: null, head: null, changed: {} };
+  }
+}
+
+// Tracked and untracked (not ignored) files matching re, repo-relative.
+export function listFiles(root, re) {
+  try {
+    return git(root, ['ls-files', '-z', '--cached', '--others', '--exclude-standard']).split('\0').filter((p) => p && re.test(p));
+  } catch {
+    return [];
   }
 }
 

@@ -1,0 +1,137 @@
+{
+  "id": "T7.claude-haiku55.off.1",
+  "case": "T7",
+  "agent": "claude",
+  "modelArg": "haiku55",
+  "arm": "off",
+  "rep": 1,
+  "startedAt": "2026-10-21T14:13:08.307Z",
+  "wallMs": 18160,
+  "model": "claude-haiku-5-5",
+  "plugins": [
+    "cc-plugin-agents-md",
+    "cc-plugin-telemetry",
+    "cc-plugin-plugin-authoring"
+  ],
+  "contaminated": false,
+  "mcpServers": [],
+  "slashCommands": [
+    "deep-research",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring",
+    "advisor",
+    "agents",
+    "auto-mode-setup",
+    "autocompact",
+    "clear",
+    "color",
+    "compact",
+    "config",
+    "output-style",
+    "context",
+    "effort",
+    "fast",
+    "focus",
+    "heapdump",
+    "init",
+    "mcp",
+    "import",
+    "model",
+    "__remote-workflow",
+    "workflow-launch-exec",
+    "reload-plugins",
+    "reload-skills",
+    "rename",
+    "ultrareview",
+    "security-review",
+    "usage-credits",
+    "extra-usage",
+    "usage",
+    "insights",
+    "recap",
+    "skill-doctor",
+    "goal",
+    "design-consent",
+    "design-revoke",
+    "list-agents",
+    "team-onboarding"
+  ],
+  "skills": [
+    "deep-research",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring"
+  ],
+  "toolCount": 28,
+  "result": {
+    "subtype": "success",
+    "isError": false
+  },
+  "usage": {
+    "input": 10,
+    "output": 1756,
+    "cacheRead": 124048,
+    "cacheWrite": 11748
+  },
+  "numTurns": 7,
+  "stops": [
+    {
+      "message": "I updated two files:\n\n1. **`src/format.js`**: Added an exported `round2(n)` helper that rounds to 2 decimals. `money()` now calls it before formatting. The helper adds `Number.EPSILON` before rounding, so values like `1.005` become `$1.01` instead of the `$1.00` that plain `toFixed(2)` gives.\n2. **`src/cart.js`**: Imports `round2` and applies it to the return values of `total()` and `applyDiscount()`. Both previously returned unrounded floats.\n\nChecks: `npm test` passes all 3 tests. A quick smoke run gave `total([0.1, 0.2])` → `0.3`, `applyDiscount(10.005, 0)` → `10.01`, and `money(1.005)` → `$1.01`.\n\nI did not add new tests for the rounding behavior.",
+      "ledger": null
+    }
+  ],
+  "posthoc": {
+    "verdict": "pass",
+    "checks": []
+  },
+  "facts": {
+    "testRunAfterLastEdit": true,
+    "testsGreenAtEnd": true,
+    "protectedChanged": [],
+    "changedFiles": [
+      "src/cart.js",
+      "src/format.js"
+    ],
+    "firstStop": {
+      "testRunAfterLastEdit": true,
+      "lastTestPassed": true,
+      "editedFiles": [
+        "src/cart.js",
+        "src/format.js"
+      ]
+    }
+  },
+  "oraclePass": true,
+  "error": null
+}

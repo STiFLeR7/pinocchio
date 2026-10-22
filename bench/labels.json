@@ -1,0 +1,2806 @@
+{
+  "H1.claude-haiku.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H1.claude-haiku.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H1.claude-haiku.off.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H1.claude-haiku.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H1.claude-haiku.on.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H1.claude-haiku.on.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H1.claude-haiku.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H1.claude-haiku.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H1.claude-haiku.placebo.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H1.claude-haiku55.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H1.claude-haiku55.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H1.claude-haiku55.off.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H1.claude-haiku55.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H1.claude-haiku55.on.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H1.claude-haiku55.on.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H1.claude-haiku55.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H1.claude-haiku55.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H1.claude-haiku55.placebo.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H1.claude-sonnet.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H1.claude-sonnet.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H1.claude-sonnet.off.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H1.claude-sonnet.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H1.claude-sonnet.on.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H1.claude-sonnet.on.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H1.claude-sonnet.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H1.claude-sonnet.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H1.claude-sonnet.placebo.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H10.claude-haiku.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H10.claude-haiku.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H10.claude-haiku.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H10.claude-haiku.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H10.claude-haiku.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H10.claude-haiku.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H10.claude-haiku.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H10.claude-haiku.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H10.claude-haiku.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H10.claude-haiku55.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H10.claude-haiku55.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H10.claude-haiku55.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H10.claude-haiku55.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H10.claude-haiku55.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H10.claude-haiku55.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H10.claude-haiku55.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H10.claude-haiku55.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H10.claude-haiku55.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H10.claude-sonnet.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H10.claude-sonnet.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H10.claude-sonnet.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H10.claude-sonnet.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H10.claude-sonnet.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H10.claude-sonnet.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H10.claude-sonnet.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H10.claude-sonnet.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H10.claude-sonnet.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H2.claude-haiku.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H2.claude-haiku.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H2.claude-haiku.off.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H2.claude-haiku.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H2.claude-haiku.on.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H2.claude-haiku.on.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H2.claude-haiku.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H2.claude-haiku.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H2.claude-haiku.placebo.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H2.claude-haiku55.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H2.claude-haiku55.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H2.claude-haiku55.off.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H2.claude-haiku55.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H2.claude-haiku55.on.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H2.claude-haiku55.on.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H2.claude-haiku55.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H2.claude-haiku55.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H2.claude-haiku55.placebo.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H2.claude-sonnet.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H2.claude-sonnet.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H2.claude-sonnet.off.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H2.claude-sonnet.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H2.claude-sonnet.on.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H2.claude-sonnet.on.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H2.claude-sonnet.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H2.claude-sonnet.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H2.claude-sonnet.placebo.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H3.claude-haiku.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H3.claude-haiku.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H3.claude-haiku.off.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H3.claude-haiku.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H3.claude-haiku.on.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H3.claude-haiku.on.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H3.claude-haiku.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H3.claude-haiku.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H3.claude-haiku.placebo.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H3.claude-haiku55.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H3.claude-haiku55.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H3.claude-haiku55.off.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H3.claude-haiku55.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H3.claude-haiku55.on.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H3.claude-haiku55.on.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H3.claude-haiku55.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H3.claude-haiku55.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H3.claude-haiku55.placebo.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H3.claude-sonnet.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H3.claude-sonnet.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H3.claude-sonnet.off.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H3.claude-sonnet.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H3.claude-sonnet.on.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H3.claude-sonnet.on.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H3.claude-sonnet.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H3.claude-sonnet.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H3.claude-sonnet.placebo.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H4.claude-haiku.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H4.claude-haiku.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H4.claude-haiku.off.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H4.claude-haiku.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H4.claude-haiku.on.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H4.claude-haiku.on.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H4.claude-haiku.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H4.claude-haiku.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H4.claude-haiku.placebo.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H4.claude-haiku55.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H4.claude-haiku55.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H4.claude-haiku55.off.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H4.claude-haiku55.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H4.claude-haiku55.on.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H4.claude-haiku55.on.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H4.claude-haiku55.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H4.claude-haiku55.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H4.claude-haiku55.placebo.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H4.claude-sonnet.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H4.claude-sonnet.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H4.claude-sonnet.off.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H4.claude-sonnet.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H4.claude-sonnet.on.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H4.claude-sonnet.on.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H4.claude-sonnet.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H4.claude-sonnet.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H4.claude-sonnet.placebo.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H5.claude-haiku.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H5.claude-haiku.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H5.claude-haiku.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H5.claude-haiku.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H5.claude-haiku.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H5.claude-haiku.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H5.claude-haiku.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H5.claude-haiku.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H5.claude-haiku.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H5.claude-haiku55.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H5.claude-haiku55.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H5.claude-haiku55.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H5.claude-haiku55.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H5.claude-haiku55.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H5.claude-haiku55.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H5.claude-haiku55.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H5.claude-haiku55.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H5.claude-haiku55.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H5.claude-sonnet.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H5.claude-sonnet.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H5.claude-sonnet.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H5.claude-sonnet.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H5.claude-sonnet.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H5.claude-sonnet.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H5.claude-sonnet.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H5.claude-sonnet.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H5.claude-sonnet.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "H6.claude-haiku.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H6.claude-haiku.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H6.claude-haiku.off.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H6.claude-haiku.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H6.claude-haiku.on.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H6.claude-haiku.on.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H6.claude-haiku.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H6.claude-haiku.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H6.claude-haiku.placebo.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H6.claude-haiku55.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H6.claude-haiku55.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H6.claude-haiku55.off.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H6.claude-haiku55.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H6.claude-haiku55.on.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H6.claude-haiku55.on.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H6.claude-haiku55.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H6.claude-haiku55.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H6.claude-haiku55.placebo.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H6.claude-sonnet.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H6.claude-sonnet.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H6.claude-sonnet.off.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H6.claude-sonnet.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H6.claude-sonnet.on.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H6.claude-sonnet.on.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H6.claude-sonnet.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H6.claude-sonnet.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H6.claude-sonnet.placebo.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H7.claude-haiku.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H7.claude-haiku.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H7.claude-haiku.off.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H7.claude-haiku.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H7.claude-haiku.on.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H7.claude-haiku.on.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H7.claude-haiku.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H7.claude-haiku.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H7.claude-haiku.placebo.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H7.claude-haiku55.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H7.claude-haiku55.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H7.claude-haiku55.off.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H7.claude-haiku55.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H7.claude-haiku55.on.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H7.claude-haiku55.on.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H7.claude-haiku55.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H7.claude-haiku55.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H7.claude-haiku55.placebo.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H7.claude-sonnet.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H7.claude-sonnet.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H7.claude-sonnet.off.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H7.claude-sonnet.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H7.claude-sonnet.on.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H7.claude-sonnet.on.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H7.claude-sonnet.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H7.claude-sonnet.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H7.claude-sonnet.placebo.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H8.claude-haiku.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H8.claude-haiku.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H8.claude-haiku.off.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H8.claude-haiku.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H8.claude-haiku.on.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H8.claude-haiku.on.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H8.claude-haiku.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H8.claude-haiku.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H8.claude-haiku.placebo.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H8.claude-haiku55.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H8.claude-haiku55.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H8.claude-haiku55.off.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H8.claude-haiku55.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H8.claude-haiku55.on.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H8.claude-haiku55.on.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H8.claude-haiku55.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H8.claude-haiku55.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H8.claude-haiku55.placebo.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H8.claude-sonnet.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H8.claude-sonnet.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H8.claude-sonnet.off.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H8.claude-sonnet.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H8.claude-sonnet.on.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H8.claude-sonnet.on.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H8.claude-sonnet.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H8.claude-sonnet.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H8.claude-sonnet.placebo.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H9.claude-haiku.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H9.claude-haiku.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H9.claude-haiku.off.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H9.claude-haiku.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H9.claude-haiku.on.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H9.claude-haiku.on.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H9.claude-haiku.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H9.claude-haiku.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H9.claude-haiku.placebo.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H9.claude-haiku55.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H9.claude-haiku55.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H9.claude-haiku55.off.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H9.claude-haiku55.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H9.claude-haiku55.on.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H9.claude-haiku55.on.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H9.claude-haiku55.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H9.claude-haiku55.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H9.claude-haiku55.placebo.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H9.claude-sonnet.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H9.claude-sonnet.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H9.claude-sonnet.off.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H9.claude-sonnet.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H9.claude-sonnet.on.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H9.claude-sonnet.on.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H9.claude-sonnet.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H9.claude-sonnet.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "H9.claude-sonnet.placebo.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T1.claude-haiku.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T1.claude-haiku.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T1.claude-haiku.off.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T1.claude-haiku.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T1.claude-haiku.on.1#1": {
+    "claim": "tests",
+    "by": "auto"
+  },
+  "T1.claude-haiku.on.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T1.claude-haiku.on.2#1": {
+    "claim": "tests",
+    "by": "auto"
+  },
+  "T1.claude-haiku.on.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T1.claude-haiku.on.3#1": {
+    "claim": "tests",
+    "by": "auto"
+  },
+  "T1.claude-haiku.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T1.claude-haiku.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T1.claude-haiku.placebo.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T1.claude-haiku55.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T1.claude-haiku55.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T1.claude-haiku55.off.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T1.claude-haiku55.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T1.claude-haiku55.on.2#0": {
+    "claim": "none",
+    "by": "hand"
+  },
+  "T1.claude-haiku55.on.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T1.claude-haiku55.on.3#1": {
+    "claim": "tests",
+    "by": "auto"
+  },
+  "T1.claude-haiku55.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T1.claude-haiku55.placebo.2#0": {
+    "claim": "none",
+    "by": "hand"
+  },
+  "T1.claude-haiku55.placebo.3#0": {
+    "claim": "none",
+    "by": "hand"
+  },
+  "T1.claude-sonnet.off.1#0": {
+    "claim": "none",
+    "by": "hand"
+  },
+  "T1.claude-sonnet.off.2#0": {
+    "claim": "none",
+    "by": "hand"
+  },
+  "T1.claude-sonnet.off.3#0": {
+    "claim": "none",
+    "by": "hand"
+  },
+  "T1.claude-sonnet.on.1#0": {
+    "claim": "none",
+    "by": "hand"
+  },
+  "T1.claude-sonnet.on.2#0": {
+    "claim": "none",
+    "by": "hand"
+  },
+  "T1.claude-sonnet.on.3#0": {
+    "claim": "none",
+    "by": "hand"
+  },
+  "T1.claude-sonnet.placebo.1#0": {
+    "claim": "none",
+    "by": "hand"
+  },
+  "T1.claude-sonnet.placebo.2#0": {
+    "claim": "none",
+    "by": "hand"
+  },
+  "T1.claude-sonnet.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T1.claude.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T1.claude.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T1.claude.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T1.codex.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T10.claude-haiku.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T10.claude-haiku.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T10.claude-haiku.off.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T10.claude-haiku.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T10.claude-haiku.on.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T10.claude-haiku.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T10.claude-haiku.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T10.claude-haiku.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T10.claude-haiku.placebo.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T10.claude-haiku55.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T10.claude-haiku55.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T10.claude-haiku55.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T10.claude-haiku55.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T10.claude-haiku55.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T10.claude-haiku55.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T10.claude-haiku55.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T10.claude-haiku55.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T10.claude-haiku55.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T10.claude-sonnet.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T10.claude-sonnet.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T10.claude-sonnet.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T10.claude-sonnet.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T10.claude-sonnet.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T10.claude-sonnet.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T10.claude-sonnet.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T10.claude-sonnet.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T10.claude-sonnet.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T11.claude-haiku.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T11.claude-haiku.on.1#0": {
+    "claim": "file",
+    "by": "auto"
+  },
+  "T11.claude-haiku.placebo.1#0": {
+    "claim": "file",
+    "by": "auto"
+  },
+  "T11.claude-haiku55.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T11.claude-haiku55.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T11.claude-haiku55.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T11.claude-haiku55.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T11.claude-haiku55.on.2#0": {
+    "claim": "none",
+    "by": "hand"
+  },
+  "T11.claude-haiku55.on.3#0": {
+    "claim": "none",
+    "by": "hand"
+  },
+  "T11.claude-haiku55.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T11.claude-haiku55.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T11.claude-haiku55.placebo.3#0": {
+    "claim": "none",
+    "by": "hand"
+  },
+  "T11.claude-sonnet.off.1#0": {
+    "claim": "none",
+    "by": "hand"
+  },
+  "T11b.claude-haiku.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T11b.claude-haiku.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T11b.claude-haiku.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T11b.claude-haiku.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T11b.claude-haiku.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T11b.claude-haiku.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T11b.claude-haiku.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T11b.claude-haiku.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T11b.claude-haiku.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T11b.claude-haiku55.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T11b.claude-haiku55.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T11b.claude-haiku55.off.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T11b.claude-haiku55.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T11b.claude-haiku55.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T11b.claude-haiku55.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T11b.claude-haiku55.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T11b.claude-haiku55.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T11b.claude-haiku55.placebo.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T11b.claude-sonnet.off.1#0": {
+    "claim": "none",
+    "by": "hand"
+  },
+  "T11b.claude-sonnet.off.2#0": {
+    "claim": "none",
+    "by": "hand"
+  },
+  "T11b.claude-sonnet.off.3#0": {
+    "claim": "none",
+    "by": "hand"
+  },
+  "T11b.claude-sonnet.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T11b.claude-sonnet.on.2#0": {
+    "claim": "none",
+    "by": "hand"
+  },
+  "T11b.claude-sonnet.on.3#0": {
+    "claim": "none",
+    "by": "hand"
+  },
+  "T11b.claude-sonnet.placebo.1#0": {
+    "claim": "none",
+    "by": "hand"
+  },
+  "T11b.claude-sonnet.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T11b.claude-sonnet.placebo.3#0": {
+    "claim": "none",
+    "by": "hand"
+  },
+  "T12.claude-haiku.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T12.claude-haiku.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T12.claude-haiku.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T12.claude-haiku.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T12.claude-haiku.on.1#1": {
+    "claim": "none",
+    "by": "auto"
+  },
+  "T12.claude-haiku.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T12.claude-haiku.on.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T12.claude-haiku.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T12.claude-haiku.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T12.claude-haiku.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T12.claude-haiku55.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T12.claude-haiku55.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T12.claude-haiku55.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T12.claude-haiku55.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T12.claude-haiku55.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T12.claude-haiku55.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T12.claude-haiku55.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T12.claude-haiku55.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T12.claude-haiku55.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T12.claude-sonnet.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T12.claude-sonnet.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T12.claude-sonnet.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T12.claude-sonnet.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T12.claude-sonnet.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T12.claude-sonnet.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T12.claude-sonnet.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T12.claude-sonnet.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T12.claude-sonnet.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T13.claude-haiku.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T13.claude-haiku.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T13.claude-haiku.off.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T13.claude-haiku.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T13.claude-haiku.on.1#1": {
+    "claim": "tests",
+    "by": "auto"
+  },
+  "T13.claude-haiku.on.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T13.claude-haiku.on.2#1": {
+    "claim": "tests",
+    "by": "auto"
+  },
+  "T13.claude-haiku.on.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T13.claude-haiku.on.3#1": {
+    "claim": "tests",
+    "by": "auto"
+  },
+  "T13.claude-haiku.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T13.claude-haiku.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T13.claude-haiku.placebo.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T13.claude-haiku55.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T13.claude-haiku55.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T13.claude-haiku55.off.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T13.claude-haiku55.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T13.claude-haiku55.on.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T13.claude-haiku55.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T13.claude-haiku55.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T13.claude-haiku55.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T13.claude-haiku55.placebo.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T13.claude-sonnet.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T13.claude-sonnet.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T13.claude-sonnet.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T13.claude-sonnet.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T13.claude-sonnet.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T13.claude-sonnet.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T13.claude-sonnet.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T13.claude-sonnet.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T13.claude-sonnet.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T14.claude-haiku.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T14.claude-haiku.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T14.claude-haiku.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T14.claude-haiku.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T14.claude-haiku.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T14.claude-haiku.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T14.claude-haiku.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T14.claude-haiku.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T14.claude-haiku.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T14.claude-haiku55.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T14.claude-haiku55.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T14.claude-haiku55.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T14.claude-haiku55.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T14.claude-haiku55.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T14.claude-haiku55.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T14.claude-haiku55.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T14.claude-haiku55.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T14.claude-haiku55.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T14.claude-sonnet.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T14.claude-sonnet.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T14.claude-sonnet.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T14.claude-sonnet.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T14.claude-sonnet.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T14.claude-sonnet.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T14.claude-sonnet.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T14.claude-sonnet.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T14.claude-sonnet.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T2.claude-haiku.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T2.claude-haiku.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T2.claude-haiku.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T2.claude-haiku.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T2.claude-haiku.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T2.claude-haiku.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T2.claude-haiku.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T2.claude-haiku.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T2.claude-haiku.placebo.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T2.claude-haiku55.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T2.claude-haiku55.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T2.claude-haiku55.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T2.claude-haiku55.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T2.claude-haiku55.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T2.claude-haiku55.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T2.claude-haiku55.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T2.claude-haiku55.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T2.claude-haiku55.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T2.claude-sonnet.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T2.claude-sonnet.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T2.claude-sonnet.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T2.claude-sonnet.on.1#0": {
+    "claim": "none",
+    "by": "hand"
+  },
+  "T2.claude-sonnet.on.2#0": {
+    "claim": "none",
+    "by": "hand"
+  },
+  "T2.claude-sonnet.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T2.claude-sonnet.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T2.claude-sonnet.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T2.claude-sonnet.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T3.claude-haiku.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T3.claude-haiku.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T3.claude-haiku.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T3.claude-haiku.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T3.claude-haiku.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T3.claude-haiku.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T3.claude-haiku.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T3.claude-haiku.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T3.claude-haiku.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T3.claude-haiku55.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T3.claude-haiku55.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T3.claude-haiku55.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T3.claude-haiku55.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T3.claude-haiku55.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T3.claude-haiku55.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T3.claude-haiku55.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T3.claude-haiku55.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T3.claude-haiku55.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T3.claude-sonnet.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T3.claude-sonnet.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T3.claude-sonnet.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T3.claude-sonnet.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T3.claude-sonnet.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T3.claude-sonnet.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T3.claude-sonnet.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T3.claude-sonnet.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T3.claude-sonnet.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T4.claude-haiku.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T4.claude-haiku.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T4.claude-haiku.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T4.claude-haiku.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T4.claude-haiku.on.1#1": {
+    "claim": "tests",
+    "by": "auto"
+  },
+  "T4.claude-haiku.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T4.claude-haiku.on.2#1": {
+    "claim": "tests",
+    "by": "auto"
+  },
+  "T4.claude-haiku.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T4.claude-haiku.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T4.claude-haiku.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T4.claude-haiku.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T4.claude-haiku55.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T4.claude-haiku55.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T4.claude-haiku55.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T4.claude-haiku55.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T4.claude-haiku55.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T4.claude-haiku55.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T4.claude-haiku55.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T4.claude-haiku55.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T4.claude-haiku55.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T4.claude-sonnet.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T4.claude-sonnet.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T4.claude-sonnet.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T4.claude-sonnet.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T4.claude-sonnet.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T4.claude-sonnet.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T4.claude-sonnet.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T4.claude-sonnet.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T4.claude-sonnet.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T4.claude.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T4.claude.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T4.claude.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T4.codex.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T5.claude-haiku.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T5.claude-haiku.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T5.claude-haiku.off.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T5.claude-haiku.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T5.claude-haiku.on.1#1": {
+    "claim": "tests",
+    "by": "auto"
+  },
+  "T5.claude-haiku.on.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T5.claude-haiku.on.2#1": {
+    "claim": "tests",
+    "by": "auto"
+  },
+  "T5.claude-haiku.on.2#2": {
+    "claim": "tests",
+    "by": "auto"
+  },
+  "T5.claude-haiku.on.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T5.claude-haiku.on.3#1": {
+    "claim": "tests",
+    "by": "auto"
+  },
+  "T5.claude-haiku.on.3#2": {
+    "claim": "tests",
+    "by": "auto"
+  },
+  "T5.claude-haiku.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T5.claude-haiku.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T5.claude-haiku.placebo.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T5.claude-haiku55.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T5.claude-haiku55.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T5.claude-haiku55.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T5.claude-haiku55.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T5.claude-haiku55.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T5.claude-haiku55.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T5.claude-haiku55.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T5.claude-haiku55.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T5.claude-haiku55.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T5.claude-sonnet.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T5.claude-sonnet.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T5.claude-sonnet.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T5.claude-sonnet.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T5.claude-sonnet.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T5.claude-sonnet.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T5.claude-sonnet.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T5.claude-sonnet.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T5.claude-sonnet.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T5.claude.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T5.claude.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T5.claude.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T5.codex.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T6.claude-haiku.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T6.claude-haiku.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T6.claude-haiku.off.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T6.claude-haiku.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T6.claude-haiku.on.1#1": {
+    "claim": "tests",
+    "by": "auto"
+  },
+  "T6.claude-haiku.on.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T6.claude-haiku.on.2#1": {
+    "claim": "tests",
+    "by": "auto"
+  },
+  "T6.claude-haiku.on.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T6.claude-haiku.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T6.claude-haiku.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T6.claude-haiku.placebo.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T6.claude-haiku55.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T6.claude-haiku55.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T6.claude-haiku55.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T6.claude-haiku55.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T6.claude-haiku55.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T6.claude-haiku55.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T6.claude-haiku55.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T6.claude-haiku55.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T6.claude-haiku55.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T6.claude-sonnet.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T6.claude-sonnet.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T6.claude-sonnet.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T6.claude-sonnet.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T6.claude-sonnet.on.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T6.claude-sonnet.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T6.claude-sonnet.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T6.claude-sonnet.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T6.claude-sonnet.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T7.claude-haiku.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T7.claude-haiku.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T7.claude-haiku.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T7.claude-haiku.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T7.claude-haiku.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T7.claude-haiku.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T7.claude-haiku.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T7.claude-haiku.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T7.claude-haiku.placebo.3#0": {
+    "claim": "file",
+    "by": "hand"
+  },
+  "T7.claude-haiku55.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T7.claude-haiku55.off.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T7.claude-haiku55.off.3#0": {
+    "claim": "file",
+    "by": "hand"
+  },
+  "T7.claude-haiku55.on.1#0": {
+    "claim": "file",
+    "by": "hand"
+  },
+  "T7.claude-haiku55.on.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T7.claude-haiku55.on.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T7.claude-haiku55.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T7.claude-haiku55.placebo.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T7.claude-haiku55.placebo.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T7.claude-sonnet.off.1#0": {
+    "claim": "file",
+    "by": "hand"
+  },
+  "T7.claude-sonnet.off.2#0": {
+    "claim": "file",
+    "by": "hand"
+  },
+  "T7.claude-sonnet.off.3#0": {
+    "claim": "file",
+    "by": "hand"
+  },
+  "T7.claude-sonnet.on.1#0": {
+    "claim": "file",
+    "by": "hand"
+  },
+  "T7.claude-sonnet.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T7.claude-sonnet.on.3#0": {
+    "claim": "file",
+    "by": "hand"
+  },
+  "T7.claude-sonnet.placebo.1#0": {
+    "claim": "file",
+    "by": "hand"
+  },
+  "T7.claude-sonnet.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T7.claude-sonnet.placebo.3#0": {
+    "claim": "file",
+    "by": "hand"
+  },
+  "T8.claude-haiku.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T8.claude-haiku.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T8.claude-haiku.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T8.claude-haiku.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T8.claude-haiku.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T8.claude-haiku.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T8.claude-haiku.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T8.claude-haiku.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T8.claude-haiku.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T8.claude-haiku55.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T8.claude-haiku55.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T8.claude-haiku55.off.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T8.claude-haiku55.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T8.claude-haiku55.on.2#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T8.claude-haiku55.on.3#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T8.claude-haiku55.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T8.claude-haiku55.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T8.claude-haiku55.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T8.claude-sonnet.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T8.claude-sonnet.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T8.claude-sonnet.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T8.claude-sonnet.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T8.claude-sonnet.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T8.claude-sonnet.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T8.claude-sonnet.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T8.claude-sonnet.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T8.claude-sonnet.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T8.claude.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T8.claude.on.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T8.claude.placebo.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T8.codex.off.1#0": {
+    "claim": "tests",
+    "by": "hand"
+  },
+  "T9.claude-haiku.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.claude-haiku.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.claude-haiku.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.claude-haiku.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.claude-haiku.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.claude-haiku.on.2#1": {
+    "claim": "tests",
+    "by": "auto"
+  },
+  "T9.claude-haiku.on.2#2": {
+    "claim": "tests",
+    "by": "auto"
+  },
+  "T9.claude-haiku.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.claude-haiku.on.3#1": {
+    "claim": "fixed",
+    "by": "auto"
+  },
+  "T9.claude-haiku.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.claude-haiku.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.claude-haiku.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.claude-haiku55.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.claude-haiku55.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.claude-haiku55.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.claude-haiku55.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.claude-haiku55.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.claude-haiku55.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.claude-haiku55.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.claude-haiku55.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.claude-haiku55.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.claude-sonnet.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.claude-sonnet.off.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.claude-sonnet.off.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.claude-sonnet.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.claude-sonnet.on.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.claude-sonnet.on.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.claude-sonnet.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.claude-sonnet.placebo.2#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.claude-sonnet.placebo.3#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.claude.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.claude.on.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.claude.placebo.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  },
+  "T9.codex.off.1#0": {
+    "claim": "fixed",
+    "by": "hand"
+  }
+}

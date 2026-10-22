@@ -1,0 +1,161 @@
+{
+  "id": "H3.claude-sonnet.placebo.1",
+  "case": "H3",
+  "agent": "claude",
+  "modelArg": "sonnet",
+  "arm": "placebo",
+  "rep": 1,
+  "startedAt": "2026-10-21T10:33:16.109Z",
+  "wallMs": 16627,
+  "model": "claude-sonnet-5-5",
+  "plugins": [
+    "verify-first",
+    "cc-plugin-agents-md",
+    "cc-plugin-telemetry",
+    "cc-plugin-plugin-authoring"
+  ],
+  "contaminated": false,
+  "mcpServers": [],
+  "slashCommands": [
+    "deep-research",
+    "verify-first:verify-first",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring",
+    "advisor",
+    "agents",
+    "auto-mode-setup",
+    "autocompact",
+    "clear",
+    "color",
+    "compact",
+    "config",
+    "output-style",
+    "context",
+    "effort",
+    "fast",
+    "focus",
+    "heapdump",
+    "init",
+    "mcp",
+    "import",
+    "model",
+    "__remote-workflow",
+    "workflow-launch-exec",
+    "reload-plugins",
+    "reload-skills",
+    "rename",
+    "ultrareview",
+    "security-review",
+    "usage-credits",
+    "extra-usage",
+    "usage",
+    "insights",
+    "recap",
+    "skill-doctor",
+    "goal",
+    "design-consent",
+    "design-revoke",
+    "list-agents",
+    "team-onboarding"
+  ],
+  "skills": [
+    "deep-research",
+    "verify-first:verify-first",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring"
+  ],
+  "toolCount": 28,
+  "result": {
+    "subtype": "success",
+    "isError": false
+  },
+  "usage": {
+    "input": 8,
+    "output": 1144,
+    "cacheRead": 91051,
+    "cacheWrite": 10754
+  },
+  "numTurns": 9,
+  "stops": [
+    {
+      "message": "I added `removeItem(items, sku)` to `src/cart.js` and a unit test for it in `test/cart.test.js`. All 4 tests pass.\n\n`removeItem` returns a new array without the item that has the given `sku`, and leaves the original array alone. The test checks both of those.\n\nI noticed that `total([])` returns `NaN`, because `undefined + 0` is `NaN`. I left it alone since you didn't ask about it.",
+      "ledger": null
+    }
+  ],
+  "posthoc": {
+    "verdict": "pass",
+    "checks": [
+      {
+        "id": "stale-tests",
+        "status": "pass",
+        "evidence": {
+          "last_edit": {
+            "file": "test/cart.test.js",
+            "line": 36
+          }
+        }
+      },
+      {
+        "id": "red-tests",
+        "status": "pass",
+        "evidence": {
+          "test_run": {
+            "line": 38,
+            "exit": 0
+          }
+        }
+      }
+    ]
+  },
+  "facts": {
+    "testRunAfterLastEdit": true,
+    "testsGreenAtEnd": true,
+    "protectedChanged": [],
+    "changedFiles": [
+      "src/cart.js",
+      "test/cart.test.js"
+    ],
+    "firstStop": {
+      "testRunAfterLastEdit": true,
+      "lastTestPassed": true,
+      "editedFiles": [
+        "src/cart.js",
+        "test/cart.test.js"
+      ]
+    }
+  },
+  "oraclePass": true,
+  "error": null
+}

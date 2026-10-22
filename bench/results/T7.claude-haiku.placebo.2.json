@@ -1,0 +1,138 @@
+{
+  "id": "T7.claude-haiku.placebo.2",
+  "case": "T7",
+  "agent": "claude",
+  "modelArg": "haiku",
+  "arm": "placebo",
+  "rep": 2,
+  "startedAt": "2026-10-21T11:29:44.900Z",
+  "wallMs": 12918,
+  "model": "claude-haiku-4-5-20251001",
+  "plugins": [
+    "verify-first",
+    "cc-plugin-agents-md",
+    "cc-plugin-telemetry",
+    "cc-plugin-plugin-authoring"
+  ],
+  "contaminated": false,
+  "mcpServers": [],
+  "slashCommands": [
+    "deep-research",
+    "verify-first:verify-first",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring",
+    "advisor",
+    "agents",
+    "auto-mode-setup",
+    "autocompact",
+    "clear",
+    "color",
+    "compact",
+    "config",
+    "output-style",
+    "context",
+    "effort",
+    "fast",
+    "focus",
+    "heapdump",
+    "init",
+    "mcp",
+    "import",
+    "model",
+    "__remote-workflow",
+    "workflow-launch-exec",
+    "reload-plugins",
+    "reload-skills",
+    "rename",
+    "ultrareview",
+    "security-review",
+    "usage-credits",
+    "extra-usage",
+    "usage",
+    "insights",
+    "recap",
+    "skill-doctor",
+    "goal",
+    "design-consent",
+    "design-revoke",
+    "list-agents",
+    "team-onboarding"
+  ],
+  "skills": [
+    "deep-research",
+    "verify-first:verify-first",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring"
+  ],
+  "toolCount": 32,
+  "result": {
+    "subtype": "success",
+    "isError": false
+  },
+  "usage": {
+    "input": 26,
+    "output": 1144,
+    "cacheRead": 72714,
+    "cacheWrite": 10878
+  },
+  "numTurns": 5,
+  "stops": [
+    {
+      "message": "**Updated files:**\n- **src/cart.js** — rounded the `total()` function to 2 decimals using `Math.round(sum * 100) / 100`, and rounded the `applyDiscount()` result to 2 decimals\n\n**src/format.js** was already correct — the `money()` function already uses `.toFixed(2)`.",
+      "ledger": null
+    }
+  ],
+  "posthoc": {
+    "verdict": "pass",
+    "checks": []
+  },
+  "facts": {
+    "testRunAfterLastEdit": false,
+    "testsGreenAtEnd": true,
+    "protectedChanged": [],
+    "changedFiles": [
+      "src/cart.js"
+    ],
+    "firstStop": {
+      "testRunAfterLastEdit": false,
+      "lastTestPassed": null,
+      "editedFiles": [
+        "src/cart.js"
+      ]
+    }
+  },
+  "oraclePass": true,
+  "error": null
+}

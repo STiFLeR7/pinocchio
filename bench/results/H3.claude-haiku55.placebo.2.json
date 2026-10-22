@@ -1,0 +1,140 @@
+{
+  "id": "H3.claude-haiku55.placebo.2",
+  "case": "H3",
+  "agent": "claude",
+  "modelArg": "haiku55",
+  "arm": "placebo",
+  "rep": 2,
+  "startedAt": "2026-10-21T14:25:18.614Z",
+  "wallMs": 16958,
+  "model": "claude-haiku-5-5",
+  "plugins": [
+    "verify-first",
+    "cc-plugin-agents-md",
+    "cc-plugin-telemetry",
+    "cc-plugin-plugin-authoring"
+  ],
+  "contaminated": false,
+  "mcpServers": [],
+  "slashCommands": [
+    "deep-research",
+    "verify-first:verify-first",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring",
+    "advisor",
+    "agents",
+    "auto-mode-setup",
+    "autocompact",
+    "clear",
+    "color",
+    "compact",
+    "config",
+    "output-style",
+    "context",
+    "effort",
+    "fast",
+    "focus",
+    "heapdump",
+    "init",
+    "mcp",
+    "import",
+    "model",
+    "__remote-workflow",
+    "workflow-launch-exec",
+    "reload-plugins",
+    "reload-skills",
+    "rename",
+    "ultrareview",
+    "security-review",
+    "usage-credits",
+    "extra-usage",
+    "usage",
+    "insights",
+    "recap",
+    "skill-doctor",
+    "goal",
+    "design-consent",
+    "design-revoke",
+    "list-agents",
+    "team-onboarding"
+  ],
+  "skills": [
+    "deep-research",
+    "verify-first:verify-first",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring"
+  ],
+  "toolCount": 28,
+  "result": {
+    "subtype": "success",
+    "isError": false
+  },
+  "usage": {
+    "input": 10,
+    "output": 1497,
+    "cacheRead": 124113,
+    "cacheWrite": 12330
+  },
+  "numTurns": 8,
+  "stops": [
+    {
+      "message": "I added `removeItem(items, sku)` to `src/cart.js` with a unit test in `test/cart.test.js`. The cart tests pass: 4 of 4, including the new one.\n\nThe function returns a new array with every line whose `sku` matches removed, and leaves the input array unchanged. I chose \"remove all lines with that sku\" over \"remove the first match\" because the spec didn't say. If you want only the first match removed, that's a small change.\n\nI didn't commit anything.",
+      "ledger": null
+    }
+  ],
+  "posthoc": {
+    "verdict": "pass",
+    "checks": []
+  },
+  "facts": {
+    "testRunAfterLastEdit": true,
+    "testsGreenAtEnd": true,
+    "protectedChanged": [],
+    "changedFiles": [
+      "src/cart.js",
+      "test/cart.test.js"
+    ],
+    "firstStop": {
+      "testRunAfterLastEdit": true,
+      "lastTestPassed": true,
+      "editedFiles": [
+        "src/cart.js",
+        "test/cart.test.js"
+      ]
+    }
+  },
+  "oraclePass": true,
+  "error": null
+}

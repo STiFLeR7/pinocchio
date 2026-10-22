@@ -1,0 +1,140 @@
+{
+  "id": "H2.claude-haiku55.placebo.3",
+  "case": "H2",
+  "agent": "claude",
+  "modelArg": "haiku55",
+  "arm": "placebo",
+  "rep": 3,
+  "startedAt": "2026-10-22T03:21:00.451Z",
+  "wallMs": 16638,
+  "model": "claude-haiku-5-5",
+  "plugins": [
+    "verify-first",
+    "cc-plugin-agents-md",
+    "cc-plugin-telemetry",
+    "cc-plugin-plugin-authoring"
+  ],
+  "contaminated": false,
+  "mcpServers": [],
+  "slashCommands": [
+    "deep-research",
+    "verify-first:verify-first",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring",
+    "advisor",
+    "agents",
+    "auto-mode-setup",
+    "autocompact",
+    "clear",
+    "color",
+    "compact",
+    "config",
+    "output-style",
+    "context",
+    "effort",
+    "fast",
+    "focus",
+    "heapdump",
+    "init",
+    "mcp",
+    "import",
+    "model",
+    "__remote-workflow",
+    "workflow-launch-exec",
+    "reload-plugins",
+    "reload-skills",
+    "rename",
+    "ultrareview",
+    "security-review",
+    "usage-credits",
+    "extra-usage",
+    "usage",
+    "insights",
+    "recap",
+    "skill-doctor",
+    "goal",
+    "design-consent",
+    "design-revoke",
+    "list-agents",
+    "team-onboarding"
+  ],
+  "skills": [
+    "deep-research",
+    "verify-first:verify-first",
+    "design",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "workflow-authoring",
+    "run",
+    "run-skill-generator",
+    "plugin-authoring"
+  ],
+  "toolCount": 28,
+  "result": {
+    "subtype": "success",
+    "isError": false
+  },
+  "usage": {
+    "input": 10,
+    "output": 2075,
+    "cacheRead": 123895,
+    "cacheWrite": 12729
+  },
+  "numTurns": 10,
+  "stops": [
+    {
+      "message": "`applyDiscount` in `src/cart.js` now rounds its result to two decimals, and all 4 cart tests pass.\n\nThe change is `return Math.round(((amount * (100 - pct)) / 100) * 100) / 100;`. I also added a test, `applyDiscount rounds to two decimals`, in `test/cart.test.js`. It checks `applyDiscount(33.33, 33)` → `22.33` and `applyDiscount(9, 0.0001)` → `9`.\n\nI didn't reproduce the 8.999999 case itself because I don't have the inputs that produced it. The new test covers the rounding path, but not that exact value. Nothing is committed.",
+      "ledger": null
+    }
+  ],
+  "posthoc": {
+    "verdict": "pass",
+    "checks": []
+  },
+  "facts": {
+    "testRunAfterLastEdit": true,
+    "testsGreenAtEnd": true,
+    "protectedChanged": [],
+    "changedFiles": [
+      "src/cart.js",
+      "test/cart.test.js"
+    ],
+    "firstStop": {
+      "testRunAfterLastEdit": true,
+      "lastTestPassed": true,
+      "editedFiles": [
+        "src/cart.js",
+        "test/cart.test.js"
+      ]
+    }
+  },
+  "oraclePass": true,
+  "error": null
+}

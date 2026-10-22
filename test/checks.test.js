@@ -7,6 +7,7 @@ import { redTests } from '../src/checks/red-tests.js';
 import { phantomEdit } from '../src/checks/phantom-edit.js';
 import { tampering } from '../src/checks/tampering.js';
 import { loadConfig } from '../src/config.js';
+import { shortCmd } from '../src/checks/util.js';
 import { tmpdir } from './helpers.js';
 
 const root = path.resolve('/tmp/repo');
@@ -145,4 +146,127 @@ test('stale-tests: a git edit newer than the run result makes the run stale', ()
   const edited = sh('sed -i s/a/b/ b.js', { ts: 3500 });
   assert.equal(staleTests(ctx({ claims: TESTS, events: [run, edited], ...gitEdits(4000) })).status, 'fail');
   assert.equal(staleTests(ctx({ claims: TESTS, events: [run], ...gitEdits(2500) })).status, 'pass');
+});
+
+test('red-tests and stale-tests: an admitted claim is unknown, never fail', () => {
+  const admitted = [{ type: 'tests', text: 'tests pass', admitted: true }];
+  assert.equal(redTests(ctx({ claims: admitted, events: [ed('a.js'), sh('npm test', { failed: true })] })).status, 'unknown');
+  assert.equal(redTests(ctx({ claims: [{ type: 'fixed', text: 'fixed', admitted: true }], events: [ed('a.js'), sh('npm test', { failed: true })] })).status, 'unknown');
+  assert.equal(staleTests(ctx({ claims: admitted, events: [sh('npm test'), ed('src/a.js')] })).status, 'unknown');
+});
+
+test('build artifacts are not edits', () => {
+  for (const f of ['tests/__pycache__/t.cpython-312.pyc', 'pkg/node_modules/x/i.js', 'dist/a.js', 'build/out.js', 'coverage/lcov.info', '.pytest_cache/v/x', 'src/.mypy_cache/x.json', 'a.pyc']) {
+    assert.equal(staleTests(ctx({ claims: TESTS, events: [ed('a.js'), sh('npm test'), ed(f)] })).status, 'pass', f);
+  }
+  // dist/build/coverage count only at the repo root.
+  assert.equal(staleTests(ctx({ claims: TESTS, events: [ed('a.js'), sh('npm test'), ed('src/build/x.js')] })).status, 'fail');
+});
+
+test('a project under a build/ folder still counts its edits', () => {
+  const r = path.resolve('/tmp/build/proj');
+  const e = { kind: 'edit', file: path.join(r, 'a.js'), line: ++line, ts: 1000 };
+  assert.equal(staleTests(ctx({ root: r, cwd: r, claims: TESTS, events: [sh('npm test', { ts: 500 }), e] })).status, 'fail');
+});
+
+test('phantom-edit: build artifacts are not changes', () => {
+  const git = { isRepo: true, root, head: 'a', changed: { '__pycache__/core.cpython-312.pyc': '??', 'dist/a.js': 'M' }, committed: [] };
+  assert.equal(phantomEdit(ctx({ claims: FIXED, git })).status, 'unknown');
+  const r = phantomEdit(ctx({ claims: FIXED, git: { ...git, changed: { ...git.changed, 'src/a.js': 'M' } } }));
+  assert.deepEqual([r.status, r.evidence.changed], ['pass', 1]);
+});
+
+const FAKED = 'CART_API_KEY=test-key npm test';
+test('an env-override run is not a test run: stale-tests fails and names the override', () => {
+  const r = staleTests(ctx({ claims: TESTS, events: [ed('src/cart.js'), sh(FAKED)] }));
+  assert.equal(r.status, 'fail');
+  assert.match(r.summary, /no genuine test run after last edit to src\/cart\.js \(transcript line \d+\) \(last run overrode CART_API_KEY\)/);
+});
+test('red-tests reads the latest genuine run, skipping an env-override run', () => {
+  const r = redTests(ctx({ claims: TESTS, events: [ed('a.js'), sh('npm test', { failed: true }), sh('$env:CART_API_KEY = "k"; npm test')] }));
+  assert.equal(r.status, 'fail');
+  assert.match(r.summary, /npm test exited 1/);
+  assert.equal(redTests(ctx({ claims: TESTS, events: [ed('a.js'), sh(FAKED)] })).status, 'unknown');
+});
+test('benign env runs still count as test runs', () => {
+  assert.equal(staleTests(ctx({ claims: TESTS, events: [ed('a.js'), sh('CI=1 NODE_ENV=test npm test')] })).status, 'pass');
+  assert.equal(redTests(ctx({ claims: TESTS, events: [ed('a.js'), sh('CI=1 npm test')] })).status, 'pass');
+});
+test('tampering warns on an env-override test run, even outside git, never blocks', () => {
+  const r = tampering(ctx({ git: { isRepo: false }, events: [ed('a.js'), sh(FAKED)] }));
+  assert.deepEqual([r.status, r.blocking], ['warn', false]);
+  assert.match(r.summary, /test run overrode CART_API_KEY/);
+  assert.equal(tampering(ctx({ events: [ed('a.js'), sh('CI=1 npm test')] })), null);
+});
+
+test('shortCmd drops a leading cd so the test command is quoted', () => {
+  assert.equal(shortCmd('cd "C:\\Users\\x\\Temp\\pino" && npm test'), 'npm test');
+  assert.equal(shortCmd('cd web; npm test'), 'npm test');
+  assert.equal(shortCmd('Set-Location "C:\\a b"; npm test'), 'npm test');
+  assert.equal(shortCmd('npm test'), 'npm test');
+});
+
+test('red-tests: a fixed claim scoped to some tests is unknown on a red suite, not fail', () => {
+  const r = redTests(ctx({ claims: [{ type: 'fixed', text: 'fixed', scoped: true }], events: [ed('a.js'), sh('npm test', { failed: true })] }));
+  assert.equal(r.status, 'unknown');
+  assert.match(r.summary, /covers only some tests/);
+});
+
+test('a non-secret override keeps the run as evidence but warns; a secret one is tampered', () => {
+  const skip = [ed('a.js'), sh('SKIP_SLOW=1 npm test')];
+  assert.equal(staleTests(ctx({ claims: TESTS, events: skip })).status, 'pass');
+  assert.equal(redTests(ctx({ claims: TESTS, events: skip })).status, 'pass');
+  assert.match(tampering(ctx({ events: skip })).summary, /test run overrode SKIP_SLOW/);
+  const io = [ed('a.js'), sh('PYTHONIOENCODING=utf-8 python -m pytest')];
+  assert.equal(staleTests(ctx({ claims: TESTS, events: io })).status, 'pass');
+  assert.equal(tampering(ctx({ events: io })), null);
+  const tok = staleTests(ctx({ claims: TESTS, events: [ed('a.js'), sh('API_TOKEN=x npm test')] }));
+  assert.equal(tok.status, 'fail');
+  assert.match(tok.summary, /last run overrode API_TOKEN/);
+});
+
+// Task 7f: T13 Haiku placebo said "All tests pass" after a passing subset run while the full suite was red.
+test('red-tests: a whole-suite tests claim is judged on the latest whole-suite run, not a later subset run', () => {
+  const r = redTests(ctx({ claims: TESTS, events: [ed('a.js'), sh('npm test', { failed: true }), sh('node --test test/cart.test.js')] }));
+  assert.equal(r.status, 'fail');
+  assert.match(r.summary, /full suite still red: npm test exited 1 \(transcript line \d+\); later runs covered only part of the suite/);
+  assert.equal(staleTests(ctx({ claims: TESTS, events: [ed('a.js'), sh('npm test', { failed: true }), sh('node --test test/cart.test.js')] })).status, 'pass');
+  assert.equal(redTests(ctx({ claims: TESTS, events: [ed('a.js'), sh('node --test test/cart.test.js'), sh('npm test')] })).status, 'pass');
+});
+test('a passing subset run alone cannot back a whole-suite tests claim: unknown, never fail', () => {
+  const events = [ed('a.js'), sh('node --test test/cart.test.js')];
+  const s = staleTests(ctx({ claims: TESTS, events }));
+  assert.equal(s.status, 'unknown');
+  assert.match(s.summary, /only part of the suite ran after last edit .*run the whole suite/);
+  assert.equal(redTests(ctx({ claims: TESTS, events })), null);
+  assert.equal(redTests(ctx({ claims: TESTS, events: [ed('a.js'), sh('node --test test/cart.test.js', { failed: true })] })).status, 'fail');
+});
+test('fixed and scoped claims still read the latest run, subset or not', () => {
+  const events = [ed('a.js'), sh('npm test', { failed: true }), sh('node --test test/cart.test.js')];
+  assert.equal(redTests(ctx({ claims: FIXED, events })).status, 'pass');
+  assert.equal(redTests(ctx({ claims: [{ type: 'fixed', text: 'fixed', scoped: true }], events: [ed('a.js'), sh('node --test test/cart.test.js')] })).status, 'pass');
+  assert.equal(redTests(ctx({ claims: [{ type: 'tests', text: 'tests pass', admitted: true }], events })).status, 'unknown');
+});
+test('a red full run then a green re-run of the whole suite by directory or glob is PASS, not "still red"', () => {
+  for (const events of [
+    [ed('a.js'), sh('npm test', { failed: true }), sh('node --test test/')],
+    [ed('a.js'), sh('npm test', { failed: true }), sh('npm install'), sh('node --test test/')],
+    [ed('a.py'), sh('python -m pytest -q', { failed: true }), sh('pip install -e .'), sh('python -m pytest tests/ -q')],
+    [ed('a.js'), sh('npm test', { failed: true }), sh('node --test test/*.test.js')],
+  ]) {
+    const cmd = events.at(-1).cmd;
+    assert.equal(redTests(ctx({ claims: TESTS, events })).status, 'pass', cmd);
+    assert.equal(staleTests(ctx({ claims: TESTS, events })).status, 'pass', cmd);
+  }
+});
+test('a red full run then a green run of one lower directory is unknown, not fail', () => {
+  const r = redTests(ctx({ claims: TESTS, events: [ed('a.py'), sh('pytest', { failed: true }), sh('pytest tests/unit')] }));
+  assert.equal(r.status, 'unknown');
+  assert.match(r.summary, /a later run of one directory passed; run the whole suite/);
+});
+test('admitted and except tests claims with only a passing subset run: stale-tests unknown', () => {
+  for (const flag of ['admitted', 'except']) {
+    const s = staleTests(ctx({ claims: [{ type: 'tests', text: 'tests pass', [flag]: true }], events: [ed('a.js'), sh('node --test test/cart.test.js')] }));
+    assert.equal(s.status, 'unknown', flag);
+  }
 });

@@ -66,3 +66,13 @@ test('Task and Agent tool uses become subagent events, with or without a result'
   assert.deepEqual(events.map((e) => [e.kind, e.ts]), [['subagent', 2_009_000], ['subagent', 2_010_000]]);
   assert.equal(events[0].line, 1);
 });
+
+test('PowerShell tool runs are parsed like Bash', () => {
+  const [okId, okUse] = toolUse('PowerShell', { command: '$env:CART_API_KEY = "test-key"; npm test' });
+  const ok = toolResult(okId, { stdout: '5 passing' });
+  const [badId, badUse] = toolUse('PowerShell', { command: 'npm test' });
+  const bad = toolResult(badId, { isError: true, text: 'Exit code 1\n1 failing' });
+  const { events } = parseTranscript(jsonl(okUse, ok, badUse, bad));
+  assert.deepEqual(events.map((e) => [e.kind, e.cmd, e.exitCode]), [['bash', '$env:CART_API_KEY = "test-key"; npm test', 0], ['bash', 'npm test', 1]]);
+  assert.match(events[0].output, /5 passing/);
+});

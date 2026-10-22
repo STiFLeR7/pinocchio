@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { norm, confine } from '../paths.js';
+import { isArtifact } from './util.js';
 
 const id = 'phantom-edit';
 
@@ -11,7 +12,7 @@ export function phantomEdit(ctx) {
   if (!ctx.git.isRepo) return { id, status: 'unknown', blocking: true, summary: 'not a git repo; cannot confirm changes', evidence: {} };
   const edited = new Set(ctx.events.filter((e) => e.kind === 'edit').map((e) => norm(path.resolve(ctx.cwd, e.file))));
   const gitRoot = ctx.git.root;
-  const changed = new Set([...Object.keys(ctx.git.changed), ...ctx.git.committed].map((p) => norm(path.join(gitRoot, p))));
+  const changed = new Set([...Object.keys(ctx.git.changed), ...ctx.git.committed].filter((p) => !isArtifact(p)).map((p) => norm(path.join(gitRoot, p))));
   const missing = [];
   const outside = [];
   const unlocated = [];

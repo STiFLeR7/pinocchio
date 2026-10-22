@@ -176,6 +176,7 @@ export function score(records, cases, labels, meta = {}) {
       groups, reps: Math.max(0, ...runs.map((x) => x.r.rep)), cases: new Set(runs.map((x) => x.c.id)).size,
       models: [...new Set(runs.map((x) => x.r.model).filter(Boolean))].sort(),
       maxTurns: runs.filter((x) => x.r.result?.subtype === 'error_max_turns').length,
+      notes: Array.isArray(meta.notes) ? meta.notes : [],
     },
     rows, cases: per,
   };
@@ -221,6 +222,7 @@ export function renderResults(m) {
       'Tokens per run are the total (input + cache read + cache write + output), with uncached (input + output) alongside. ' +
       'Latency is in-process check time from the ledger and excludes process start (node startup, worker spawn, hook wrapper). ' +
       'In the replay summary, turns where Pinocchio had nothing to check (no claim, no edit) count as turns but sit in no verdict bucket. Misses are published as measured.',
+    ...(meta.notes.length ? ['', '## Pinocchio versions', '', ...meta.notes.map((n) => `- ${n}`)] : []),
     '',
     '## Metrics',
     '',

@@ -1,6 +1,6 @@
 # Pinocchio onboarding screens (approved 2026-10-21)
 
-Approved by the owner as the target look for `npx @stifler7/pinocchio setup` (spec §8). Step blocks
+Approved by the owner as the target look for `npx @stiflerxd/pinocchio setup` (spec §8). Step blocks
 tick off as they complete: ✔ done (green), ◉ running (yellow), ○ waiting, ✖ failed (red).
 `NO_COLOR` disables colour; terminals without box-drawing glyphs fall back to `+--+` boxes.
 

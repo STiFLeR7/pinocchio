@@ -46,9 +46,9 @@ primary discovery channel. Nexus as a standalone platform scored 2.5/10 on viral
 | D4 | Claim detection | Receipt on any stop after edits; block requires a matched claim phrase AND contradicting evidence. |
 | D5 | v1 checks | stale-tests, red-tests, phantom-edit (blocking); tampering (warn-only). |
 | D6 | Ledger | Hash-chained JSONL in v1; explorer command in v1.1. |
-| D7 | Name | Pinocchio. npm: `@stifler7/pinocchio`, bin `pinocchio`. |
+| D7 | Name | Pinocchio. npm: `@stiflerxd/pinocchio`, bin `pinocchio`. |
 | D8 | Repo | This repo becomes Pinocchio (`STiFLeR7/nexus` -> `STiFLeR7/pinocchio`); Nexus moves to `engine-room/`. |
-| D9 | Install | Native `/plugin` install and `npx @stifler7/pinocchio setup` onboarding. |
+| D9 | Install | Native `/plugin` install and `npx @stiflerxd/pinocchio setup` onboarding. |
 
 ## 4. Architecture
 
@@ -154,7 +154,7 @@ changed by `git status` (covers edits made through Bash).
 
 **Native:** `/plugin marketplace add STiFLeR7/pinocchio` then `/plugin install pinocchio@pinocchio`. Defaults, no setup.
 
-**npx:** `npx @stifler7/pinocchio setup`, step blocks that tick off as completed:
+**npx:** `npx @stiflerxd/pinocchio setup`, step blocks that tick off as completed:
 1. Banner; check Node >= 18, git, Claude Code CLI (and Codex: skill only).
 2. Detect test runner from `package.json`, `pyproject.toml`, `go.mod`, `Cargo.toml`, `Makefile`; propose `testCommands`.
 3. Ask: scope (project / user), mode, commit ledger.
@@ -221,7 +221,7 @@ Results are published exactly as measured, including misses.
 - Stop hook output accepts `decision`, `reason` and `systemMessage` together, and `systemMessage` is not added to model context.
 - `claude plugin eval` and `claude -p --output-format json` expose per-run token usage under subscription auth.
 - `codex exec` runs headless under ChatGPT-subscription auth and writes a parseable session log.
-- `@stifler7` npm scope is available to the owner.
+- npm scope: `@stifler7` did not exist on npm, so the package is published as `@stiflerxd/pinocchio` (the owner's npm user, 2026-10-22).
 
 ## 12. Out of scope for v1 (planned v1.1+)
 

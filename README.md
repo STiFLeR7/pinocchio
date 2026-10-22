@@ -24,7 +24,7 @@ In Claude Code:
 
 That's it. No config, no API keys, no account.
 
-Prefer a guided tour? `npx @stifler7/pinocchio setup` walks you through it in six numbered
+Prefer a guided tour? `npx @stiflerxd/pinocchio setup` walks you through it in six numbered
 steps, shows every file it will touch before writing anything, and ends with a test run.
 
 ## What it sniffs out
@@ -100,15 +100,15 @@ Pinocchio is read-only and offline. Everything it does:
   in about 0.1 s.
 
 The npx installer only writes what its review screen lists, records it, and
-`npx @stifler7/pinocchio uninstall` removes exactly that.
+`npx @stiflerxd/pinocchio uninstall` removes exactly that.
 
 ## CLI
 
 ```
-npx @stifler7/pinocchio setup      # guided install
-npx @stifler7/pinocchio doctor     # is everything wired up?
-npx @stifler7/pinocchio status     # nose count and recent verdicts
-npx @stifler7/pinocchio uninstall  # remove exactly what setup added
+npx @stiflerxd/pinocchio setup      # guided install
+npx @stiflerxd/pinocchio doctor     # is everything wired up?
+npx @stiflerxd/pinocchio status     # nose count and recent verdicts
+npx @stiflerxd/pinocchio uninstall  # remove exactly what setup added
 ```
 
 ## Does it work?

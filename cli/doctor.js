@@ -10,7 +10,7 @@ import { hasHook } from './fallback.js';
 import { loadConfig } from '../src/config.js';
 import { verifyChain } from '../src/ledger.js';
 
-const SETUP = 'run: npx @stifler7/pinocchio setup';
+const SETUP = 'run: npx @stiflerxd/pinocchio setup';
 const PLUGIN = 'pinocchio@pinocchio';
 
 function registration(cwd, home, cli) {
@@ -42,7 +42,7 @@ export function doctor({ cwd = process.cwd(), home = homedir(), ui = createUI(),
     { ok: git.ok, text: `git ${git.version ?? 'not found'}`, fix: 'install git — https://git-scm.com' },
     registration(cwd, home, cli),
     notes.length
-      ? { ok: false, text: `config: ${notes.join('; ')}`, fix: 'fix .claude/pinocchio.json (or delete it and run: npx @stifler7/pinocchio setup)' }
+      ? { ok: false, text: `config: ${notes.join('; ')}`, fix: 'fix .claude/pinocchio.json (or delete it and run: npx @stiflerxd/pinocchio setup)' }
       : { ok: true, text: 'config ok' },
     chain.ok
       ? { ok: true, text: chain.count ? `ledger hash chain intact (${chain.count} entries)` : 'no ledger yet' }

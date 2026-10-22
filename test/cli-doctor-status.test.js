@@ -55,7 +55,7 @@ test('doctor with broken chain reports it', () => {
 test('doctor: unregistered and disabled plugin each name their fix', () => {
   const o = capture();
   assert.equal(doctor({ cwd: tmp(), home: tmp(), ui: o.ui, cli: cliWith([]), system: SYS }), 1);
-  assert.match(o.out, /fix: run: npx @stifler7\/pinocchio setup/);
+  assert.match(o.out, /fix: run: npx @stiflerxd\/pinocchio setup/);
   const d = capture();
   assert.equal(doctor({ cwd: tmp(), home: tmp(), ui: d.ui, cli: cliWith([{ id: 'pinocchio@pinocchio', enabled: false }]), system: SYS }), 1);
   assert.match(d.out, /fix: run: claude plugin enable pinocchio@pinocchio/);
@@ -98,7 +98,7 @@ test('doctor: settings hook whose runtime copy is gone names the setup fix', () 
   const o = capture();
   assert.equal(doctor({ cwd, home, ui: o.ui, cli: noPlugins, system: SYS }), 1);
   assert.match(o.out, /runtime copy is missing/);
-  assert.match(o.out, /fix: run: npx @stifler7\/pinocchio setup/);
+  assert.match(o.out, /fix: run: npx @stiflerxd\/pinocchio setup/);
 });
 
 test('doctor flags missing node and git', () => {

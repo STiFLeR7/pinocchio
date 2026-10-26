@@ -1,5 +1,7 @@
 # 🤥 Pinocchio
 
+**Website:** https://pinocchio.stifler.in
+
 > Your agent's nose grows when it lies.
 
 Your coding agent says **"All tests pass."** Did it run them? After its last edit? Did they pass?
